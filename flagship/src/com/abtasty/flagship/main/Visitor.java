@@ -2,6 +2,7 @@ package com.abtasty.flagship.main;
 
 import java.util.HashMap;
 
+import com.abtasty.flagship.decision.DecisionManager;
 import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.LogLevel;
 import com.abtasty.flagship.utils.LogManager;
@@ -12,6 +13,7 @@ public class Visitor {
     private String visitorId = null;
     private FlagshipConfig config = null;
     private HashMap<String, Object> context = new HashMap<>();
+    private DecisionManager decisionManager = null;
 
     public Visitor(FlagshipConfig config, String visitorId, HashMap<String, Object> context) {
         this.config = config;
@@ -24,6 +26,7 @@ public class Visitor {
                 updateContextValue(e.getKey(), e.getValue());
             }
         }
+        logVisitor();
     }
 
     public void updateContext(String key, Number value) {
@@ -51,16 +54,32 @@ public class Visitor {
                 (value instanceof String || value instanceof Number || value instanceof Boolean ||
                         value instanceof JSONObject || value instanceof JSONArray)) {
             this.context.put(key, value);
-        } else
-            config.logManager.onLog(LogManager.Tag.VISITOR_CONTEXT, LogLevel.WARNING, FlagshipConstants.UPDATE_CONTEXT + FlagshipConstants.CONTEXT_PARAM_ERROR);
+        } else {
+            config.logManager.onLog(LogManager.Tag.UPDATE_CONTEXT, LogLevel.WARNING, FlagshipConstants.CONTEXT_PARAM_ERROR);
+        }
     }
 
-    @Override
-    public String toString() {
-        return "Visitor{" +
-                "visitorId='" + visitorId + '\'' +
-                ", config=" + config +
-                ", context=" + context +
-                '}';
+    public void synchronizeModifications() {
+        this.decisionManager.getCampaigns(visitorId, context);
+    }
+
+    private void logVisitor() {
+        String visitorStr = String.format(FlagshipConstants.VISITOR, visitorId, toJSON().toString());
+        config.logManager.onLog(LogManager.Tag.UPDATE_CONTEXT, LogLevel.INFO, visitorStr);
+    }
+
+    private JSONObject toJSON() {
+        JSONObject json = new JSONObject();
+        json.put("Visitor id", visitorId);
+        JSONObject contextJson = new JSONObject();
+        for (HashMap.Entry<String, Object> e : context.entrySet()) {
+            contextJson.put(e.getKey(), e.getValue());
+        }
+        json.put("context", contextJson);
+        return json;
+    }
+
+    public void setDecisionManager(DecisionManager decisionManager) {
+        this.decisionManager = decisionManager;
     }
 }

@@ -1,11 +1,12 @@
 package com.abtasty.flagship.main;
 
+import com.abtasty.flagship.decision.ApiManager;
+import com.abtasty.flagship.decision.DecisionManager;
 import com.abtasty.flagship.utils.FlagshipExceptionHandler;
 import com.abtasty.flagship.utils.LogLevel;
 import com.abtasty.flagship.utils.LogManager;
 import com.abtasty.flagship.utils.FlagshipConstants;
 import java.util.HashMap;
-import java.util.ResourceBundle;
 
 public class Flagship {
 
@@ -13,13 +14,13 @@ public class Flagship {
 
     FlagshipConfig config = null;
     FlagshipExceptionHandler handler = null;
+    DecisionManager decisionManager = null;
 
     Flagship(FlagshipConfig config) {
         if (config != null)
             this.config = config;
-        handler = new FlagshipExceptionHandler(this.config, Thread.getDefaultUncaughtExceptionHandler());
-        config.logManager.onLog(LogManager.Tag.INITIALIZATION, LogLevel.INFO, "coucou");
-        int i = 1 / 0;
+        decisionManager = new ApiManager(this.config); //todo conditional configuration for bucketing
+//        handler = new FlagshipExceptionHandler(this.config, Thread.getDefaultUncaughtExceptionHandler());
     }
 
     public enum Mode {
@@ -58,7 +59,7 @@ public class Flagship {
             config = new FlagshipConfig();
         config.withEnvId(envId).withApiKey(apiKey);
         if (config.envId == null || config.apiKey == null)
-            config.logManager.onLog(LogManager.Tag.INITIALIZATION, LogLevel.ERROR, FlagshipConstants.UPDATE_CONTEXT + FlagshipConstants.INITIALIZATION_PARAM_ERROR);
+            config.logManager.onLog(LogManager.Tag.INITIALIZATION, LogLevel.ERROR, FlagshipConstants.INITIALIZATION_PARAM_ERROR);
         else
             instance(config);
     }
@@ -78,8 +79,11 @@ public class Flagship {
     }
 
     public static Visitor newVisitor(String visitorId, HashMap<String, Object> context) {
-        if (isReady())
-            return new Visitor(getConfig(), visitorId, (context != null) ? context : new HashMap());
+        if (isReady()) {
+            Visitor visitor = new Visitor(getConfig(), visitorId, (context != null) ? context : new HashMap());
+            visitor.setDecisionManager(instance().decisionManager);
+            return visitor;
+        }
         return null;
     }
 }

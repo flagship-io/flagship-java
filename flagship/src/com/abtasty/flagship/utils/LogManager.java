@@ -12,7 +12,7 @@ public class LogManager implements ILogManager {
         GLOBAL("[GLOBAL]"),
         INITIALIZATION("[INITIALIZATION]"),
         CONFIGURATION("[CONFIGURATION]"),
-        VISITOR_CONTEXT("[VISITOR_CONTEXT]");
+        UPDATE_CONTEXT("[UPDATE_CONTEXT]");
 
         String name = "";
 
@@ -56,6 +56,8 @@ public class LogManager implements ILogManager {
             builder.append(calcDate(record.getMillis()));
             builder.append("]");
 
+            builder.append(record.getMessage());
+
             Object[] params = record.getParameters();
 
             if (params != null)
@@ -92,14 +94,14 @@ public class LogManager implements ILogManager {
         Formatter formatter = new LogFormatter();
         h.setFormatter(formatter);
         logger.setUseParentHandlers(false);
-        logger.addHandler(h);
+        if (logger.getHandlers().length == 0)
+            logger.addHandler(h);
     }
 
     @Override
     public void onLog(Tag tag, LogLevel level, String message) {
         if (checkLogModeAllowed(level) && tag != null && message != null) {
-//            logger.log(level.getValue(), this.mainTag + "[" + level.toString() + "]" + tag.getName() + " " + message);
-            logger.log(level.getValue(), "" + this.mainTag + "[" + level.toString() + "]" + tag.getName() + " " + message);
+            logger.log(level.getValue(), this.mainTag + "[" + level.toString() + "]" + tag.getName() + " " + message);
         }
     }
 
@@ -118,7 +120,7 @@ public class LogManager implements ILogManager {
                 check = true;
                 break;
             case ERRORS:
-                check =  (level == LogLevel.ERROR || level == LogLevel.WARNING);
+                check =  (level == LogLevel.ERROR || level == LogLevel.WARNING || level == LogLevel.EXCEPTION);
                 break;
         }
         return check;

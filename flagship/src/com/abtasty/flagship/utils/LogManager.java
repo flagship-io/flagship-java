@@ -12,7 +12,9 @@ public class LogManager implements ILogManager {
         GLOBAL("[GLOBAL]"),
         INITIALIZATION("[INITIALIZATION]"),
         CONFIGURATION("[CONFIGURATION]"),
-        UPDATE_CONTEXT("[UPDATE_CONTEXT]");
+        UPDATE_CONTEXT("[UPDATE_CONTEXT]"),
+        SYNCHRONIZE("[SYNCHRONIZE]"),
+        CAMPAINGS("[CAMPAIGNS]");
 
         String name = "";
 

@@ -1,6 +1,9 @@
 package com.abtasty.flagship.main;
 
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import com.abtasty.flagship.decision.DecisionManager;
 import com.abtasty.flagship.utils.FlagshipConstants;
@@ -18,6 +21,10 @@ public class Visitor {
     public Visitor(FlagshipConfig config, String visitorId, HashMap<String, Object> context) {
         this.config = config;
         this.visitorId = visitorId;
+    }
+
+    public HashMap<String, Object> getContext() {
+        return context;
     }
 
     public void updateContext(HashMap<String, Object> context) {
@@ -59,13 +66,31 @@ public class Visitor {
         }
     }
 
-    public void synchronizeModifications() {
-        this.decisionManager.getCampaigns(visitorId, context);
+    public interface OnSynchronizedListener {
+        void onSynchronized();
+    }
+
+    public void synchronizeModifications(OnSynchronizedListener listener) {
+        CompletableFuture.runAsync(() -> {
+            try {
+                this.decisionManager.getCampaigns(visitorId, context);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).whenCompleteAsync((Void, error) -> {
+            if (listener != null)
+                listener.onSynchronized();
+        });
     }
 
     private void logVisitor() {
         String visitorStr = String.format(FlagshipConstants.VISITOR, visitorId, toJSON().toString());
         config.logManager.onLog(LogManager.Tag.UPDATE_CONTEXT, LogLevel.INFO, visitorStr);
+    }
+
+    @Override
+    public String toString() {
+        return toJSON().toString();
     }
 
     private JSONObject toJSON() {

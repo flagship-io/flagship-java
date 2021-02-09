@@ -59,24 +59,20 @@ public class HttpHelper {
             out.close();
         }
         Response response = parseResponse(conn);
+        response.setRequestHeaders(headers);
+        response.setRequestUrl(uri);
+        response.setRequestContent(content);
+        response.setType(type);
         return response;
     }
 
-
-    public static void function(IResponse2 r) {
-        r.accept("coucou", 3, true);
-    }
-
-    public static void sendAsyncHttpRequest(RequestType type,
+    public static CompletableFuture<Response> sendAsyncHttpRequest(RequestType type,
                                             String uri,
                                             HashMap<String, String> headers,
                                             String content,
                                             IResponse responseCallback) {
 
-        function((title, age, is) -> {
-            System.out.println("=> " + title + " " + age + " " + is);
-        });
-        CompletableFuture<Response> future = CompletableFuture.supplyAsync(() -> {
+        return CompletableFuture.supplyAsync(() -> {
             try {
                 return sendHttpRequest(type, uri, headers, content);
             } catch (IOException e) {

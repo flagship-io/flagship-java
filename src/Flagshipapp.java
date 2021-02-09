@@ -15,8 +15,14 @@ public class Flagshipapp {
 //        hashMap.put("Age", new FlagshipConfig());
         hashMap.put("Age", 31);
         visitor.updateContext(hashMap);
-        visitor.synchronizeModifications();
-        System.out.println("Here cap : " + visitor.toString());
-
+        visitor.synchronizeModifications(() -> {
+            System.out.println("Here cap 2 : " + visitor.toString());
+        });
+        System.out.println("Here cap 1 : " + visitor.toString());
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

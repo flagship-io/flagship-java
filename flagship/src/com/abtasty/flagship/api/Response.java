@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 public class Response {
 
+    public HttpHelper.RequestType type = HttpHelper.RequestType.GET;
     public String requestUrl = "";
     public String requestContent = "";
     public HashMap<String, String> requestHeaders = new HashMap();
@@ -13,8 +14,8 @@ public class Response {
     public String responseMessage = "";
     public HashMap<String, String> responseHeaders = new HashMap();
 
-    public Response(int coder, String content, String message, HashMap<String, String> headers) {
-        this.responseCode = coder;
+    public Response(int code, String content, String message, HashMap<String, String> headers) {
+        this.responseCode = code;
         this.responseContent = content;
         this.responseMessage = message;
         this.responseHeaders = headers;
@@ -82,5 +83,13 @@ public class Response {
 
     public String getResponseheader(String field) {
         return this.responseHeaders.get(field);
+    }
+
+    public HttpHelper.RequestType getType() {
+        return type;
+    }
+
+    public void setType(HttpHelper.RequestType type) {
+        this.type = type;
     }
 }

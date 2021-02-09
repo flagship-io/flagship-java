@@ -70,7 +70,7 @@ public class Flagship {
         return true;
     }
 
-    private static FlagshipConfig getConfig() {
+    public static FlagshipConfig getConfig() {
         return instance().config;
     }
 

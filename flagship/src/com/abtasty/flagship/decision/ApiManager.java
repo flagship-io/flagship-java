@@ -4,6 +4,9 @@ import com.abtasty.flagship.api.HttpHelper;
 import com.abtasty.flagship.api.Response;
 import com.abtasty.flagship.main.FlagshipConfig;
 import com.abtasty.flagship.main.Visitor;
+import com.abtasty.flagship.model.Campaign;
+import com.abtasty.flagship.utils.LogLevel;
+import com.abtasty.flagship.utils.LogManager;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -13,7 +16,12 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 
 public class ApiManager extends DecisionManager {
@@ -23,7 +31,7 @@ public class ApiManager extends DecisionManager {
     }
 
     @Override
-    public void getCampaigns(String visitorId, HashMap<String, Object> context) {
+    public ArrayList<Campaign> getCampaigns(String visitorId, HashMap<String, Object> context) {
 
         HashMap<String, String> headers = new HashMap<String, String>();
         headers.put("x-api-key", config.apiKey);
@@ -35,23 +43,26 @@ public class ApiManager extends DecisionManager {
         json.put("visitorId", visitorId);
         json.put("trigger_hit", false);
         json.put("context", jsonContext);
-        HttpHelper.sendAsyncHttpRequest(HttpHelper.RequestType.POST, DECISION_API + config.envId + CAMPAIGNS, headers, json.toString(), new HttpHelper.IResponse() {
-                    @Override
-                    public void onSuccess(Response response) {
-                        System.out.println("SUCCESS : " + response.responseContent);
-                    }
+        ArrayList<Campaign> campaigns  = new ArrayList();
+        try {
+            Response response = HttpHelper.sendHttpRequest(HttpHelper.RequestType.POST, DECISION_API + config.envId + CAMPAIGNS, headers, json.toString());
+            if (response != null) {
+                logResponse(response);
+                parseCampaigns(response.getResponseContent());
+            }
+        } catch (IOException e) {
+            config.logManager.onLog(LogManager.Tag.SYNCHRONIZE, LogLevel.ERROR, e.getMessage());
+        }
+        return campaigns;
+    }
 
-                    @Override
-                    public void onFailure(Response response) {
-                        System.out.println("FAIL : " + response.responseContent);
-                    }
-
-                    @Override
-                    public void onException(Exception e) {
-                        System.out.println("EXCEPTION : " + e.getMessage());
-                    }
-                }
-        );
+    private void logResponse(Response response) {
+        StringBuilder message = new StringBuilder();
+        message.append("[" + response.getType() + "]")
+                .append(" " + response.getRequestUrl() + " ")
+                .append("[" + response.getResponseCode() + "]")
+                .append(" " + response.getResponseContent() + " ");
+        config.logManager.onLog(LogManager.Tag.CAMPAINGS, response.isSuccess() ? LogLevel.INFO : LogLevel.ERROR, message.toString());
     }
 
     @Override

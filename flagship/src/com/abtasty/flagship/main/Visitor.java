@@ -1,22 +1,27 @@
 package com.abtasty.flagship.main;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-
 import com.abtasty.flagship.decision.DecisionManager;
+import com.abtasty.flagship.model.Campaign;
+import com.abtasty.flagship.model.Modification;
 import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.LogLevel;
 import com.abtasty.flagship.utils.LogManager;
+import com.sun.org.apache.xpath.internal.operations.Mod;
 import org.json.*;
 
 public class Visitor {
 
-    private String visitorId = null;
-    private FlagshipConfig config = null;
-    private HashMap<String, Object> context = new HashMap<>();
-    private DecisionManager decisionManager = null;
+    private String                          visitorId = null;
+    private FlagshipConfig                  config = null;
+    private HashMap<String, Object>         context = new HashMap<>();
+    private HashMap<String, Modification>   modifications = new HashMap<>();
+    private DecisionManager                 decisionManager = null;
 
     public Visitor(FlagshipConfig config, String visitorId, HashMap<String, Object> context) {
         this.config = config;
@@ -73,7 +78,9 @@ public class Visitor {
     public void synchronizeModifications(OnSynchronizedListener listener) {
         CompletableFuture.runAsync(() -> {
             try {
-                this.decisionManager.getCampaigns(visitorId, context);
+                ArrayList<Campaign> campaigns = this.decisionManager.getCampaigns(visitorId, context);
+                this.modifications.clear();
+                this.modifications.putAll(this.decisionManager.getModifications(campaigns));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -84,7 +91,7 @@ public class Visitor {
     }
 
     private void logVisitor() {
-        String visitorStr = String.format(FlagshipConstants.VISITOR, visitorId, toJSON().toString());
+        String visitorStr = String.format(FlagshipConstants.VISITOR, visitorId, toString());
         config.logManager.onLog(LogManager.Tag.UPDATE_CONTEXT, LogLevel.INFO, visitorStr);
     }
 
@@ -100,7 +107,12 @@ public class Visitor {
         for (HashMap.Entry<String, Object> e : context.entrySet()) {
             contextJson.put(e.getKey(), e.getValue());
         }
+        JSONObject modificationJson = new JSONObject();
+        this.modifications.forEach((flag, modification) -> {
+            modificationJson.put(flag, modification.getValue());
+        });
         json.put("context", contextJson);
+        json.put("modifications", modificationJson);
         return json;
     }
 

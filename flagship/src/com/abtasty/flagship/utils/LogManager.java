@@ -14,7 +14,8 @@ public class LogManager implements ILogManager {
         CONFIGURATION("[CONFIGURATION]"),
         UPDATE_CONTEXT("[UPDATE_CONTEXT]"),
         SYNCHRONIZE("[SYNCHRONIZE]"),
-        CAMPAINGS("[CAMPAIGNS]");
+        CAMPAINGS("[CAMPAIGNS]"),
+        PARSING("[PARSING]");
 
         String name = "";
 

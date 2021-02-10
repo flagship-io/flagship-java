@@ -64,9 +64,4 @@ public class ApiManager extends DecisionManager {
                 .append(" " + response.getResponseContent() + " ");
         config.logManager.onLog(LogManager.Tag.CAMPAINGS, response.isSuccess() ? LogLevel.INFO : LogLevel.ERROR, message.toString());
     }
-
-    @Override
-    public void getModifications() {
-
-    }
 }

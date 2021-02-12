@@ -26,8 +26,8 @@ public class FlagshipExceptionHandler implements Thread.UncaughtExceptionHandler
                 StringWriter writer = new StringWriter();
                 PrintWriter printer = new PrintWriter(writer);
                 e.printStackTrace(printer);
-                if (config != null && config.logManager != null)
-                    config.logManager.onException(LogManager.Tag.GLOBAL, LogLevel.EXCEPTION, writer.toString());
+                if (config != null && config.getLogManager() != null)
+                    config.getLogManager().onException(LogManager.Tag.GLOBAL, LogLevel.EXCEPTION, writer.toString());
                 try {
                     printer.close();
                     writer.close();

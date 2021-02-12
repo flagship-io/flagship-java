@@ -1,4 +1,6 @@
 
+import com.abtasty.flagship.hits.Hit;
+import com.abtasty.flagship.hits.Page;
 import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.main.FlagshipConfig;
 import com.abtasty.flagship.main.Visitor;
@@ -11,18 +13,26 @@ public class Flagshipapp {
 //        Flagship.start("my env id", "my api key", new FlagshipConfig());
         Flagship.start("bkk4s7gcmjcg07fke9dg", "Q6FDmj6F188nh75lhEato2MwoyXDS7y34VrAL4Aa", new FlagshipConfig());
         Visitor visitor = Flagship.newVisitor("toto");
-        HashMap<String, Object> hashMap = new HashMap();
+        HashMap<String, Object> hashMap = new HashMap<String, Object>();
 //        hashMap.put("Age", new FlagshipConfig());
         hashMap.put("Age", 31);
+        hashMap.put("isVIPUser", false);
         visitor.updateContext(hashMap);
-        visitor.synchronizeModifications(() -> {
-            System.out.println("Here cap 2 : " + visitor.toString());
+        visitor.updateContext("title", "Grand Mamamouchi", () -> {
+            System.out.println("Update context synchronized");
         });
-        System.out.println("Here cap 1 : " + visitor.toString());
+        visitor.synchronizeModifications(() -> {
+            String value = visitor.getModification("isref", "coucou");
+            System.out.println("value => " + value);
+            visitor.activateModification("isref");
+        });
         try {
-            Thread.sleep(2000);
+            Thread.sleep(4000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+//        Page p = new Page("www.java.com/version1");
+
     }
 }

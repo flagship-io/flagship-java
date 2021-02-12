@@ -69,7 +69,7 @@ public class Variation implements Serializable {
             int allocation = variationObj.optInt("allocation", -1);
             return new Variation(campaignId, variationGroupId, variationId, isReference, modifications, allocation);
         } catch (Exception e) {
-            Flagship.getConfig().logManager.onLog(LogManager.Tag.PARSING, LogLevel.ERROR, FlagshipConstants.PARSING_VARIATION_ERROR);
+            LogManager.log(LogManager.Tag.PARSING, LogLevel.ERROR, FlagshipConstants.Errors.PARSING_VARIATION_ERROR);
             return null;
         }
     }

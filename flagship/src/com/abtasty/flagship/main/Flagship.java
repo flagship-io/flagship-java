@@ -58,14 +58,14 @@ public class Flagship {
         if (config == null)
             config = new FlagshipConfig();
         config.withEnvId(envId).withApiKey(apiKey);
-        if (config.envId == null || config.apiKey == null)
-            config.logManager.onLog(LogManager.Tag.INITIALIZATION, LogLevel.ERROR, FlagshipConstants.INITIALIZATION_PARAM_ERROR);
+        if (config.getEnvId() == null || config.getApiKey() == null)
+            LogManager.log(LogManager.Tag.INITIALIZATION, LogLevel.ERROR, FlagshipConstants.Errors.INITIALIZATION_PARAM_ERROR);
         else
             instance(config);
     }
 
     public static Boolean isReady() {
-        if (instance == null || instance.config == null || instance.config.apiKey == null || instance.config.envId == null)
+        if (instance == null || instance.config == null || instance.config.getApiKey() == null || instance.config.getEnvId() == null)
             return false;
         return true;
     }

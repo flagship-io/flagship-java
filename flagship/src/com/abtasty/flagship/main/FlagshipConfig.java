@@ -1,14 +1,16 @@
 package com.abtasty.flagship.main;
 
+import com.abtasty.flagship.api.TrackingManager;
 import com.abtasty.flagship.utils.LogLevel;
 import com.abtasty.flagship.utils.LogManager;
 
 public class FlagshipConfig {
 
-    public String envId = null;
-    public String apiKey = null;
-    public Flagship.Mode decisionMode = Flagship.Mode.DECISION_API;
-    public LogManager logManager = new LogManager(Flagship.Log.ALL);
+    private String           envId = null;
+    private String           apiKey = null;
+    private Flagship.Mode    decisionMode = Flagship.Mode.DECISION_API;
+    private LogManager       logManager = new LogManager(Flagship.Log.ALL);
+    private TrackingManager  trackingManager = new TrackingManager();
 
     public FlagshipConfig() {
     }
@@ -43,6 +45,26 @@ public class FlagshipConfig {
 
     public Flagship start() {
         return Flagship.instance(this);
+    }
+
+    public String getEnvId() {
+        return envId;
+    }
+
+    public String getApiKey() {
+        return apiKey;
+    }
+
+    public Flagship.Mode getDecisionMode() {
+        return decisionMode;
+    }
+
+    public LogManager getLogManager() {
+        return logManager;
+    }
+
+    public TrackingManager getTrackingManager() {
+        return trackingManager;
     }
 
     @Override

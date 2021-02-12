@@ -1,18 +1,16 @@
 package com.abtasty.flagship.main;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import com.abtasty.flagship.decision.DecisionManager;
+import com.abtasty.flagship.hits.Activate;
+import com.abtasty.flagship.hits.Hit;
 import com.abtasty.flagship.model.Campaign;
 import com.abtasty.flagship.model.Modification;
 import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.LogLevel;
 import com.abtasty.flagship.utils.LogManager;
-import com.sun.org.apache.xpath.internal.operations.Mod;
 import org.json.*;
 
 public class Visitor {
@@ -28,47 +26,43 @@ public class Visitor {
         this.visitorId = visitorId;
     }
 
-    public HashMap<String, Object> getContext() {
-        return context;
+    protected void setDecisionManager(DecisionManager decisionManager) {
+        this.decisionManager = decisionManager;
     }
 
     public void updateContext(HashMap<String, Object> context) {
+        this.updateContext(context, null);
+    }
+    public void updateContext(HashMap<String, Object> context, OnSynchronizedListener listener) {
         if (context != null) {
             for (HashMap.Entry<String, Object> e : context.entrySet()) {
-                updateContextValue(e.getKey(), e.getValue());
+                this.updateContextValue(e.getKey(), e.getValue(), listener);
             }
         }
-        logVisitor();
+        this.logVisitor(LogManager.Tag.UPDATE_CONTEXT);
     }
 
-    public void updateContext(String key, Number value) {
-        updateContextValue(key, value);
+    public HashMap<String, Object> getContext() {
+        return this.context;
     }
 
-    public void updateContext(String key, Boolean value) {
-        updateContextValue(key, value);
-    }
+    public <T> void updateContext(String key, T value) {
+        this.updateContext(key, value, null);
+    };
 
-    public void updateContext(String key, String value) {
-        updateContextValue(key, value);
-    }
+    public <T> void updateContext(String key, T value, OnSynchronizedListener listener) {
+        this.updateContextValue(key, value, listener);
+    };
 
-    public void updateContext(String key, JSONObject value) {
-        updateContextValue(key, value);
-    }
-
-    public void updateContext(String key, JSONArray value) {
-        updateContextValue(key, value);
-    }
-
-    private void updateContextValue(String key, Object value) {
+    private void updateContextValue(String key, Object value, OnSynchronizedListener listener) {
         if (key != null && value != null &&
                 (value instanceof String || value instanceof Number || value instanceof Boolean ||
                         value instanceof JSONObject || value instanceof JSONArray)) {
             this.context.put(key, value);
-        } else {
-            config.logManager.onLog(LogManager.Tag.UPDATE_CONTEXT, LogLevel.WARNING, FlagshipConstants.CONTEXT_PARAM_ERROR);
-        }
+        } else
+            LogManager.log(LogManager.Tag.UPDATE_CONTEXT, LogLevel.WARNING, FlagshipConstants.Errors.CONTEXT_PARAM_ERROR);
+        if (listener != null)
+            synchronizeModifications(listener);
     }
 
     public interface OnSynchronizedListener {
@@ -80,29 +74,69 @@ public class Visitor {
             try {
                 ArrayList<Campaign> campaigns = this.decisionManager.getCampaigns(visitorId, context);
                 this.modifications.clear();
-                this.modifications.putAll(this.decisionManager.getModifications(campaigns));
+                HashMap<String, Modification> modifications = this.decisionManager.getModifications(campaigns);
+                if (modifications != null)
+                    this.modifications.putAll(modifications);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }).whenCompleteAsync((Void, error) -> {
+            logVisitor(LogManager.Tag.SYNCHRONIZE);
             if (listener != null)
                 listener.onSynchronized();
         });
     }
 
-    private void logVisitor() {
-        String visitorStr = String.format(FlagshipConstants.VISITOR, visitorId, toString());
-        config.logManager.onLog(LogManager.Tag.UPDATE_CONTEXT, LogLevel.INFO, visitorStr);
+    private void logVisitor(LogManager.Tag tag) {
+        String visitorStr = String.format(FlagshipConstants.Errors.VISITOR, visitorId, toString());
+        LogManager.log(tag, LogLevel.INFO, visitorStr);
+    }
+
+    public <T> T getModification(String key, T defaultValue) {
+        return this.getModification(key, defaultValue, false);
+    }
+
+    public <T> T getModification(String key, T defaultValue, boolean activate) {
+        try {
+            if (key == null) {
+                LogManager.log(LogManager.Tag.GET_MODIFICATION, LogLevel.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_KEY_ERROR, key));
+            } else if (!this.modifications.containsKey(key)) {
+                config.getLogManager().onLog(LogManager.Tag.GET_MODIFICATION, LogLevel.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_MISSING_ERROR, key));
+            } else {
+                Modification modification = this.modifications.get(key);
+                Object castValue = ((T) modification.getValue());
+                if (castValue.getClass().equals(defaultValue.getClass())) {
+                    if (activate)
+                        activateModification(modification);
+                    return (T) castValue;
+                } else
+                    config.getLogManager().onLog(LogManager.Tag.GET_MODIFICATION, LogLevel.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_CAST_ERROR, key));
+            }
+        } catch (Exception e) {
+            config.getLogManager().onLog(LogManager.Tag.GET_MODIFICATION, LogLevel.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_ERROR, key));
+        }
+        return defaultValue;
+    }
+
+    public void activateModification(String key) {
+        this.getModification(key, null, true);
+    }
+
+    private void activateModification(Modification modification) {
+        if (modification != null) {
+            this.sendHit(new Activate(modification));
+        }
+    }
+
+    public void sendHit(Hit hit) {
+        if (hit != null && hit.checkData())
+            config.getTrackingManager().sendHit(visitorId, hit);
     }
 
     @Override
     public String toString() {
-        return toJSON().toString();
-    }
-
-    private JSONObject toJSON() {
         JSONObject json = new JSONObject();
-        json.put("Visitor id", visitorId);
+        json.put("visitorId", visitorId);
         JSONObject contextJson = new JSONObject();
         for (HashMap.Entry<String, Object> e : context.entrySet()) {
             contextJson.put(e.getKey(), e.getValue());
@@ -113,10 +147,6 @@ public class Visitor {
         });
         json.put("context", contextJson);
         json.put("modifications", modificationJson);
-        return json;
-    }
-
-    public void setDecisionManager(DecisionManager decisionManager) {
-        this.decisionManager = decisionManager;
+        return json.toString(2);
     }
 }

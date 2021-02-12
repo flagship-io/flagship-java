@@ -21,6 +21,7 @@ public class VariationGroup implements Serializable {
         this.campaignId = campaignId;
         this.variationGroupId = variationGroupId;
         this.targetingGroups = targetingGroups;
+        this.variations = variations;
         this.selectedVariationId = selectedVariationId;
     }
 
@@ -62,7 +63,7 @@ public class VariationGroup implements Serializable {
             }
             return new VariationGroup(campaignId, variationGroupId, variations, targetingGroups, selectedVariationId);
         } catch (Exception e) {
-            Flagship.getConfig().logManager.onLog(LogManager.Tag.PARSING, LogLevel.ERROR, FlagshipConstants.PARSING_VARIATIONGROUP_ERROR);
+            LogManager.log(LogManager.Tag.PARSING, LogLevel.ERROR, FlagshipConstants.Errors.PARSING_VARIATIONGROUP_ERROR);
             return null;
         }
     }

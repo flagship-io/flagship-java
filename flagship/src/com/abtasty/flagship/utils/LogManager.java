@@ -15,7 +15,11 @@ public class LogManager implements ILogManager {
         UPDATE_CONTEXT("[UPDATE_CONTEXT]"),
         SYNCHRONIZE("[SYNCHRONIZE]"),
         CAMPAINGS("[CAMPAIGNS]"),
-        PARSING("[PARSING]");
+        PARSING("[PARSING]"),
+        GET_MODIFICATION("[GET_MODIFICATION]"),
+        TRACKING("[HIT]"),
+        ACTIVATE("[ACTIVATE]");
+
 
         String name = "";
 
@@ -30,29 +34,29 @@ public class LogManager implements ILogManager {
 
     public class LogFormatter extends Formatter {
 
-        public static final String ANSI_RESET = "\u001B[0m";
-        public static final String ANSI_BLACK = "\u001B[30m";
-        public static final String ANSI_RED = "\u001B[31m";
-        public static final String ANSI_GREEN = "\u001B[32m";
-        public static final String ANSI_YELLOW = "\u001B[33m";
-        public static final String ANSI_BLUE = "\u001B[34m";
-        public static final String ANSI_PURPLE = "\u001B[35m";
-        public static final String ANSI_CYAN = "\u001B[36m";
-        public static final String ANSI_WHITE = "\u001B[37m";
+        public static final String RESET = "\033[0m";
+        public static final String BLACK = "\033[0;30m";
+        public static final String RED = "\033[0;31m";
+        public static final String GREEN = "\033[0;32m";
+        public static final String YELLOW = "\033[0;33m";
+        public static final String BLUE = "\033[0;34m";
+        public static final String PURPLE = "\033[0;35m";
+        public static final String CYAN = "\033[0;36m";
+        public static final String WHITE = "\033[0;2m";
 
         @Override
         public String format(LogRecord record) {
             StringBuilder builder = new StringBuilder();
 
             Level level = record.getLevel();
-            if(level == Level.INFO) {
-                builder.append(ANSI_GREEN);
-            } else if(level == Level.WARNING) {
-                builder.append(ANSI_YELLOW);
-            } else if(level == Level.SEVERE) {
-                builder.append(ANSI_RED);
+            if (level == Level.INFO) {
+                builder.append(WHITE);
+            } else if (level == Level.WARNING) {
+                builder.append(YELLOW);
+            } else if (level == Level.SEVERE) {
+                builder.append(RED);
             } else {
-                builder.append(ANSI_WHITE);
+                builder.append(WHITE);
             }
 
             builder.append("[");
@@ -62,7 +66,6 @@ public class LogManager implements ILogManager {
             builder.append(record.getMessage());
 
             Object[] params = record.getParameters();
-
             if (params != null)
             {
                 builder.append("\t");
@@ -73,8 +76,7 @@ public class LogManager implements ILogManager {
                         builder.append(", ");
                 }
             }
-
-            builder.append(ANSI_RESET);
+            builder.append(RESET);
             builder.append("\n");
             return builder.toString();
         }
@@ -99,6 +101,10 @@ public class LogManager implements ILogManager {
         logger.setUseParentHandlers(false);
         if (logger.getHandlers().length == 0)
             logger.addHandler(h);
+    }
+
+    public static void log(Tag tag, LogLevel level, String message) {
+        Flagship.getConfig().getLogManager().onLog(tag, level, message);
     }
 
     @Override

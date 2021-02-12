@@ -4,7 +4,6 @@ import com.abtasty.flagship.api.IFlagshipEndpoints;
 import com.abtasty.flagship.main.FlagshipConfig;
 import com.abtasty.flagship.model.Campaign;
 import com.abtasty.flagship.model.Modification;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -21,6 +20,11 @@ public abstract class DecisionManager implements IDecisionManager, IFlagshipEndp
     }
 
     public HashMap<String, Modification> getModifications(ArrayList<Campaign> campaigns) {
-        return null;
+        HashMap<String, Modification> modifications = new HashMap<String, Modification>();
+        campaigns.forEach(campaign -> {
+            HashMap<String, Modification> campaignModifications = campaign.getModifications(config.getDecisionMode());
+            modifications.putAll(campaignModifications);
+        });
+        return modifications;
     }
 }

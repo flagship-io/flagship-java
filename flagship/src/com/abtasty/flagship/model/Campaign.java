@@ -30,17 +30,15 @@ public class Campaign implements Serializable {
 
     public HashMap<String, Modification> getModifications(Flagship.Mode mode) {
         HashMap<String, Modification> modifications = new HashMap<>();
-        Iterator entries = this.variationGroups.entrySet().iterator();
-        while (entries.hasNext()) {
-            Map.Entry<String, VariationGroup> entry = (Map.Entry<String, VariationGroup>) entries.next();
+        this.variationGroups.forEach((key, variationGroup) -> {
             if (mode == Flagship.Mode.DECISION_API) {
-                entry.getValue().getVariations().forEach((variationId, variation) -> {
-                    System.out.println("variation : " + variation);
+                ((VariationGroup)variationGroup).getVariations().forEach((variationId, variation) -> {
+                    modifications.putAll(variation.getModifications().getValues());
                 });
             } else {
                 //bucketing
             }
-        }
+        });
         return modifications;
     }
 
@@ -56,8 +54,7 @@ public class Campaign implements Serializable {
             });
             return campaigns;
         } catch (Exception e){
-            Flagship.getConfig().logManager.onLog(LogManager.Tag.PARSING, LogLevel.ERROR, FlagshipConstants.PARSING_CAMPAIGN_ERROR);
-            e.printStackTrace();
+            LogManager.log(LogManager.Tag.PARSING, LogLevel.ERROR, FlagshipConstants.Errors.PARSING_CAMPAIGN_ERROR);
             return null;
         }
     }
@@ -83,9 +80,17 @@ public class Campaign implements Serializable {
             return new Campaign(id, variationGroups);
         }
         catch (Exception e){
-            Flagship.getConfig().logManager.onLog(LogManager.Tag.PARSING, LogLevel.ERROR, FlagshipConstants.PARSING_CAMPAIGN_ERROR);
+            LogManager.log(LogManager.Tag.PARSING, LogLevel.ERROR, FlagshipConstants.Errors.PARSING_CAMPAIGN_ERROR);
             return null;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Campaign{" +
+                "id='" + id + '\'' +
+                ", variationGroups=" + variationGroups +
+                '}';
     }
 }
 

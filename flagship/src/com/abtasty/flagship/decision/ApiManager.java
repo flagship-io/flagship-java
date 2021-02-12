@@ -8,7 +8,6 @@ import com.abtasty.flagship.model.Campaign;
 import com.abtasty.flagship.utils.LogLevel;
 import com.abtasty.flagship.utils.LogManager;
 import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -34,7 +33,7 @@ public class ApiManager extends DecisionManager {
     public ArrayList<Campaign> getCampaigns(String visitorId, HashMap<String, Object> context) {
 
         HashMap<String, String> headers = new HashMap<String, String>();
-        headers.put("x-api-key", config.apiKey);
+        headers.put("x-api-key", config.getApiKey());
         JSONObject json = new JSONObject();
         JSONObject jsonContext = new JSONObject();
         for (HashMap.Entry<String, Object> e : context.entrySet()) {
@@ -45,23 +44,32 @@ public class ApiManager extends DecisionManager {
         json.put("context", jsonContext);
         ArrayList<Campaign> campaigns  = new ArrayList();
         try {
-            Response response = HttpHelper.sendHttpRequest(HttpHelper.RequestType.POST, DECISION_API + config.envId + CAMPAIGNS, headers, json.toString());
+            Response response = HttpHelper.sendHttpRequest(HttpHelper.RequestType.POST, DECISION_API + config.getEnvId() + CAMPAIGNS, headers, json.toString());
             if (response != null) {
                 logResponse(response);
-                parseCampaigns(response.getResponseContent());
+                ArrayList<Campaign> newCampaigns = parseCampaigns(response.getResponseContent());
+                campaigns.addAll(newCampaigns);
             }
         } catch (IOException e) {
-            config.logManager.onLog(LogManager.Tag.SYNCHRONIZE, LogLevel.ERROR, e.getMessage());
+            LogManager.log(LogManager.Tag.SYNCHRONIZE, LogLevel.ERROR, e.getMessage());
         }
         return campaigns;
     }
 
     private void logResponse(Response response) {
+
+        String content = "";
+        try {
+            content = new JSONObject(response.getResponseContent()).toString(2);
+        } catch (Exception e) {
+            content = response.getResponseContent();
+        }
         StringBuilder message = new StringBuilder();
         message.append("[" + response.getType() + "]")
                 .append(" " + response.getRequestUrl() + " ")
                 .append("[" + response.getResponseCode() + "]")
-                .append(" " + response.getResponseContent() + " ");
-        config.logManager.onLog(LogManager.Tag.CAMPAINGS, response.isSuccess() ? LogLevel.INFO : LogLevel.ERROR, message.toString());
+                .append("\n")
+                .append(content);
+        LogManager.log(LogManager.Tag.CAMPAINGS, response.isSuccess() ? LogLevel.INFO : LogLevel.ERROR, message.toString());
     }
 }

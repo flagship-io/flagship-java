@@ -36,7 +36,6 @@ public class TrackingManager implements IFlagshipEndpoints {
 
                 @Override
                 public void onException(Exception e) {
-
                 }
             });
         } else {

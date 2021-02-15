@@ -41,7 +41,7 @@ public abstract class Hit<T> {
 
     public T withResolution(int width, int height) {
         if (width > 0 && height > 0)
-            this.data.put(FlagshipConstants.HitKeyMap.DEVICE_RESOLUTION, String.format("%ix%i", width, height));
+            this.data.put(FlagshipConstants.HitKeyMap.DEVICE_RESOLUTION, String.format("%dx%d", width, height));
         return (T) this;
     }
 

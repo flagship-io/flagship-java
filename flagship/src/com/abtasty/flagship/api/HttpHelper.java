@@ -76,7 +76,6 @@ public class HttpHelper {
             try {
                 return sendHttpRequest(type, uri, headers, content);
             } catch (IOException e) {
-                e.printStackTrace();
                 responseCallback.onException(e);
             }
             return null;

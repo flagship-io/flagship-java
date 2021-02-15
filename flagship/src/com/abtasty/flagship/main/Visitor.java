@@ -78,7 +78,7 @@ public class Visitor {
                 if (modifications != null)
                     this.modifications.putAll(modifications);
             } catch (Exception e) {
-                e.printStackTrace();
+//                e.printStackTrace();
             }
         }).whenCompleteAsync((Void, error) -> {
             logVisitor(LogManager.Tag.SYNCHRONIZE);
@@ -105,7 +105,7 @@ public class Visitor {
             } else {
                 Modification modification = this.modifications.get(key);
                 Object castValue = ((T) modification.getValue());
-                if (castValue.getClass().equals(defaultValue.getClass())) {
+                if (defaultValue == null || castValue == null || castValue.getClass().equals(defaultValue.getClass())) {
                     if (activate)
                         activateModification(modification);
                     return (T) castValue;
@@ -113,6 +113,7 @@ public class Visitor {
                     config.getLogManager().onLog(LogManager.Tag.GET_MODIFICATION, LogLevel.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_CAST_ERROR, key));
             }
         } catch (Exception e) {
+//            e.printStackTrace();
             config.getLogManager().onLog(LogManager.Tag.GET_MODIFICATION, LogLevel.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_ERROR, key));
         }
         return defaultValue;

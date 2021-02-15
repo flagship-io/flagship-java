@@ -25,9 +25,10 @@ public class Flagshipapp {
             String value = visitor.getModification("isref", "coucou");
             System.out.println("value => " + value);
             visitor.activateModification("isref");
+            visitor.sendHit(new Page("https://mydomain.com/java").withResolution(100, 100));
         });
         try {
-            Thread.sleep(4000);
+            Thread.sleep(10000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

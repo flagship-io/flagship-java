@@ -1,6 +1,8 @@
 
+import com.abtasty.flagship.hits.Event;
 import com.abtasty.flagship.hits.Hit;
 import com.abtasty.flagship.hits.Page;
+import com.abtasty.flagship.hits.Screen;
 import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.main.FlagshipConfig;
 import com.abtasty.flagship.main.Visitor;
@@ -26,6 +28,8 @@ public class Flagshipapp {
             System.out.println("value => " + value);
             visitor.activateModification("isref");
             visitor.sendHit(new Page("https://mydomain.com/java").withResolution(100, 100));
+            visitor.sendHit(new Screen("Page Java").withResolution(100, 100));
+            visitor.sendHit(new Event(Event.EventCategory.USER_ENGAGEMENT, "coucou").withResolution(2,2).withEventLabel("label").withEventValue(666).withLocale("fr_FR"));
         });
         try {
             Thread.sleep(10000);

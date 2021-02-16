@@ -23,11 +23,6 @@ public final class FlagshipConstants {
         public static String HIT_INVALID_DATA_ERROR = "'%s' hit invalid format error. \n %s";
     }
 
-    public static class EventCategory {
-        public static String ACTION_TRACKING = "Action Tracking";
-        public static String USER_ENGAGEMENT = "User Engagement";
-    }
-
     public static class HitKeyMap {
         public static String TYPE= "t";
         public static String CLIENT_ID= "cid";

@@ -5,6 +5,7 @@ import com.abtasty.flagship.api.Response;
 import com.abtasty.flagship.main.FlagshipConfig;
 import com.abtasty.flagship.main.Visitor;
 import com.abtasty.flagship.model.Campaign;
+import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.LogLevel;
 import com.abtasty.flagship.utils.LogManager;
 import org.json.JSONObject;
@@ -47,13 +48,27 @@ public class ApiManager extends DecisionManager {
             Response response = HttpHelper.sendHttpRequest(HttpHelper.RequestType.POST, DECISION_API + config.getEnvId() + CAMPAIGNS, headers, json.toString());
             if (response != null) {
                 logResponse(response);
-                ArrayList<Campaign> newCampaigns = parseCampaigns(response.getResponseContent());
-                campaigns.addAll(newCampaigns);
+                setPanic(checkPanicResponse(response.getResponseContent()));
+                if (!isPanic()) {
+                    ArrayList<Campaign> newCampaigns = parseCampaigns(response.getResponseContent());
+                    campaigns.addAll(newCampaigns);
+                } else
+                    LogManager.log(LogManager.Tag.SYNCHRONIZE, LogLevel.WARNING, FlagshipConstants.Errors.PANIC);
             }
         } catch (IOException e) {
             LogManager.log(LogManager.Tag.SYNCHRONIZE, LogLevel.ERROR, e.getMessage());
         }
         return campaigns;
+    }
+
+    private boolean checkPanicResponse(String content) {
+        try {
+            JSONObject json = new JSONObject(content);
+            return json.has("panic");
+        } catch (Exception e) {
+            LogManager.log(LogManager.Tag.PARSING, LogLevel.ERROR, FlagshipConstants.Errors.PARSING_CAMPAIGN_ERROR);
+        }
+        return false;
     }
 
     private void logResponse(Response response) {

@@ -55,14 +55,17 @@ public class Visitor {
     };
 
     private void updateContextValue(String key, Object value, OnSynchronizedListener listener) {
-        if (key != null && value != null &&
-                (value instanceof String || value instanceof Number || value instanceof Boolean ||
-                        value instanceof JSONObject || value instanceof JSONArray)) {
-            this.context.put(key, value);
+        if (!decisionManager.isPanic()) {
+            if (key != null && value != null &&
+                    (value instanceof String || value instanceof Number || value instanceof Boolean ||
+                            value instanceof JSONObject || value instanceof JSONArray)) {
+                this.context.put(key, value);
+            } else
+                LogManager.log(LogManager.Tag.UPDATE_CONTEXT, LogLevel.WARNING, FlagshipConstants.Errors.CONTEXT_PARAM_ERROR);
+            if (listener != null)
+                synchronizeModifications(listener);
         } else
-            LogManager.log(LogManager.Tag.UPDATE_CONTEXT, LogLevel.WARNING, FlagshipConstants.Errors.CONTEXT_PARAM_ERROR);
-        if (listener != null)
-            synchronizeModifications(listener);
+            LogManager.log(LogManager.Tag.UPDATE_CONTEXT, LogLevel.ERROR, String.format(FlagshipConstants.Errors.PANIC_ERROR, "updateContext()"));
     }
 
     public interface OnSynchronizedListener {
@@ -74,11 +77,12 @@ public class Visitor {
             try {
                 ArrayList<Campaign> campaigns = this.decisionManager.getCampaigns(visitorId, context);
                 this.modifications.clear();
-                HashMap<String, Modification> modifications = this.decisionManager.getModifications(campaigns);
-                if (modifications != null)
-                    this.modifications.putAll(modifications);
+                if (!decisionManager.isPanic()) {
+                    HashMap<String, Modification> modifications = this.decisionManager.getModifications(campaigns);
+                    if (modifications != null)
+                        this.modifications.putAll(modifications);
+                }
             } catch (Exception e) {
-//                e.printStackTrace();
             }
         }).whenCompleteAsync((Void, error) -> {
             logVisitor(LogManager.Tag.SYNCHRONIZE);
@@ -97,41 +101,48 @@ public class Visitor {
     }
 
     public <T> T getModification(String key, T defaultValue, boolean activate) {
-        try {
-            if (key == null) {
-                LogManager.log(LogManager.Tag.GET_MODIFICATION, LogLevel.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_KEY_ERROR, key));
-            } else if (!this.modifications.containsKey(key)) {
-                config.getLogManager().onLog(LogManager.Tag.GET_MODIFICATION, LogLevel.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_MISSING_ERROR, key));
-            } else {
-                Modification modification = this.modifications.get(key);
-                Object castValue = ((T) modification.getValue());
-                if (defaultValue == null || castValue == null || castValue.getClass().equals(defaultValue.getClass())) {
-                    if (activate)
-                        activateModification(modification);
-                    return (T) castValue;
-                } else
-                    config.getLogManager().onLog(LogManager.Tag.GET_MODIFICATION, LogLevel.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_CAST_ERROR, key));
+        if (!decisionManager.isPanic()) {
+            try {
+                if (key == null) {
+                    LogManager.log(LogManager.Tag.GET_MODIFICATION, LogLevel.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_KEY_ERROR, key));
+                } else if (!this.modifications.containsKey(key)) {
+                    config.getLogManager().onLog(LogManager.Tag.GET_MODIFICATION, LogLevel.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_MISSING_ERROR, key));
+                } else {
+                    Modification modification = this.modifications.get(key);
+                    Object castValue = ((T) modification.getValue());
+                    if (defaultValue == null || castValue == null || castValue.getClass().equals(defaultValue.getClass())) {
+                        if (activate)
+                            activateModification(modification);
+                        return (T) castValue;
+                    } else
+                        config.getLogManager().onLog(LogManager.Tag.GET_MODIFICATION, LogLevel.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_CAST_ERROR, key));
+                }
+            } catch (Exception e) {
+                config.getLogManager().onLog(LogManager.Tag.GET_MODIFICATION, LogLevel.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_ERROR, key));
             }
-        } catch (Exception e) {
-//            e.printStackTrace();
-            config.getLogManager().onLog(LogManager.Tag.GET_MODIFICATION, LogLevel.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_ERROR, key));
-        }
+        } else
+            LogManager.log(LogManager.Tag.GET_MODIFICATION, LogLevel.ERROR, String.format(FlagshipConstants.Errors.PANIC_ERROR, "getModiciation()"));
         return defaultValue;
     }
 
     public void activateModification(String key) {
-        this.getModification(key, null, true);
+        if (!decisionManager.isPanic())
+            this.getModification(key, null, true);
+        else
+            LogManager.log(LogManager.Tag.TRACKING, LogLevel.ERROR, String.format(FlagshipConstants.Errors.PANIC_ERROR, "activateModification()"));
     }
 
     private void activateModification(Modification modification) {
-        if (modification != null) {
+        if (modification != null)
             this.sendHit(new Activate(modification));
-        }
     }
 
     public void sendHit(Hit hit) {
-        if (hit != null && hit.checkData())
-            config.getTrackingManager().sendHit(visitorId, hit);
+        if (!decisionManager.isPanic()) {
+            if (hit != null && hit.checkData())
+                config.getTrackingManager().sendHit(visitorId, hit);
+        } else
+            LogManager.log(LogManager.Tag.TRACKING, LogLevel.ERROR, String.format(FlagshipConstants.Errors.PANIC_ERROR, "sendHit()"));
     }
 
     @Override

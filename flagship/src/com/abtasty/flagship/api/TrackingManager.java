@@ -9,7 +9,6 @@ import com.abtasty.flagship.utils.LogLevel;
 import com.abtasty.flagship.utils.LogManager;
 import org.json.JSONObject;
 import sun.net.www.http.HttpClient;
-
 import java.io.IOException;
 import java.util.logging.Level;
 

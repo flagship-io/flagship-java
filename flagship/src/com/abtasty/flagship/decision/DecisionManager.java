@@ -9,7 +9,8 @@ import java.util.HashMap;
 
 public abstract class DecisionManager implements IDecisionManager, IFlagshipEndpoints {
 
-    protected FlagshipConfig config = null;
+    protected FlagshipConfig    config = null;
+    private boolean             panic = false;
 
     DecisionManager(FlagshipConfig config) {
         this.config = config;
@@ -26,5 +27,13 @@ public abstract class DecisionManager implements IDecisionManager, IFlagshipEndp
             modifications.putAll(campaignModifications);
         });
         return modifications;
+    }
+
+    public boolean isPanic() {
+        return panic;
+    }
+
+    protected void setPanic(boolean panic) {
+        this.panic = panic;
     }
 }

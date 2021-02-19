@@ -36,3 +36,6 @@ flagship/build/classes
 flagship/build/generated
 flagship/build/libs
 flagship/build/tmp
+build/moduleInfo.json
+flagship/build/moduleInfo.json
+flagship/build/publications

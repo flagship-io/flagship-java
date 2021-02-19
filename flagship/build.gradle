@@ -2,8 +2,10 @@ plugins {
     id 'java'
 }
 
-group 'com.abtasty.flagship'
-version '1'
+apply from: 'flagship-publishing.gradle'
+
+//group 'com.abtasty.flagship'
+//version '1'
 
 repositories {
     mavenCentral()
@@ -14,6 +16,16 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 }
+
+jar {
+    archivesBaseName = artifact_id
+    archiveVersion = flagship_version_name
+    manifest {
+        attributes 'Main-Class': 'com.abtasty.demo.DemoFlagship'
+    }
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+}
+
 
 test {
     useJUnitPlatform()

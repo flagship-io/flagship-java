@@ -2,15 +2,10 @@ package com.abtasty.flagship.api;
 
 import com.abtasty.flagship.hits.Activate;
 import com.abtasty.flagship.hits.Hit;
-import com.abtasty.flagship.main.Flagship;
-import com.abtasty.flagship.main.FlagshipConfig;
 import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.LogLevel;
 import com.abtasty.flagship.utils.LogManager;
 import org.json.JSONObject;
-import sun.net.www.http.HttpClient;
-import java.io.IOException;
-import java.util.logging.Level;
 
 public class TrackingManager implements IFlagshipEndpoints {
 

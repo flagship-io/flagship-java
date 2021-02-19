@@ -25,3 +25,14 @@ flagship/flagship.iml
 .idea/
 flagship-sdk-java.iml
 out/
+.gradle/
+build/classes
+build/generated
+build/tmp
+demo/build/classes
+demo/build/generated
+demo/build/tmp
+flagship/build/classes
+flagship/build/generated
+flagship/build/libs
+flagship/build/tmp

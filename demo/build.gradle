@@ -1,0 +1,20 @@
+plugins {
+    id 'java'
+}
+
+group 'com.flagship.demo'
+version '1'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':flagship')
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+}
+
+test {
+    useJUnitPlatform()
+}

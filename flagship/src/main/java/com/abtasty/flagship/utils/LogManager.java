@@ -17,6 +17,7 @@ public class LogManager implements ILogManager {
         CAMPAINGS("[CAMPAIGNS]"),
         PARSING("[PARSING]"),
         GET_MODIFICATION("[GET_MODIFICATION]"),
+        GET_MODIFICATION_INFO("[GET_MODIFICATION_INFO]"),
         TRACKING("[HIT]"),
         ACTIVATE("[ACTIVATE]");
 

@@ -8,6 +8,9 @@ import com.abtasty.flagship.utils.LogManager;
 import com.abtasty.flagship.utils.FlagshipConstants;
 import java.util.HashMap;
 
+/**
+ * Flagship main singleton.
+ */
 public class Flagship {
 
     private static Flagship instance = null;
@@ -19,7 +22,7 @@ public class Flagship {
     Flagship(FlagshipConfig config) {
         if (config != null)
             this.config = config;
-        decisionManager = new ApiManager(this.config); //todo conditional configuration for bucketing
+        decisionManager = new ApiManager(this.config);
 //        handler = new FlagshipExceptionHandler(this.config, Thread.getDefaultUncaughtExceptionHandler());
     }
 
@@ -50,34 +53,65 @@ public class Flagship {
         return instance;
     }
 
+    /**
+     * Start the flagship SDK, with the default configuration.
+     *
+     * @param envId : Environment id provided by Flagship.
+     * @param apiKey : Secure api key provided by Flagship.
+     */
     public static void start(String envId, String apiKey) {
-        start(envId, apiKey, new FlagshipConfig());
+        start(envId, apiKey, null);
     }
 
+    /**
+     * Start the flagship SDK, with a custom configuration implementation.
+     *
+     * @param envId : Environment id provided by Flagship.
+     * @param apiKey : Secure api key provided by Flagship.
+     * @param config : SDK configuration. @see FlagshipConfig
+     */
     public static void start(String envId, String apiKey, FlagshipConfig config) {
         if (config == null)
-            config = new FlagshipConfig();
-        config.withEnvId(envId).withApiKey(apiKey);
+            config = new FlagshipConfig(envId, apiKey);
         if (config.getEnvId() == null || config.getApiKey() == null)
             LogManager.log(LogManager.Tag.INITIALIZATION, LogLevel.ERROR, FlagshipConstants.Errors.INITIALIZATION_PARAM_ERROR);
         else
             instance(config);
     }
 
+    /**
+     *  Check if the SDK is ready to use.
+     * @return boolean ready.
+     */
     public static Boolean isReady() {
         if (instance == null || instance.config == null || instance.config.getApiKey() == null || instance.config.getEnvId() == null)
             return false;
         return true;
     }
 
+    /**
+     * Return the current used configuration.
+     * @return FlagshipConfig
+     */
     public static FlagshipConfig getConfig() {
         return instance().config;
     }
 
+    /**
+     * Create a new visitor without context.
+     * @param visitorId : Unique visitor identifier.
+     * @return Visitor
+     */
     public static Visitor newVisitor(String visitorId) {
         return newVisitor(visitorId, null);
     }
 
+    /**
+     * Create a new visitor with a context.
+     * @param visitorId : Unique visitor identifier.
+     * @param context : visitor context.
+     * @return Visitor
+     */
     public static Visitor newVisitor(String visitorId, HashMap<String, Object> context) {
         if (isReady()) {
             Visitor visitor = new Visitor(getConfig(), visitorId, (context != null) ? context : new HashMap());

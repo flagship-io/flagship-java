@@ -20,6 +20,7 @@ public final class FlagshipConstants {
         public static String GET_MODIFICATION_MISSING_ERROR = "No modification for key '%s'. Default value is returned.";
         public static String GET_MODIFICATION_KEY_ERROR = "Key '%s' must not be null. Default value is returned.";
         public static String GET_MODIFICATION_ERROR = "An error occured while retreiving modification for key '%s'. Default value is returned.";
+        public static String GET_MODIFICATION_INFO_ERROR = "No modification for key '%s'.";
         public static String HIT_INVALID_DATA_ERROR = "'%s' hit invalid format error. \n %s";
         public static String PANIC = "Panic mode is on.";
         public static String PANIC_ERROR = "'%s' deactivated while panic mode is on.";

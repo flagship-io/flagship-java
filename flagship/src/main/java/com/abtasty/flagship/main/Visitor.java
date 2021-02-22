@@ -13,6 +13,9 @@ import com.abtasty.flagship.utils.LogLevel;
 import com.abtasty.flagship.utils.LogManager;
 import org.json.*;
 
+/**
+ * Flagship visitor representation.
+ */
 public class Visitor {
 
     private String                          visitorId = null;
@@ -21,8 +24,15 @@ public class Visitor {
     private HashMap<String, Modification>   modifications = new HashMap<>();
     private DecisionManager                 decisionManager = null;
 
+    /**
+     * Create a new visitor.
+     * @param config configuration used when the visitor has been created.
+     * @param visitorId visitor unique identifier.
+     * @param context visitor context.
+     */
     public Visitor(FlagshipConfig config, String visitorId, HashMap<String, Object> context) {
         this.config = config;
+        //todo generate visitor Id if null.
         this.visitorId = visitorId;
     }
 
@@ -30,31 +40,74 @@ public class Visitor {
         this.decisionManager = decisionManager;
     }
 
+    public HashMap<String, Object> getContext() {
+        return this.context;
+    }
+
+    /**
+     * Update the visitor context values, matching the given keys, used for targeting.
+     *
+     * A new context value associated with this key will be created if there is no previous matching value.
+     * Context keys must be String, and values types must be one of the following : Number, Boolean, String.
+     *
+     * @param context: HashMap of keys, values.
+     */
     public void updateContext(HashMap<String, Object> context) {
         this.updateContext(context, null);
     }
-    public void updateContext(HashMap<String, Object> context, OnSynchronizedListener listener) {
+
+    /**
+     * Update the visitor context values, matching the given keys, used for targeting.
+     *
+     * A new context value associated with this key will be created if there is no previous matching value.
+     * Context keys must be String, and values types must be one of the following : Number, Boolean, String.
+     *
+     * @param context: HashMap of keys, values.
+     * @param onSynchronize: If set, the SDK will automatically call
+     *         synchronizeModifications() and then update the modifications from the server for all campaigns
+     *         according to the updated current visitor context. You can also update it manually later with :
+     *         synchronizeModifications()
+     */
+    public void updateContext(HashMap<String, Object> context, OnSynchronizedListener onSynchronize) {
         if (context != null) {
             for (HashMap.Entry<String, Object> e : context.entrySet()) {
-                this.updateContextValue(e.getKey(), e.getValue(), listener);
+                this.updateContextValue(e.getKey(), e.getValue(), onSynchronize);
             }
         }
         this.logVisitor(LogManager.Tag.UPDATE_CONTEXT);
     }
 
-    public HashMap<String, Object> getContext() {
-        return this.context;
-    }
-
+    /**
+     * Update the visitor context values, matching the given keys, used for targeting.
+     *
+     * A new context value associated with this key will be created if there is no previous matching value.
+     * Context key must be String, and value type must be one of the following : Number, Boolean, String.
+     *
+     * @param key: context key.
+     * @param value context value.
+     */
     public <T> void updateContext(String key, T value) {
         this.updateContext(key, value, null);
-    };
+    }
 
-    public <T> void updateContext(String key, T value, OnSynchronizedListener listener) {
-        this.updateContextValue(key, value, listener);
-    };
+    /**
+     * Update the visitor context values, matching the given keys, used for targeting.
+     *
+     * A new context value associated with this key will be created if there is no previous matching value.
+     * Context key must be String, and value type must be one of the following : Number, Boolean, String.
+     *
+     * @param key: context key.
+     * @param value context value.
+     * @param onSynchronize: If set, the SDK will automatically call
+     *         synchronizeModifications() and then update the modifications from the server for all campaigns
+     *         according to the updated current visitor context. You can also update it manually later with :
+     *         synchronizeModifications()
+     */
+    public <T> void updateContext(String key, T value, OnSynchronizedListener onSynchronize) {
+        this.updateContextValue(key, value, onSynchronize);
+    }
 
-    private void updateContextValue(String key, Object value, OnSynchronizedListener listener) {
+    private void updateContextValue(String key, Object value, OnSynchronizedListener onSynchronize) {
         if (!decisionManager.isPanic()) {
             if (key != null && value != null &&
                     (value instanceof String || value instanceof Number || value instanceof Boolean ||
@@ -62,17 +115,24 @@ public class Visitor {
                 this.context.put(key, value);
             } else
                 LogManager.log(LogManager.Tag.UPDATE_CONTEXT, LogLevel.WARNING, FlagshipConstants.Errors.CONTEXT_PARAM_ERROR);
-            if (listener != null)
-                synchronizeModifications(listener);
+            if (onSynchronize != null)
+                synchronizeModifications(onSynchronize);
         } else
             LogManager.log(LogManager.Tag.UPDATE_CONTEXT, LogLevel.ERROR, String.format(FlagshipConstants.Errors.PANIC_ERROR, "updateContext()"));
     }
 
+    /**
+     * Synchronization ready callback.
+     */
     public interface OnSynchronizedListener {
         void onSynchronized();
     }
 
-    public void synchronizeModifications(OnSynchronizedListener listener) {
+    /**
+     *  This function will call the decision api and update all the campaigns modifications from the server according to the visitor context.
+     *  @param onSynchronize synchronize callback
+     */
+    public void synchronizeModifications(OnSynchronizedListener onSynchronize) {
         CompletableFuture.runAsync(() -> {
             try {
                 ArrayList<Campaign> campaigns = this.decisionManager.getCampaigns(visitorId, context);
@@ -86,8 +146,8 @@ public class Visitor {
             }
         }).whenCompleteAsync((Void, error) -> {
             logVisitor(LogManager.Tag.SYNCHRONIZE);
-            if (listener != null)
-                listener.onSynchronized();
+            if (onSynchronize != null)
+                onSynchronize.onSynchronized();
         });
     }
 
@@ -96,17 +156,33 @@ public class Visitor {
         LogManager.log(tag, LogLevel.INFO, visitorStr);
     }
 
+    /**
+     * Retrieve a modification value by its key. If no modification match the given key, default value will be returned.
+     *
+     * @param key key associated to the modification.
+     * @param defaultValue default value to return.
+     * @return modification value or default value.
+     */
     public <T> T getModification(String key, T defaultValue) {
         return this.getModification(key, defaultValue, false);
     }
 
+    /**
+     * Retrieve a modification value by its key. If no modification match the given key, default value will be returned.
+     *
+     * @param key key associated to the modification.
+     * @param defaultValue default value to return.
+     * @param activate Set this parameter to true to automatically report on our server that the
+     *         current visitor has seen this modification. It is possible to call activateModification() later.
+     * @return modification value or default value.
+     */
     public <T> T getModification(String key, T defaultValue, boolean activate) {
         if (!decisionManager.isPanic()) {
             try {
                 if (key == null) {
                     LogManager.log(LogManager.Tag.GET_MODIFICATION, LogLevel.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_KEY_ERROR, key));
                 } else if (!this.modifications.containsKey(key)) {
-                    config.getLogManager().onLog(LogManager.Tag.GET_MODIFICATION, LogLevel.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_MISSING_ERROR, key));
+                    LogManager.log(LogManager.Tag.GET_MODIFICATION, LogLevel.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_MISSING_ERROR, key));
                 } else {
                     Modification modification = this.modifications.get(key);
                     Object castValue = ((T) modification.getValue());
@@ -115,16 +191,40 @@ public class Visitor {
                             activateModification(modification);
                         return (T) castValue;
                     } else
-                        config.getLogManager().onLog(LogManager.Tag.GET_MODIFICATION, LogLevel.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_CAST_ERROR, key));
+                        LogManager.log(LogManager.Tag.GET_MODIFICATION, LogLevel.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_CAST_ERROR, key));
                 }
             } catch (Exception e) {
-                config.getLogManager().onLog(LogManager.Tag.GET_MODIFICATION, LogLevel.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_ERROR, key));
+                LogManager.log(LogManager.Tag.GET_MODIFICATION, LogLevel.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_ERROR, key));
             }
         } else
             LogManager.log(LogManager.Tag.GET_MODIFICATION, LogLevel.ERROR, String.format(FlagshipConstants.Errors.PANIC_ERROR, "getModiciation()"));
         return defaultValue;
     }
 
+    /**
+     * Get the campaign modification information value matching the given key.
+     * @param key key which identify the modification.
+     * @return JSONObject containing the modification information.
+     */
+    public JSONObject getModificationInfo(String key) {
+        if (key == null || !this.modifications.containsKey(key)) {
+            LogManager.log(LogManager.Tag.GET_MODIFICATION_INFO, LogLevel.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_INFO_ERROR, key));
+            return null;
+        } else {
+            JSONObject obj = new JSONObject();
+            Modification modification = this.modifications.get(key);
+            obj.put("campaignId", modification.getCampaignId());
+            obj.put("variationGroupId", modification.getVariationGroupId());
+            obj.put("variationId", modification.getVariationId());
+            obj.put("isReference", modification.isReference());
+            return obj;
+        }
+    }
+
+    /**
+     * Report this user has seen this modification.
+     * @param key key which identify the modification to activate.
+     */
     public void activateModification(String key) {
         if (!decisionManager.isPanic())
             this.getModification(key, null, true);
@@ -137,6 +237,10 @@ public class Visitor {
             this.sendHit(new Activate(modification));
     }
 
+    /**
+     * Send a Hit to Flagship servers for reporting.
+     * @param hit hit to track.
+     */
     public void sendHit(Hit hit) {
         if (!decisionManager.isPanic()) {
             if (hit != null && hit.checkData())

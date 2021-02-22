@@ -67,7 +67,7 @@ public class Modifications implements Serializable {
             });
             return new Modifications(campaignId, variationGroupId, variationId, isReference, type, values);
         } catch (Exception e) {
-            Flagship.getConfig().getLogManager().onLog(LogManager.Tag.PARSING, LogLevel.ERROR, FlagshipConstants.Errors.PARSING_MODIFICATION_ERROR);
+            LogManager.log(LogManager.Tag.PARSING, LogLevel.ERROR, FlagshipConstants.Errors.PARSING_MODIFICATION_ERROR);
             return null;
         }
     }

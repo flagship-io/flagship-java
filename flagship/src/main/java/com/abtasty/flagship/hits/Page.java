@@ -8,6 +8,11 @@ import java.net.URL;
 
 public class Page extends Hit<Page> {
 
+    /**
+     * Hit to send when a user sees a web page.
+     *
+     * @param location page url.
+     */
     public Page(String location) {
         super(Type.PAGEVIEW);
         this.data.put(FlagshipConstants.HitKeyMap.DOCUMENT_LOCATION, location);

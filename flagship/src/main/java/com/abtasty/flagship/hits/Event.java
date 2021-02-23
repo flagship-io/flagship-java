@@ -20,6 +20,13 @@ public class Event extends Hit<Event> {
         }
     }
 
+
+    /**
+     * Hit which represents an event. Can be a anything you want :  for example a click or a newsletter subscription.
+     *
+     * @param category category of the event (ACTION_TRACKING or USER_ENGAGEMENT) @required
+     * @param action the event action @required
+     */
     public Event(EventCategory category, String action) {
         super(Type.EVENT);
         if (category != null && action != null) {

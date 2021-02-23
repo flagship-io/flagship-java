@@ -6,6 +6,9 @@ import com.abtasty.flagship.utils.FlagshipConstants;
 import static com.abtasty.flagship.api.IFlagshipEndpoints.ACTIVATION;
 import static com.abtasty.flagship.api.IFlagshipEndpoints.DECISION_API;
 
+/**
+ * Internal Hit for activations
+ */
 public class Activate extends Hit<Activate> {
 
     public Activate(Modification modification) {

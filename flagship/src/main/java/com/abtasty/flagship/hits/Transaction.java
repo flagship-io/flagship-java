@@ -5,6 +5,13 @@ import com.abtasty.flagship.utils.FlagshipConstants;
 public class Transaction extends Hit<Transaction> {
 
 
+    /**
+     * Hit to send when a user complete a transaction.
+     *
+     *  @param transactionId transaction unique identifier.
+     *  @param affiliation affiliation name.
+     *
+     */
     public Transaction(String transactionId, String affiliation) {
         super(Type.TRANSACTION);
         if (transactionId != null && affiliation != null) {

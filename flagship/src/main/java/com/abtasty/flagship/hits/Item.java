@@ -5,6 +5,14 @@ import com.abtasty.flagship.utils.FlagshipConstants;
 public class Item extends Hit<Item> {
 
 
+    /**
+     * Hit to send an item associated to a transaction. Items must be sent after the corresponding transaction.
+     *
+     * @param transactionId id of the transaction to link
+     * @param productName product name.
+     * @param productSku specifies the item code or SKU.
+     *
+     */
     public Item(String transactionId, String productName, String productSku) {
         super(Type.ITEM);
         if (transactionId != null && productName != null && productSku != null) {

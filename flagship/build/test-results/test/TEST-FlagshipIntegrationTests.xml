@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="FlagshipIntegrationTests" tests="3" skipped="0" failures="0" errors="0" timestamp="2021-02-25T18:15:23" hostname="raph-XPS-13-9370" time="1.844">
+  <properties/>
+  <testcase name="test3" classname="FlagshipIntegrationTests" time="0.345"/>
+  <testcase name="test4" classname="FlagshipIntegrationTests" time="0.001"/>
+  <testcase name="first" classname="FlagshipIntegrationTests" time="1.497"/>
+  <system-out><![CDATA[FFFFFFFFFFFFFFFFFFFFF
+integration
+FFFFFFFFFFFFFFFFFFFFF
+integration 4
+FFFFFFFFFFFFFFFFFFFFF
+___________________________________
+Content => {"visitorId":"toto3","campaigns":[{"id":"bmsorfe4jaeg0gi1bhog","variationGroupId":"bmsorfe4jaeg0gi1bhpg","variation":{"id":"bmsorfe4jaeg0gi1bhq0","modifications":{"type":"FLAG","value":{"featureEnabled":true}},"reference":false}},{"id":"bv6vpqjh6h101fk8lbrg","variationGroupId":"bv6vpqjh6h101fk8lbsg","variation":{"id":"bv6vpqjh6h101fk8lbtg","modifications":{"type":"JSON","value":{"isref":"nope"}},"reference":false}},{"id":"c04bed3m649g0h9nkui0","variationGroupId":"c04bed3m649g0h9nkuj0","variation":{"id":"c04bed3m649g0h9nkuk0","modifications":{"type":"FLAG","value":{"release":100}},"reference":false}}]}
+]]></system-out>
+  <system-err><![CDATA[?[0;2m[2021-02-25 19:15:24][Flagship][INFO][CAMPAIGNS] [POST] https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true&sendContextEvent=false [100]
+{
+  "campaigns": [
+    {
+      "variationGroupId": "bmsorfe4jaeg0gi1bhpg",
+      "id": "bmsorfe4jaeg0gi1bhog",
+      "variation": {
+        "reference": false,
+        "id": "bmsorfe4jaeg0gi1bhq0",
+        "modifications": {
+          "type": "FLAG",
+          "value": {"featureEnabled": true}
+        }
+      }
+    },
+    {
+      "variationGroupId": "bv6vpqjh6h101fk8lbsg",
+      "id": "bv6vpqjh6h101fk8lbrg",
+      "variation": {
+        "reference": false,
+        "id": "bv6vpqjh6h101fk8lbtg",
+        "modifications": {
+          "type": "JSON",
+          "value": {"isref": "nope"}
+        }
+      }
+    },
+    {
+      "variationGroupId": "c04bed3m649g0h9nkuj0",
+      "id": "c04bed3m649g0h9nkui0",
+      "variation": {
+        "reference": false,
+        "id": "c04bed3m649g0h9nkuk0",
+        "modifications": {
+          "type": "FLAG",
+          "value": {"release": 100}
+        }
+      }
+    }
+  ],
+  "visitorId": "toto3"
+}?[0m
+?[0;2m[2021-02-25 19:15:24][Flagship][INFO][SYNCHRONIZE] 'toto' 
+{
+  "context": {},
+  "visitorId": "toto",
+  "modifications": {
+    "featureEnabled": true,
+    "isref": "nope",
+    "release": 100
+  }
+}?[0m
+]]></system-err>
+</testsuite>

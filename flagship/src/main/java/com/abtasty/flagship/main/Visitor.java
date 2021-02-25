@@ -3,6 +3,8 @@ package com.abtasty.flagship.main;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
+import java.util.logging.Logger;
+
 import com.abtasty.flagship.decision.DecisionManager;
 import com.abtasty.flagship.hits.Activate;
 import com.abtasty.flagship.hits.Hit;
@@ -33,6 +35,7 @@ public class Visitor {
     public Visitor(FlagshipConfig config, String visitorId, HashMap<String, Object> context) {
         this.config = config;
         //todo generate visitor Id if null.
+        System.out.println("___________________________________");
         this.visitorId = visitorId;
     }
 

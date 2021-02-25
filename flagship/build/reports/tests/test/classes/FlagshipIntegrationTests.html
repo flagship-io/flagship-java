@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=edge"/>
+<title>Test results - Class FlagshipIntegrationTests</title>
+<link href="../css/base-style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<script src="../js/report.js" type="text/javascript"></script>
+</head>
+<body>
+<div id="content">
+<h1>Class FlagshipIntegrationTests</h1>
+<div class="breadcrumbs">
+<a href="../index.html">all</a> &gt; 
+<a href="../packages/default-package.html">default-package</a> &gt; FlagshipIntegrationTests</div>
+<div id="summary">
+<table>
+<tr>
+<td>
+<div class="summaryGroup">
+<table>
+<tr>
+<td>
+<div class="infoBox" id="tests">
+<div class="counter">3</div>
+<p>tests</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="failures">
+<div class="counter">0</div>
+<p>failures</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="ignored">
+<div class="counter">0</div>
+<p>ignored</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="duration">
+<div class="counter">1.843s</div>
+<p>duration</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</td>
+<td>
+<div class="infoBox success" id="successRate">
+<div class="percent">100%</div>
+<p>successful</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div id="tabs">
+<ul class="tabLinks">
+<li>
+<a href="#tab0">Tests</a>
+</li>
+<li>
+<a href="#tab1">Standard output</a>
+</li>
+<li>
+<a href="#tab2">Standard error</a>
+</li>
+</ul>
+<div id="tab0" class="tab">
+<h2>Tests</h2>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Duration</th>
+<th>Result</th>
+</tr>
+</thead>
+<tr>
+<td class="success">first</td>
+<td class="success">1.497s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">test3</td>
+<td class="success">0.345s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">test4</td>
+<td class="success">0.001s</td>
+<td class="success">passed</td>
+</tr>
+</table>
+</div>
+<div id="tab1" class="tab">
+<h2>Standard output</h2>
+<span class="code">
+<pre>FFFFFFFFFFFFFFFFFFFFF
+integration
+FFFFFFFFFFFFFFFFFFFFF
+integration 4
+FFFFFFFFFFFFFFFFFFFFF
+___________________________________
+Content =&gt; {&quot;visitorId&quot;:&quot;toto3&quot;,&quot;campaigns&quot;:[{&quot;id&quot;:&quot;bmsorfe4jaeg0gi1bhog&quot;,&quot;variationGroupId&quot;:&quot;bmsorfe4jaeg0gi1bhpg&quot;,&quot;variation&quot;:{&quot;id&quot;:&quot;bmsorfe4jaeg0gi1bhq0&quot;,&quot;modifications&quot;:{&quot;type&quot;:&quot;FLAG&quot;,&quot;value&quot;:{&quot;featureEnabled&quot;:true}},&quot;reference&quot;:false}},{&quot;id&quot;:&quot;bv6vpqjh6h101fk8lbrg&quot;,&quot;variationGroupId&quot;:&quot;bv6vpqjh6h101fk8lbsg&quot;,&quot;variation&quot;:{&quot;id&quot;:&quot;bv6vpqjh6h101fk8lbtg&quot;,&quot;modifications&quot;:{&quot;type&quot;:&quot;JSON&quot;,&quot;value&quot;:{&quot;isref&quot;:&quot;nope&quot;}},&quot;reference&quot;:false}},{&quot;id&quot;:&quot;c04bed3m649g0h9nkui0&quot;,&quot;variationGroupId&quot;:&quot;c04bed3m649g0h9nkuj0&quot;,&quot;variation&quot;:{&quot;id&quot;:&quot;c04bed3m649g0h9nkuk0&quot;,&quot;modifications&quot;:{&quot;type&quot;:&quot;FLAG&quot;,&quot;value&quot;:{&quot;release&quot;:100}},&quot;reference&quot;:false}}]}
+</pre>
+</span>
+</div>
+<div id="tab2" class="tab">
+<h2>Standard error</h2>
+<span class="code">
+<pre>?[0;2m[2021-02-25 19:15:24][Flagship][INFO][CAMPAIGNS] [POST] https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true&amp;sendContextEvent=false [100]
+{
+  &quot;campaigns&quot;: [
+    {
+      &quot;variationGroupId&quot;: &quot;bmsorfe4jaeg0gi1bhpg&quot;,
+      &quot;id&quot;: &quot;bmsorfe4jaeg0gi1bhog&quot;,
+      &quot;variation&quot;: {
+        &quot;reference&quot;: false,
+        &quot;id&quot;: &quot;bmsorfe4jaeg0gi1bhq0&quot;,
+        &quot;modifications&quot;: {
+          &quot;type&quot;: &quot;FLAG&quot;,
+          &quot;value&quot;: {&quot;featureEnabled&quot;: true}
+        }
+      }
+    },
+    {
+      &quot;variationGroupId&quot;: &quot;bv6vpqjh6h101fk8lbsg&quot;,
+      &quot;id&quot;: &quot;bv6vpqjh6h101fk8lbrg&quot;,
+      &quot;variation&quot;: {
+        &quot;reference&quot;: false,
+        &quot;id&quot;: &quot;bv6vpqjh6h101fk8lbtg&quot;,
+        &quot;modifications&quot;: {
+          &quot;type&quot;: &quot;JSON&quot;,
+          &quot;value&quot;: {&quot;isref&quot;: &quot;nope&quot;}
+        }
+      }
+    },
+    {
+      &quot;variationGroupId&quot;: &quot;c04bed3m649g0h9nkuj0&quot;,
+      &quot;id&quot;: &quot;c04bed3m649g0h9nkui0&quot;,
+      &quot;variation&quot;: {
+        &quot;reference&quot;: false,
+        &quot;id&quot;: &quot;c04bed3m649g0h9nkuk0&quot;,
+        &quot;modifications&quot;: {
+          &quot;type&quot;: &quot;FLAG&quot;,
+          &quot;value&quot;: {&quot;release&quot;: 100}
+        }
+      }
+    }
+  ],
+  &quot;visitorId&quot;: &quot;toto3&quot;
+}?[0m
+?[0;2m[2021-02-25 19:15:24][Flagship][INFO][SYNCHRONIZE] 'toto' 
+{
+  &quot;context&quot;: {},
+  &quot;visitorId&quot;: &quot;toto&quot;,
+  &quot;modifications&quot;: {
+    &quot;featureEnabled&quot;: true,
+    &quot;isref&quot;: &quot;nope&quot;,
+    &quot;release&quot;: 100
+  }
+}?[0m
+</pre>
+</span>
+</div>
+</div>
+<div id="footer">
+<p>
+<div>
+<label class="hidden" id="label-for-line-wrapping-toggle" for="line-wrapping-toggle">Wrap lines
+<input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
+</label>
+</div>Generated by 
+<a href="http://www.gradle.org">Gradle 6.5</a> at 25 févr. 2021 19:15:25</p>
+</div>
+</div>
+</body>
+</html>

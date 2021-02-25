@@ -25,11 +25,6 @@ public class HttpHelper {
         }
     }
 
-    @FunctionalInterface
-    public interface IResponse2 {
-        public void accept(String s, Integer i, Boolean b);
-    }
-
     public interface IResponse {
         public void onSuccess(Response response);
 
@@ -38,12 +33,18 @@ public class HttpHelper {
         public void onException(Exception e);
     }
 
+    public static HttpURLConnection createConnection(URL url) throws IOException {
+        return (HttpURLConnection) url.openConnection();
+    }
+
     public static Response sendHttpRequest(RequestType type,
                                            String uri,
                                            HashMap<String, String> headers,
                                            String content) throws IOException {
+
         URL url = new URL(uri);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+//        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        HttpURLConnection conn = createConnection(url);
         conn.setRequestMethod(type.name);
         conn.setRequestProperty("Content-Type", "application/json");
         if (headers != null && headers.size() > 0) {
@@ -58,25 +59,27 @@ public class HttpHelper {
             out.flush();
             out.close();
         }
-        Response response = parseResponse(conn);
-        response.setRequestHeaders(headers);
-        response.setRequestUrl(uri);
-        response.setRequestContent(content);
-        response.setType(type);
+        Response response = parseResponse(conn, type, uri, headers, content);
+//        response.setRequestHeaders(headers);
+//        response.setRequestUrl(uri);
+//        response.setRequestContent(content);
+//        response.setType(type);
+        conn.disconnect();
         return response;
     }
 
     public static CompletableFuture<Response> sendAsyncHttpRequest(RequestType type,
-                                            String uri,
-                                            HashMap<String, String> headers,
-                                            String content,
-                                            IResponse responseCallback) {
+                                                                   String uri,
+                                                                   HashMap<String, String> headers,
+                                                                   String content,
+                                                                   IResponse responseCallback) {
 
         return CompletableFuture.supplyAsync(() -> {
             try {
                 return sendHttpRequest(type, uri, headers, content);
             } catch (IOException e) {
                 responseCallback.onException(e);
+                e.printStackTrace();
             }
             return null;
 
@@ -88,22 +91,29 @@ public class HttpHelper {
         });
     }
 
-    private static Response parseResponse(HttpURLConnection conn) throws IOException {
+    private static Response parseResponse(HttpURLConnection conn, RequestType requestType, String requestUri,
+                                          HashMap<String, String> requestHeaders, String requestContent) throws IOException {
         int status = conn.getResponseCode();
         Reader streamReader = new InputStreamReader((status > 299) ? conn.getErrorStream() : conn.getInputStream());
         BufferedReader in = new BufferedReader(streamReader);
         String inputLine;
-        StringBuffer content = new StringBuffer();
+        StringBuilder content = new StringBuilder();
         while ((inputLine = in.readLine()) != null) {
             content.append(inputLine);
         }
-        HashMap<String, String> headers = new HashMap();
+        HashMap<String, String> headers = new HashMap<String, String>();
         for (String s : conn.getHeaderFields().keySet()) {
             headers.put(s, conn.getHeaderField(s));
         }
+        System.out.println("Content => " + content);
         Response response = new Response(status, content.toString(), conn.getResponseMessage(), headers);
+        response.setRequestHeaders(requestHeaders);
+        response.setRequestUrl(requestUri);
+        response.setRequestContent(requestContent);
+        response.setType(requestType);
         in.close();
-        conn.disconnect();
+        streamReader.close();
+//        conn.disconnect();
         return response;
     }
 }

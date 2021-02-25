@@ -20,7 +20,6 @@ public class Event extends Hit<Event> {
         }
     }
 
-
     /**
      * Hit which represents an event. Can be a anything you want :  for example a click or a newsletter subscription.
      *

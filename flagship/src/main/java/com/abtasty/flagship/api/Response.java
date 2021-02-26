@@ -92,4 +92,18 @@ public class Response {
     public void setType(HttpHelper.RequestType type) {
         this.type = type;
     }
+
+    @Override
+    public String toString() {
+        return "Response{" +
+                "type=" + type +
+                ", requestUrl='" + requestUrl + '\'' +
+                ", requestContent='" + requestContent + '\'' +
+                ", requestHeaders=" + requestHeaders +
+                ", responseCode=" + responseCode +
+                ", responseContent='" + responseContent + '\'' +
+                ", responseMessage='" + responseMessage + '\'' +
+                ", responseHeaders=" + responseHeaders +
+                '}';
+    }
 }

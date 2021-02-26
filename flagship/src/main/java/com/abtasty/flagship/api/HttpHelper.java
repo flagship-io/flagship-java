@@ -43,7 +43,6 @@ public class HttpHelper {
                                            String content) throws IOException {
 
         URL url = new URL(uri);
-//        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         HttpURLConnection conn = createConnection(url);
         conn.setRequestMethod(type.name);
         conn.setRequestProperty("Content-Type", "application/json");
@@ -60,10 +59,6 @@ public class HttpHelper {
             out.close();
         }
         Response response = parseResponse(conn, type, uri, headers, content);
-//        response.setRequestHeaders(headers);
-//        response.setRequestUrl(uri);
-//        response.setRequestContent(content);
-//        response.setType(type);
         conn.disconnect();
         return response;
     }
@@ -105,7 +100,6 @@ public class HttpHelper {
         for (String s : conn.getHeaderFields().keySet()) {
             headers.put(s, conn.getHeaderField(s));
         }
-        System.out.println("Content => " + content);
         Response response = new Response(status, content.toString(), conn.getResponseMessage(), headers);
         response.setRequestHeaders(requestHeaders);
         response.setRequestUrl(requestUri);
@@ -113,7 +107,6 @@ public class HttpHelper {
         response.setType(requestType);
         in.close();
         streamReader.close();
-//        conn.disconnect();
         return response;
     }
 }

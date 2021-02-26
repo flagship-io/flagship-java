@@ -1,6 +1,8 @@
 package com.abtasty.flagship.main;
 
 import com.abtasty.flagship.api.TrackingManager;
+import com.abtasty.flagship.decision.ApiManager;
+import com.abtasty.flagship.decision.DecisionManager;
 import com.abtasty.flagship.utils.LogLevel;
 import com.abtasty.flagship.utils.LogManager;
 
@@ -9,11 +11,11 @@ import com.abtasty.flagship.utils.LogManager;
  */
 public class FlagshipConfig {
 
-    private String           envId = null;
-    private String           apiKey = null;
-    private Flagship.Mode    decisionMode = Flagship.Mode.DECISION_API;
-    private LogManager       logManager = new LogManager(Flagship.Log.ALL);
-    private TrackingManager  trackingManager = new TrackingManager();
+    private String          envId = null;
+    private String          apiKey = null;
+    private Flagship.Mode   decisionMode = Flagship.Mode.DECISION_API;
+    private LogManager      logManager = new LogManager(Flagship.Log.ALL);
+    private TrackingManager trackingManager = new TrackingManager();
 
     /**
      * Create a new empty FlagshipConfig configuration.

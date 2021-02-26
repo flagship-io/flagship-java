@@ -15,9 +15,10 @@ public class Flagship {
 
     private static Flagship instance = null;
 
-    FlagshipConfig config = null;
-    FlagshipExceptionHandler handler = null;
-    DecisionManager decisionManager = null;
+    FlagshipConfig  config = null;
+    DecisionManager decisionManager;
+
+//    FlagshipExceptionHandler handler = null;
 
     Flagship(FlagshipConfig config) {
         if (config != null)
@@ -113,11 +114,8 @@ public class Flagship {
      * @return Visitor
      */
     public static Visitor newVisitor(String visitorId, HashMap<String, Object> context) {
-        if (isReady()) {
-            Visitor visitor = new Visitor(getConfig(), visitorId, (context != null) ? context : new HashMap());
-            visitor.setDecisionManager(instance().decisionManager);
-            return visitor;
-        }
+        if (isReady())
+            return new Visitor(instance.decisionManager, getConfig(), visitorId, (context != null) ? context : new HashMap<String, Object>());
         return null;
     }
 }

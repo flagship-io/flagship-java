@@ -28,19 +28,16 @@ public class Visitor {
 
     /**
      * Create a new visitor.
+     * @param decisionManager flagship decision manager.
      * @param config configuration used when the visitor has been created.
      * @param visitorId visitor unique identifier.
      * @param context visitor context.
      */
-    public Visitor(FlagshipConfig config, String visitorId, HashMap<String, Object> context) {
-        this.config = config;
-        //todo generate visitor Id if null.
-        System.out.println("___________________________________");
-        this.visitorId = visitorId;
-    }
-
-    protected void setDecisionManager(DecisionManager decisionManager) {
+    protected Visitor(DecisionManager decisionManager, FlagshipConfig config, String visitorId, HashMap<String, Object> context) {
         this.decisionManager = decisionManager;
+        this.config = config;
+        this.visitorId = visitorId;
+        this.updateContext(context);
     }
 
     public HashMap<String, Object> getContext() {

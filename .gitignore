@@ -39,3 +39,5 @@ flagship/build/tmp
 build/moduleInfo.json
 flagship/build/moduleInfo.json
 flagship/build/publications
+flagship/build/reports
+flagship/build/test-results

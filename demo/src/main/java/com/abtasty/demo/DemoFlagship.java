@@ -40,6 +40,5 @@ public class DemoFlagship {
         }
 
 //        Page p = new Page("www.java.com/version1");
-
     }
 }

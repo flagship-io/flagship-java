@@ -2,7 +2,7 @@ package com.abtasty.flagship.main;
 
 import com.abtasty.flagship.decision.ApiManager;
 import com.abtasty.flagship.decision.DecisionManager;
-import com.abtasty.flagship.utils.FlagshipExceptionHandler;
+//import com.abtasty.flagship.utils.FlagshipExceptionHandler;
 import com.abtasty.flagship.utils.LogLevel;
 import com.abtasty.flagship.utils.LogManager;
 import com.abtasty.flagship.utils.FlagshipConstants;
@@ -15,17 +15,9 @@ public class Flagship {
 
     private static Flagship instance = null;
 
-    FlagshipConfig  config = null;
-    DecisionManager decisionManager;
-
+    private FlagshipConfig  config              = null;
+    private DecisionManager decisionManager;
 //    FlagshipExceptionHandler handler = null;
-
-    Flagship(FlagshipConfig config) {
-        if (config != null)
-            this.config = config;
-        decisionManager = new ApiManager(this.config);
-//        handler = new FlagshipExceptionHandler(this.config, Thread.getDefaultUncaughtExceptionHandler());
-    }
 
     public enum Mode {
         DECISION_API,
@@ -36,22 +28,26 @@ public class Flagship {
         NONE, ALL, ERRORS
     }
 
-    private static Flagship instance() {
-        return instance(null);
-    }
-
-    protected static Flagship instance(FlagshipConfig config) {
+    protected static Flagship instance() {
         if (instance == null) {
             synchronized (Flagship.class) {
                 Flagship inst = instance;
                 if (inst == null) {
                     synchronized (Flagship.class) {
-                        instance = new Flagship(config);
+                        instance = new Flagship();
                     }
                 }
             }
         }
         return instance;
+    }
+
+    protected void setConfig(FlagshipConfig config) {
+        if (config != null) {
+            this.config = config;
+            decisionManager = new ApiManager(this.config);
+            //        handler = new FlagshipExceptionHandler(this.config, Thread.getDefaultUncaughtExceptionHandler());
+        }
     }
 
     /**
@@ -74,10 +70,13 @@ public class Flagship {
     public static void start(String envId, String apiKey, FlagshipConfig config) {
         if (config == null)
             config = new FlagshipConfig(envId, apiKey);
+        config.withEnvId(envId);
+        config.withApiKey(apiKey);
         if (config.getEnvId() == null || config.getApiKey() == null)
             LogManager.log(LogManager.Tag.INITIALIZATION, LogLevel.ERROR, FlagshipConstants.Errors.INITIALIZATION_PARAM_ERROR);
-        else
-            instance(config);
+        instance().setConfig(config);
+        if (isReady())
+            LogManager.log(LogManager.Tag.INITIALIZATION, LogLevel.INFO, FlagshipConstants.Info.STARTED);
     }
 
     /**
@@ -114,7 +113,7 @@ public class Flagship {
      * @return Visitor
      */
     public static Visitor newVisitor(String visitorId, HashMap<String, Object> context) {
-        if (isReady())
+        if (isReady() && visitorId != null)
             return new Visitor(instance.decisionManager, getConfig(), visitorId, (context != null) ? context : new HashMap<String, Object>());
         return null;
     }

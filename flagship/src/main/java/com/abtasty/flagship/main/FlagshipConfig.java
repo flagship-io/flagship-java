@@ -28,7 +28,7 @@ public class FlagshipConfig {
      * @param envId : Environment id provided by Flagship.
      * @param apiKey : Secure api key provided by Flagship.
      */
-    public FlagshipConfig(String envId, String apiKey) {
+    protected FlagshipConfig(String envId, String apiKey) {
         this.envId = envId;
         this.apiKey = apiKey;
     }
@@ -38,7 +38,7 @@ public class FlagshipConfig {
      * @param envId environment id.
      * @return FlagshipConfig
      */
-    FlagshipConfig withEnvId(String envId) {
+    protected FlagshipConfig withEnvId(String envId) {
         this.envId = envId;
         return this;
     }
@@ -48,7 +48,7 @@ public class FlagshipConfig {
      * @param apiKey secure api key.
      * @return FlagshipConfig
      */
-    FlagshipConfig withApiKey(String apiKey) {
+    protected FlagshipConfig withApiKey(String apiKey) {
         this.apiKey = apiKey;
         return this;
     }

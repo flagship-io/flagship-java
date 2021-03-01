@@ -1,9 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="FlagshipIntegrationTests" tests="1" skipped="0" failures="0" errors="0" timestamp="2021-02-26T15:01:58" hostname="raph-XPS-13-9370" time="1.511">
+<testsuite name="FlagshipIntegrationTests" tests="5" skipped="0" failures="0" errors="0" timestamp="2021-03-01T18:23:29" hostname="raph-XPS-13-9370" time="0.764">
   <properties/>
-  <testcase name="synchronize" classname="FlagshipIntegrationTests" time="1.511"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[?[0;2m[2021-02-26 16:02:00][Flagship][INFO][UPDATE_CONTEXT] 'visitor_1' 
+  <testcase name="config" classname="FlagshipIntegrationTests" time="0.603"/>
+  <testcase name="updateContext" classname="FlagshipIntegrationTests" time="0.012"/>
+  <testcase name="synchronize" classname="FlagshipIntegrationTests" time="0.129"/>
+  <testcase name="activate" classname="FlagshipIntegrationTests" time="0.0"/>
+  <testcase name="hits" classname="FlagshipIntegrationTests" time="0.017"/>
+  <system-out><![CDATA[===> {"vid":"visitor_1","t":"SCREENVIEW","ul":"fr_FR","dl":"screen location","sn":2,"uip":"127.0.0.1","cid":"my_env_id","ds":"APP","sr":"200x100"}
+===> {"vid":"visitor_1","t":"SCREENVIEW","ul":"fr_FR","dl":"screen location","sn":2,"uip":"127.0.0.1","cid":"my_env_id","ds":"APP","sr":"200x100"}
+===> {"vid":"visitor_1","ev":100,"t":"EVENT","el":"label","ea":"action","ec":"User Engagement","cid":"my_env_id","ds":"APP"}
+===> {"tt":19.99,"ta":"affiliation","tid":"#12345","ds":"APP","tc":"EUR","vid":"visitor_1","t":"TRANSACTION","tcc":"code","icn":1,"sm":"1day","pm":"creditcard","tr":199.99,"cid":"my_env_id","ts":9.99}
+===> {"vid":"visitor_1","t":"ITEM","in":"product","ip":199.99,"iq":1,"ic":"sku123","iv":"test","tid":"#12345","cid":"my_env_id","ds":"APP"}
+===> {"tt":19.99,"ta":"affiliation","tid":"#12345","ds":"APP","tc":"EUR","vid":"visitor_1","t":"TRANSACTION","tcc":"code","icn":1,"sm":"1day","pm":"creditcard","tr":199.99,"cid":"my_env_id","ts":9.99}
+===> {"vid":"visitor_1","t":"ITEM","in":"product","ip":199.99,"iq":1,"ic":"sku123","iv":"test","tid":"#12345","cid":"my_env_id","ds":"APP"}
+===> {"vid":"visitor_1","t":"ITEM","in":"product","ip":199.99,"iq":1,"ic":"sku123","iv":"test","tid":"#12345","cid":"my_env_id","ds":"APP"}
+]]></system-out>
+  <system-err><![CDATA[?[0;2m[2021-03-01 19:23:30][Flagship][INFO][INITIALIZATION] Flagship SDK started.?[0m
+?[0;2m[2021-03-01 19:23:30][Flagship][INFO][INITIALIZATION] Flagship SDK started.?[0m
+?[0;2m[2021-03-01 19:23:30][Flagship][INFO][UPDATE_CONTEXT] 'visitor_1' 
 {
   "context": {
     "vip": true,
@@ -12,7 +26,7 @@
   "visitorId": "visitor_1",
   "modifications": {}
 }?[0m
-?[0;2m[2021-02-26 16:02:00][Flagship][INFO][CAMPAIGNS] [POST] https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true&sendContextEvent=false [200]
+?[0;2m[2021-03-01 19:23:30][Flagship][INFO][CAMPAIGNS] [POST] https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true&sendContextEvent=false [200]
 {
   "campaigns": [
     {
@@ -42,7 +56,7 @@
   ],
   "visitorId": "visitor_1"
 }?[0m
-?[0;2m[2021-02-26 16:02:00][Flagship][INFO][SYNCHRONIZE] 'visitor_1' 
+?[0;2m[2021-03-01 19:23:30][Flagship][INFO][SYNCHRONIZE] 'visitor_1' 
 {
   "context": {
     "vip": true,
@@ -53,6 +67,74 @@
     "isref": "not a all",
     "release": 100
   }
+}?[0m
+?[0;2m[2021-03-01 19:23:30][Flagship][INFO][INITIALIZATION] Flagship SDK started.?[0m
+?[0;2m[2021-03-01 19:23:30][Flagship][INFO][UPDATE_CONTEXT] 'visitor_1' 
+{
+  "context": {},
+  "visitorId": "visitor_1",
+  "modifications": {}
+}?[0m
+?[0;2m[2021-03-01 19:23:30][Flagship][INFO][HIT]  [POST]  https://ariane.abtasty.com  [200] 
+{
+  "vid": "visitor_1",
+  "t": "PAGEVIEW",
+  "dl": "https://location.com",
+  "cid": "my_env_id",
+  "ds": "APP"
+}?[0m
+?[0;2m[2021-03-01 19:23:30][Flagship][INFO][HIT]  [POST]  https://ariane.abtasty.com  [200] 
+{
+  "vid": "visitor_1",
+  "t": "SCREENVIEW",
+  "ul": "fr_FR",
+  "dl": "screen location",
+  "sn": 2,
+  "uip": "127.0.0.1",
+  "cid": "my_env_id",
+  "ds": "APP",
+  "sr": "200x100"
+}?[0m
+?[0;2m[2021-03-01 19:23:30][Flagship][INFO][HIT]  [POST]  https://ariane.abtasty.com  [200] 
+{
+  "vid": "visitor_1",
+  "ev": 100,
+  "t": "EVENT",
+  "el": "label",
+  "ea": "action",
+  "ec": "User Engagement",
+  "cid": "my_env_id",
+  "ds": "APP"
+}?[0m
+?[0;2m[2021-03-01 19:23:30][Flagship][INFO][HIT]  [POST]  https://ariane.abtasty.com  [200] 
+{
+  "tt": 19.99,
+  "ta": "affiliation",
+  "tid": "#12345",
+  "ds": "APP",
+  "tc": "EUR",
+  "vid": "visitor_1",
+  "t": "TRANSACTION",
+  "tcc": "code",
+  "icn": 1,
+  "sm": "1day",
+  "pm": "creditcard",
+  "tr": 199.99,
+  "cid": "my_env_id",
+  "ts": 9.99
+}?[0m
+?[0;2m[2021-03-01 19:23:30][Flagship][INFO][HIT]  [POST]  https://ariane.abtasty.com  [200] 
+{
+  "vid": "visitor_1",
+  "t": "ITEM",
+  "in": "product",
+  "ip": 199.99,
+  "iq": 1,
+  "ic": "sku123",
+  "iv": "test",
+  "tid": "#12345",
+  "cid": "my_env_id",
+  "ds": "APP"
 }?[0m
 ]]></system-err>
 </testsuite>

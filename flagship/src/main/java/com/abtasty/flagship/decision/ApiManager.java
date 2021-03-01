@@ -3,26 +3,15 @@ package com.abtasty.flagship.decision;
 import com.abtasty.flagship.api.HttpHelper;
 import com.abtasty.flagship.api.Response;
 import com.abtasty.flagship.main.FlagshipConfig;
-import com.abtasty.flagship.main.Visitor;
 import com.abtasty.flagship.model.Campaign;
 import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.LogLevel;
 import com.abtasty.flagship.utils.LogManager;
 import org.json.JSONObject;
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.function.Function;
 
 public class ApiManager extends DecisionManager {
 
@@ -85,6 +74,6 @@ public class ApiManager extends DecisionManager {
                 .append("[" + response.getResponseCode() + "]")
                 .append("\n")
                 .append(content);
-        LogManager.log(LogManager.Tag.CAMPAINGS, response.isSuccess() ? LogLevel.INFO : LogLevel.ERROR, message.toString());
+        LogManager.log(LogManager.Tag.CAMPAIGNS, response.isSuccess() ? LogLevel.INFO : LogLevel.ERROR, message.toString());
     }
 }

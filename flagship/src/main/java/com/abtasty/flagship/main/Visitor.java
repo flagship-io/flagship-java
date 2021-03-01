@@ -143,6 +143,7 @@ public class Visitor {
                         this.modifications.putAll(modifications);
                 }
             } catch (Exception e) {
+                e.printStackTrace();
             }
         }).whenCompleteAsync((Void, error) -> {
             logVisitor(LogManager.Tag.SYNCHRONIZE);

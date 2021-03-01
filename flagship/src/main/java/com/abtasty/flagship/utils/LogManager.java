@@ -14,7 +14,7 @@ public class LogManager implements ILogManager {
         CONFIGURATION("[CONFIGURATION]"),
         UPDATE_CONTEXT("[UPDATE_CONTEXT]"),
         SYNCHRONIZE("[SYNCHRONIZE]"),
-        CAMPAINGS("[CAMPAIGNS]"),
+        CAMPAIGNS("[CAMPAIGNS]"),
         PARSING("[PARSING]"),
         GET_MODIFICATION("[GET_MODIFICATION]"),
         GET_MODIFICATION_INFO("[GET_MODIFICATION_INFO]"),
@@ -33,7 +33,7 @@ public class LogManager implements ILogManager {
         }
     }
 
-    public class LogFormatter extends Formatter {
+    public static class LogFormatter extends Formatter {
 
         public static final String RESET = "\033[0m";
         public static final String BLACK = "\033[0;30m";
@@ -84,14 +84,14 @@ public class LogManager implements ILogManager {
 
         private String calcDate(long millisecs) {
             SimpleDateFormat date_format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            Date resultdate = new Date(millisecs);
-            return date_format.format(resultdate);
+            Date resultDate = new Date(millisecs);
+            return date_format.format(resultDate);
         }
     }
 
-    private Flagship.Log logMode = Flagship.Log.ALL;
-    private String mainTag = "[Flagship]";
-    private Logger logger = Logger.getLogger(LogManager.class.getName());
+    private Flagship.Log    logMode = Flagship.Log.ALL;
+    private String          mainTag = "[Flagship]";
+    private Logger          logger = Logger.getLogger(LogManager.class.getName());
 
     public LogManager(Flagship.Log logMode) {
         if (logMode != null)
@@ -105,14 +105,16 @@ public class LogManager implements ILogManager {
     }
 
     public static void log(Tag tag, LogLevel level, String message) {
-        Flagship.getConfig().getLogManager().onLog(tag, level, message);
+        if (Flagship.getConfig() != null) {
+            LogManager logManager = Flagship.getConfig().getLogManager();
+            if (logManager.checkLogModeAllowed(level) && tag != null && message != null)
+                logManager.onLog(tag, level, message);
+        }
     }
 
     @Override
     public void onLog(Tag tag, LogLevel level, String message) {
-        if (checkLogModeAllowed(level) && tag != null && message != null) {
-            logger.log(level.getValue(), this.mainTag + "[" + level.toString() + "]" + tag.getName() + " " + message);
-        }
+        logger.log(level.getValue(), this.mainTag + "[" + level.toString() + "]" + tag.getName() + " " + message);
     }
 
     @Override
@@ -120,7 +122,7 @@ public class LogManager implements ILogManager {
         onLog(tag, level, stacktrace);
     }
 
-    private Boolean checkLogModeAllowed(LogLevel level) {
+    protected Boolean checkLogModeAllowed(LogLevel level) {
         boolean check = true;
         switch (this.logMode) {
             case NONE:

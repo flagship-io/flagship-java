@@ -23,7 +23,7 @@
 <tr>
 <td>
 <div class="infoBox" id="tests">
-<div class="counter">1</div>
+<div class="counter">5</div>
 <p>tests</p>
 </div>
 </td>
@@ -41,7 +41,7 @@
 </td>
 <td>
 <div class="infoBox" id="duration">
-<div class="counter">1.511s</div>
+<div class="counter">0.761s</div>
 <p>duration</p>
 </div>
 </td>
@@ -64,7 +64,10 @@
 <a href="#tab0">Tests</a>
 </li>
 <li>
-<a href="#tab1">Standard error</a>
+<a href="#tab1">Standard output</a>
+</li>
+<li>
+<a href="#tab2">Standard error</a>
 </li>
 </ul>
 <div id="tab0" class="tab">
@@ -78,16 +81,52 @@
 </tr>
 </thead>
 <tr>
+<td class="success">activate</td>
+<td class="success">0s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">config</td>
+<td class="success">0.603s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">hits</td>
+<td class="success">0.017s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
 <td class="success">synchronize</td>
-<td class="success">1.511s</td>
+<td class="success">0.129s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">updateContext</td>
+<td class="success">0.012s</td>
 <td class="success">passed</td>
 </tr>
 </table>
 </div>
 <div id="tab1" class="tab">
+<h2>Standard output</h2>
+<span class="code">
+<pre>===&gt; {&quot;vid&quot;:&quot;visitor_1&quot;,&quot;t&quot;:&quot;SCREENVIEW&quot;,&quot;ul&quot;:&quot;fr_FR&quot;,&quot;dl&quot;:&quot;screen location&quot;,&quot;sn&quot;:2,&quot;uip&quot;:&quot;127.0.0.1&quot;,&quot;cid&quot;:&quot;my_env_id&quot;,&quot;ds&quot;:&quot;APP&quot;,&quot;sr&quot;:&quot;200x100&quot;}
+===&gt; {&quot;vid&quot;:&quot;visitor_1&quot;,&quot;t&quot;:&quot;SCREENVIEW&quot;,&quot;ul&quot;:&quot;fr_FR&quot;,&quot;dl&quot;:&quot;screen location&quot;,&quot;sn&quot;:2,&quot;uip&quot;:&quot;127.0.0.1&quot;,&quot;cid&quot;:&quot;my_env_id&quot;,&quot;ds&quot;:&quot;APP&quot;,&quot;sr&quot;:&quot;200x100&quot;}
+===&gt; {&quot;vid&quot;:&quot;visitor_1&quot;,&quot;ev&quot;:100,&quot;t&quot;:&quot;EVENT&quot;,&quot;el&quot;:&quot;label&quot;,&quot;ea&quot;:&quot;action&quot;,&quot;ec&quot;:&quot;User Engagement&quot;,&quot;cid&quot;:&quot;my_env_id&quot;,&quot;ds&quot;:&quot;APP&quot;}
+===&gt; {&quot;tt&quot;:19.99,&quot;ta&quot;:&quot;affiliation&quot;,&quot;tid&quot;:&quot;#12345&quot;,&quot;ds&quot;:&quot;APP&quot;,&quot;tc&quot;:&quot;EUR&quot;,&quot;vid&quot;:&quot;visitor_1&quot;,&quot;t&quot;:&quot;TRANSACTION&quot;,&quot;tcc&quot;:&quot;code&quot;,&quot;icn&quot;:1,&quot;sm&quot;:&quot;1day&quot;,&quot;pm&quot;:&quot;creditcard&quot;,&quot;tr&quot;:199.99,&quot;cid&quot;:&quot;my_env_id&quot;,&quot;ts&quot;:9.99}
+===&gt; {&quot;vid&quot;:&quot;visitor_1&quot;,&quot;t&quot;:&quot;ITEM&quot;,&quot;in&quot;:&quot;product&quot;,&quot;ip&quot;:199.99,&quot;iq&quot;:1,&quot;ic&quot;:&quot;sku123&quot;,&quot;iv&quot;:&quot;test&quot;,&quot;tid&quot;:&quot;#12345&quot;,&quot;cid&quot;:&quot;my_env_id&quot;,&quot;ds&quot;:&quot;APP&quot;}
+===&gt; {&quot;tt&quot;:19.99,&quot;ta&quot;:&quot;affiliation&quot;,&quot;tid&quot;:&quot;#12345&quot;,&quot;ds&quot;:&quot;APP&quot;,&quot;tc&quot;:&quot;EUR&quot;,&quot;vid&quot;:&quot;visitor_1&quot;,&quot;t&quot;:&quot;TRANSACTION&quot;,&quot;tcc&quot;:&quot;code&quot;,&quot;icn&quot;:1,&quot;sm&quot;:&quot;1day&quot;,&quot;pm&quot;:&quot;creditcard&quot;,&quot;tr&quot;:199.99,&quot;cid&quot;:&quot;my_env_id&quot;,&quot;ts&quot;:9.99}
+===&gt; {&quot;vid&quot;:&quot;visitor_1&quot;,&quot;t&quot;:&quot;ITEM&quot;,&quot;in&quot;:&quot;product&quot;,&quot;ip&quot;:199.99,&quot;iq&quot;:1,&quot;ic&quot;:&quot;sku123&quot;,&quot;iv&quot;:&quot;test&quot;,&quot;tid&quot;:&quot;#12345&quot;,&quot;cid&quot;:&quot;my_env_id&quot;,&quot;ds&quot;:&quot;APP&quot;}
+===&gt; {&quot;vid&quot;:&quot;visitor_1&quot;,&quot;t&quot;:&quot;ITEM&quot;,&quot;in&quot;:&quot;product&quot;,&quot;ip&quot;:199.99,&quot;iq&quot;:1,&quot;ic&quot;:&quot;sku123&quot;,&quot;iv&quot;:&quot;test&quot;,&quot;tid&quot;:&quot;#12345&quot;,&quot;cid&quot;:&quot;my_env_id&quot;,&quot;ds&quot;:&quot;APP&quot;}
+</pre>
+</span>
+</div>
+<div id="tab2" class="tab">
 <h2>Standard error</h2>
 <span class="code">
-<pre>?[0;2m[2021-02-26 16:02:00][Flagship][INFO][UPDATE_CONTEXT] 'visitor_1' 
+<pre>?[0;2m[2021-03-01 19:23:30][Flagship][INFO][INITIALIZATION] Flagship SDK started.?[0m
+?[0;2m[2021-03-01 19:23:30][Flagship][INFO][INITIALIZATION] Flagship SDK started.?[0m
+?[0;2m[2021-03-01 19:23:30][Flagship][INFO][UPDATE_CONTEXT] 'visitor_1' 
 {
   &quot;context&quot;: {
     &quot;vip&quot;: true,
@@ -96,7 +135,7 @@
   &quot;visitorId&quot;: &quot;visitor_1&quot;,
   &quot;modifications&quot;: {}
 }?[0m
-?[0;2m[2021-02-26 16:02:00][Flagship][INFO][CAMPAIGNS] [POST] https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true&amp;sendContextEvent=false [200]
+?[0;2m[2021-03-01 19:23:30][Flagship][INFO][CAMPAIGNS] [POST] https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true&amp;sendContextEvent=false [200]
 {
   &quot;campaigns&quot;: [
     {
@@ -126,7 +165,7 @@
   ],
   &quot;visitorId&quot;: &quot;visitor_1&quot;
 }?[0m
-?[0;2m[2021-02-26 16:02:00][Flagship][INFO][SYNCHRONIZE] 'visitor_1' 
+?[0;2m[2021-03-01 19:23:30][Flagship][INFO][SYNCHRONIZE] 'visitor_1' 
 {
   &quot;context&quot;: {
     &quot;vip&quot;: true,
@@ -137,6 +176,74 @@
     &quot;isref&quot;: &quot;not a all&quot;,
     &quot;release&quot;: 100
   }
+}?[0m
+?[0;2m[2021-03-01 19:23:30][Flagship][INFO][INITIALIZATION] Flagship SDK started.?[0m
+?[0;2m[2021-03-01 19:23:30][Flagship][INFO][UPDATE_CONTEXT] 'visitor_1' 
+{
+  &quot;context&quot;: {},
+  &quot;visitorId&quot;: &quot;visitor_1&quot;,
+  &quot;modifications&quot;: {}
+}?[0m
+?[0;2m[2021-03-01 19:23:30][Flagship][INFO][HIT]  [POST]  https://ariane.abtasty.com  [200] 
+{
+  &quot;vid&quot;: &quot;visitor_1&quot;,
+  &quot;t&quot;: &quot;PAGEVIEW&quot;,
+  &quot;dl&quot;: &quot;https://location.com&quot;,
+  &quot;cid&quot;: &quot;my_env_id&quot;,
+  &quot;ds&quot;: &quot;APP&quot;
+}?[0m
+?[0;2m[2021-03-01 19:23:30][Flagship][INFO][HIT]  [POST]  https://ariane.abtasty.com  [200] 
+{
+  &quot;vid&quot;: &quot;visitor_1&quot;,
+  &quot;t&quot;: &quot;SCREENVIEW&quot;,
+  &quot;ul&quot;: &quot;fr_FR&quot;,
+  &quot;dl&quot;: &quot;screen location&quot;,
+  &quot;sn&quot;: 2,
+  &quot;uip&quot;: &quot;127.0.0.1&quot;,
+  &quot;cid&quot;: &quot;my_env_id&quot;,
+  &quot;ds&quot;: &quot;APP&quot;,
+  &quot;sr&quot;: &quot;200x100&quot;
+}?[0m
+?[0;2m[2021-03-01 19:23:30][Flagship][INFO][HIT]  [POST]  https://ariane.abtasty.com  [200] 
+{
+  &quot;vid&quot;: &quot;visitor_1&quot;,
+  &quot;ev&quot;: 100,
+  &quot;t&quot;: &quot;EVENT&quot;,
+  &quot;el&quot;: &quot;label&quot;,
+  &quot;ea&quot;: &quot;action&quot;,
+  &quot;ec&quot;: &quot;User Engagement&quot;,
+  &quot;cid&quot;: &quot;my_env_id&quot;,
+  &quot;ds&quot;: &quot;APP&quot;
+}?[0m
+?[0;2m[2021-03-01 19:23:30][Flagship][INFO][HIT]  [POST]  https://ariane.abtasty.com  [200] 
+{
+  &quot;tt&quot;: 19.99,
+  &quot;ta&quot;: &quot;affiliation&quot;,
+  &quot;tid&quot;: &quot;#12345&quot;,
+  &quot;ds&quot;: &quot;APP&quot;,
+  &quot;tc&quot;: &quot;EUR&quot;,
+  &quot;vid&quot;: &quot;visitor_1&quot;,
+  &quot;t&quot;: &quot;TRANSACTION&quot;,
+  &quot;tcc&quot;: &quot;code&quot;,
+  &quot;icn&quot;: 1,
+  &quot;sm&quot;: &quot;1day&quot;,
+  &quot;pm&quot;: &quot;creditcard&quot;,
+  &quot;tr&quot;: 199.99,
+  &quot;cid&quot;: &quot;my_env_id&quot;,
+  &quot;ts&quot;: 9.99
+}?[0m
+?[0;2m[2021-03-01 19:23:30][Flagship][INFO][HIT]  [POST]  https://ariane.abtasty.com  [200] 
+{
+  &quot;vid&quot;: &quot;visitor_1&quot;,
+  &quot;t&quot;: &quot;ITEM&quot;,
+  &quot;in&quot;: &quot;product&quot;,
+  &quot;ip&quot;: 199.99,
+  &quot;iq&quot;: 1,
+  &quot;ic&quot;: &quot;sku123&quot;,
+  &quot;iv&quot;: &quot;test&quot;,
+  &quot;tid&quot;: &quot;#12345&quot;,
+  &quot;cid&quot;: &quot;my_env_id&quot;,
+  &quot;ds&quot;: &quot;APP&quot;
 }?[0m
 </pre>
 </span>
@@ -149,7 +256,7 @@
 <input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
 </label>
 </div>Generated by 
-<a href="http://www.gradle.org">Gradle 6.5</a> at 26 févr. 2021 16:02:00</p>
+<a href="http://www.gradle.org">Gradle 6.5</a> at 1 mars 2021 19:23:30</p>
 </div>
 </div>
 </body>

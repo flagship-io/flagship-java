@@ -2,6 +2,10 @@ package com.abtasty.flagship.utils;
 
 public final class FlagshipConstants {
 
+    public static class Info {
+        public static String STARTED = "Flagship SDK started.";
+    }
+
     public static class Errors {
         public static String INITIALIZATION_PARAM_ERROR = "Params 'envId' and 'apiKey' must not be null.";
         public static String INITIALIZATION_PARAM_ERROR_CONFIG = "Param 'config' must not be null.";

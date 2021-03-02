@@ -94,6 +94,7 @@ public class FlagshipIntegrationTests {
                         } catch (Error | Exception e) {
                             requestsVerified = false;
                             System.err.println("Error verifying : " + response.requestUrl);
+                            e.printStackTrace();
                         }
                     } else {
                         missingRequestVerification = true;
@@ -225,9 +226,9 @@ public class FlagshipIntegrationTests {
     public void synchronize() {
 
         try {
-            mockResponse("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true&sendContextEvent=false", 200, FlagshipIntegrationConstants.synchronizeResponse);
+            mockResponse("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", 200, FlagshipIntegrationConstants.synchronizeResponse);
 
-            verifyRequest("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true&sendContextEvent=false", (request) -> {
+            verifyRequest("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", (request) -> {
                 assertTrue(request.getType().toString().equalsIgnoreCase("POST"));
                 assertTrue(request.getRequestHeaders().containsKey("x-api-key"));
                 assertEquals(request.getRequestHeaders().get("x-api-key"), "my_api_key");
@@ -272,15 +273,61 @@ public class FlagshipIntegrationTests {
 
         mockResponse("https://ariane.abtasty.com", 200, "");
 
-
         verifyRequest("https://ariane.abtasty.com", (request) -> {
-
             assertEquals(request.getType().toString(), "POST");
             JSONObject content = new JSONObject(request.getRequestContent());
             assertEquals(content.getString("vid"), "visitor_1");
-            //add more usecases
-            System.out.println("===> " + content);
-            nbHit.countDown();
+            assertEquals(content.getString("ds"), "APP");
+            assertEquals(content.get("cid"), "my_env_id");
+            assertTrue(content.has("t"));
+            switch (content.get("t").toString()) {
+                case ("SCREENVIEW"): {
+                    assertEquals(content.get("uip"), "127.0.0.1");
+                    assertEquals(content.get("dl"), "screen location");
+                    assertEquals(content.get("sr"), "200x100");
+                    assertEquals(content.get("ul"), "fr_FR");
+                    assertEquals(content.getInt("sn"), 2);
+                    nbHit.countDown();
+                    break;
+                }
+                case ("PAGEVIEW"): {
+                    assertEquals(content.get("dl"), "https://location.com");
+                    nbHit.countDown();
+                    break;
+                }
+                case ("EVENT"): {
+                    assertEquals(content.get("el"), "label");
+                    assertEquals(content.get("ea"), "action");
+                    assertEquals(content.get("ec"), "User Engagement");
+                    assertEquals(content.getInt("ev"), 100);
+                    nbHit.countDown();
+                    break;
+                }
+                case ("TRANSACTION"): {
+                    assertEquals(content.get("icn"), 1);
+                    assertEquals(content.getDouble("tt"), 19.99);
+                    assertEquals(content.getDouble("tr"), 199.99);
+                    assertEquals(content.getDouble("ts"), 9.99);
+                    assertEquals(content.get("tc"), "EUR");
+                    assertEquals(content.get("sm"), "1day");
+                    assertEquals(content.get("tid"), "#12345");
+                    assertEquals(content.get("ta"), "affiliation");
+                    assertEquals(content.get("tcc"), "code");
+                    assertEquals(content.get("pm"), "creditcard");
+                    nbHit.countDown();
+                    break;
+                }
+                case ("ITEM"): {
+                    assertEquals(content.getInt("iq"), 1);
+                    assertEquals(content.get("tid"), "#12345");
+                    assertEquals(content.getDouble("ip"), 199.99);
+                    assertEquals(content.get("iv"), "test");
+                    assertEquals(content.get("in"), "product");
+                    assertEquals(content.get("ic"), "sku123");
+                    nbHit.countDown();
+                    break;
+                }
+            }
         });
 
 
@@ -325,13 +372,14 @@ public class FlagshipIntegrationTests {
         visitor.sendHit(transaction2);
         visitor.sendHit(item);
         visitor.sendHit(item2);
-
         try {
-            if (!nbHit.await(1, TimeUnit.SECONDS))
+            if (!nbHit.await(500, TimeUnit.SECONDS))
                 fail();
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
     }
 
 //    @Test

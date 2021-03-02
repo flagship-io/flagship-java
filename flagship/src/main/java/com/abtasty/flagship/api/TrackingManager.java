@@ -7,6 +7,9 @@ import com.abtasty.flagship.utils.LogLevel;
 import com.abtasty.flagship.utils.LogManager;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class TrackingManager implements IFlagshipEndpoints {
 
     public TrackingManager() {
@@ -47,5 +50,22 @@ public class TrackingManager implements IFlagshipEndpoints {
                 .append("\n")
                 .append(h.getData().toString(2));
         LogManager.log(tag, level, content.toString());
+    }
+
+    public void sendContextRequest(String envId, String visitorId, HashMap<String, Object> context) {
+        try {
+            String endpoint = DECISION_API + envId + EVENTS;
+            JSONObject body = new JSONObject();
+            JSONObject data = new JSONObject();
+            body.put("visitorId", visitorId);
+            body.put("type", "CONTEXT");
+            for (Map.Entry<String, Object> item : context.entrySet()) {
+                data.put(item.getKey(), item.getValue());
+            }
+            body.put("data", data);
+            HttpHelper.sendAsyncHttpRequest(HttpHelper.RequestType.POST, endpoint, null, body.toString(), null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -22,8 +22,12 @@ import java.io.ByteArrayOutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.powermock.api.mockito.PowerMockito.doAnswer;
@@ -33,44 +37,12 @@ import static org.powermock.api.mockito.PowerMockito.spy;
 @PrepareForTest({ URL.class, HttpHelper.class })
 public class FlagshipIntegrationTests {
 
-    private final HashMap<String, OnRequestValidation>  requestToVerify             = new HashMap<>();
-    private final HashMap<String, HttpURLConnection>    responseToMock              = new HashMap<>();
+    private HashMap<String, OnRequestValidation>  requestToVerify             = new HashMap<>();
+    private HashMap<String, HttpURLConnection>    responseToMock              = new HashMap<>();
     private Boolean                                     requestsVerified            = true;
     private Boolean                                     missingRequestVerification  = false;
 
-    interface OnRequestValidation {
-        void onRequestValidation(Response response);
-    }
-
-    public void verifyRequest(String url, OnRequestValidation validation) {
-        if (url != null && validation != null)
-            requestToVerify.put(url, validation);
-    }
-
-    public void mockResponse(String url, int code, String content) {
-        if (url != null && code > 0 && content != null) {
-            HttpURLConnection connection = PowerMockito.mock(HttpURLConnection.class);
-            try {
-                PowerMockito.when(connection.getResponseCode()).thenReturn(code);
-                PowerMockito.when(connection.getInputStream()).thenReturn(new ByteArrayInputStream(content.getBytes()));
-                PowerMockito.when(connection.getOutputStream()).thenReturn(new ByteArrayOutputStream());
-                PowerMockito.when(connection.getErrorStream()).thenCallRealMethod();
-                PowerMockito.when(connection.getResponseMessage()).thenCallRealMethod();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            responseToMock.put(url, connection);
-        }
-    }
-
-    @Before
-    public void before() {
-
-        requestsVerified = true;
-        missingRequestVerification = false;
-        responseToMock.clear();
-        requestToVerify.clear();
-
+    public FlagshipIntegrationTests() {
         try {
             spy(HttpHelper.class);
             doAnswer(new Answer<Object>() {
@@ -102,17 +74,96 @@ public class FlagshipIntegrationTests {
                     }
                     return response;
                 }
-            }).when(HttpHelper.class, "parseResponse", any(), any(), any(), any(), any());
+            }).when(HttpHelper.class, "parseResponse", null, null, null, null, null);
         } catch (Exception e) {
             e.printStackTrace();
             fail();
         }
     }
 
+    interface OnRequestValidation {
+        void onRequestValidation(Response response);
+    }
+
+    public void verifyRequest(String url, OnRequestValidation validation) {
+        if (url != null && validation != null)
+            requestToVerify.put(url, validation);
+    }
+
+    public void mockResponse(String url, int code, String content) {
+        if (url != null && code > 0 && content != null) {
+            HttpURLConnection connection = PowerMockito.mock(HttpURLConnection.class);
+            try {
+                PowerMockito.when(connection.getResponseCode()).thenReturn(code);
+                PowerMockito.when(connection.getInputStream()).thenReturn(new ByteArrayInputStream(content.getBytes()));
+                PowerMockito.when(connection.getOutputStream()).thenReturn(new ByteArrayOutputStream());
+                PowerMockito.when(connection.getErrorStream()).thenCallRealMethod();
+                PowerMockito.when(connection.getResponseMessage()).thenCallRealMethod();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            responseToMock.put(url, connection);
+        }
+    }
+
+    @Before
+    public void before() {
+
+        requestsVerified = true;
+        missingRequestVerification = false;
+        for (Map.Entry<String, HttpURLConnection> entry : responseToMock.entrySet()) {
+            entry.getValue().disconnect();
+        }
+        responseToMock.clear();
+        requestToVerify.clear();
+
+//        try {
+//            spy(HttpHelper.class);
+//            doAnswer(new Answer<Object>() {
+//                @Override
+//                public Object answer(InvocationOnMock invocation) throws Throwable {
+//                    URL url = invocation.getArgument(0);
+//                    if (responseToMock.containsKey(url.toString()))
+//                        return responseToMock.get(url.toString());
+//                    else
+//                        return invocation.callRealMethod();
+//                }
+//            }).when(HttpHelper.class, "createConnection", any());
+//
+//            doAnswer(new Answer<Object>() {
+//                @Override
+//                public Object answer(InvocationOnMock invocation) throws Throwable {
+//                    Response response = (Response) invocation.callRealMethod();
+//                    if (requestToVerify.containsKey(response.requestUrl)) {
+//                        try {
+//                            requestToVerify.get(response.getRequestUrl()).onRequestValidation(response);
+//                        } catch (Error | Exception e) {
+//                            requestsVerified = false;
+//                            System.err.println("Error verifying : " + response.requestUrl);
+//                            e.printStackTrace();
+//                        }
+//                    } else {
+//                        missingRequestVerification = true;
+//                        System.err.println("Error url not verified : " + response.requestUrl);
+//                    }
+//                    return response;
+//                }
+//            }).when(HttpHelper.class, "parseResponse", any(), any(), any(), any(), any());
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            fail();
+//        }
+    }
+
     @After
     public void after() {
         assertTrue(requestsVerified);
         assertFalse(missingRequestVerification);
+//        try {
+//            Thread.sleep(2000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
     }
 
     @Test
@@ -264,6 +315,50 @@ public class FlagshipIntegrationTests {
     @Test
     public void activate() {
 
+        mockResponse("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", 200, FlagshipIntegrationConstants.synchronizeResponse2);
+        mockResponse("https://decision.flagship.io/v2/activate", 200, "");
+
+        verifyRequest("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", (request) -> {
+        });
+
+        CountDownLatch nbHit = new CountDownLatch(2);
+        verifyRequest("https://decision.flagship.io/v2/activate", (request) -> {
+            JSONObject content = new JSONObject(request.requestContent);
+            assertEquals(content.getString("vid"), "visitor_1");
+            assertEquals(content.getString("cid"), "my_env_id");
+            if (content.getString("vaid").contains("xxxxxx65k9h02cuc1ae0") &&
+                    content.getString("caid").contains("xxxxxxjh6h101fk8lbsg")) {
+                nbHit.countDown();
+            }
+            if (content.getString("vaid").contains("xxxxxx3m649g0h9nkuk0") &&
+                    content.getString("caid").contains("xxxxxx3m649g0h9nkuj0")) {
+                nbHit.countDown();
+            }
+        });
+
+        Flagship.start("my_env_id", "my_api_key");
+        Visitor visitor = Flagship.newVisitor("visitor_1", new HashMap<String, Object>() {{
+            put("isVIPUser", true);
+            put("age", 32);
+            put("daysSinceLastLaunch", 2);
+        }});
+
+        try {
+            CountDownLatch synchronizeLatch = new CountDownLatch(1);
+            visitor.synchronizeModifications(() -> {
+                assertEquals(visitor.getModification("isref", "default", true), "not a all");
+                assertEquals(visitor.getModification("release", 0), 100);
+                assertEquals(visitor.getModification("target", "default", true), "default");
+                visitor.activateModification("release");
+                visitor.activateModification("wrong");
+                synchronizeLatch.countDown();
+            });
+            if (!synchronizeLatch.await(1, TimeUnit.SECONDS) && !nbHit.await(1, TimeUnit.SECONDS))
+                fail();
+//            Thread.sleep(1000);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
@@ -373,17 +468,51 @@ public class FlagshipIntegrationTests {
         visitor.sendHit(item);
         visitor.sendHit(item2);
         try {
-            if (!nbHit.await(500, TimeUnit.SECONDS))
+            if (!nbHit.await(2, TimeUnit.SECONDS))
                 fail();
-            Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
     }
 
-//    @Test
-//    public void panic() {
-//
-//    }
+    @Test
+    public void panic() throws InterruptedException {
+        AtomicBoolean calls = new AtomicBoolean(false);
+        CountDownLatch campaignsLatch = new CountDownLatch(1);
+        mockResponse("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", 200, FlagshipIntegrationConstants.panic);
+        mockResponse("https://decision.flagship.io/v2/activate", 200, "");
+        mockResponse("https://ariane.abtasty.com", 200, "");
+
+        verifyRequest("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", (request) -> {
+//            callCampaigns.set(true);
+            campaignsLatch.countDown();
+        });
+
+        verifyRequest("https://decision.flagship.io/v2/activate", (request) -> {
+            calls.set(true);
+        });
+
+        verifyRequest("https://ariane.abtasty.com", (request) -> {
+            calls.set(true);
+        });
+
+        Flagship.start("my_env_id", "my_api_key");
+        Visitor visitor = Flagship.newVisitor("visitor_1", new HashMap<String, Object>() {{
+            put("isVIPUser", true);
+            put("age", 32);
+            put("daysSinceLastLaunch", 2);
+        }});
+
+        visitor.synchronizeModifications(() -> {
+
+            visitor.updateContext("hello", "world");
+            assertFalse(visitor.getContext().containsKey("hello"));
+            assertEquals(visitor.getModification("wrong", "wrong", true), "wrong");
+            visitor.sendHit(new Screen("Integration Test"));
+        });
+
+        Thread.sleep(1000);
+        assertFalse(calls.get());
+    }
 }

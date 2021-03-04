@@ -6,6 +6,7 @@ import com.abtasty.flagship.main.FlagshipConfig;
 import com.abtasty.flagship.main.Visitor;
 import com.abtasty.flagship.utils.LogLevel;
 import com.abtasty.flagship.utils.LogManager;
+import com.sun.corba.se.impl.oa.poa.AOMEntry;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
@@ -552,7 +553,98 @@ public class FlagshipIntegrationTests {
             visitor.sendHit(new Screen("Integration Test"));
         });
 
-        Thread.sleep(1000);
+        Thread.sleep(200);
         assertFalse(calls.get());
+
+        AtomicInteger campaignCall = new AtomicInteger(0);
+        mockResponse("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", 200, FlagshipIntegrationConstants.synchronizeResponse2);
+        verifyRequest("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", (request) -> {
+            campaignCall.getAndAdd(1);
+        });
+        visitor.synchronizeModifications(null);
+        Thread.sleep(200);
+        assertEquals(campaignCall.get(), 1);
+    }
+
+    @Test
+    public void getModifications() {
+
+        mockResponse("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", 200, FlagshipIntegrationConstants.synchronizeResponse2);
+        CountDownLatch latch = new CountDownLatch(1);
+        verifyRequest("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", (request) -> {
+
+        });
+
+        Flagship.start("my_env_id", "my_api_key");
+        Visitor visitor = Flagship.newVisitor("visitor_1", new HashMap<String, Object>() {{
+            put("isVIPUser", true);
+            put("age", 32);
+            put("daysSinceLastLaunch", 2);
+        }});
+        visitor.synchronizeModifications(() -> {
+            latch.countDown();
+        });
+        try {
+            if (!latch.await(1000, TimeUnit.MILLISECONDS))
+                fail();
+            assertEquals(visitor.getModification("release", 0, false), 100);
+            assertEquals(visitor.getModification("featureEnabled", false, false), true);
+            assertEquals(visitor.getModification("featureEnabled", "wrong", false), "wrong");
+            assertEquals(visitor.getModification("isref", -1, false), -1);
+            assertEquals(visitor.getModification("visitorIdColor", "default", false), "#E5B21D");
+            assertNull(visitor.getModification(null, null, false));
+            assertEquals(visitor.getModification(null, "default", false), "default");
+            assertNull(visitor.getModification("null", null, false));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void getModificationsInfo() {
+
+        mockResponse("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", 200, FlagshipIntegrationConstants.synchronizeResponse2);
+        CountDownLatch latch = new CountDownLatch(1);
+        verifyRequest("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", (request) -> {
+
+        });
+
+        Flagship.start("my_env_id", "my_api_key");
+        Visitor visitor = Flagship.newVisitor("visitor_1", new HashMap<String, Object>() {{
+            put("isVIPUser", true);
+            put("age", 32);
+            put("daysSinceLastLaunch", 2);
+        }});
+        visitor.synchronizeModifications(() -> {
+            latch.countDown();
+        });
+        try {
+            if (!latch.await(1000, TimeUnit.MILLISECONDS))
+                fail();
+            JSONObject infoRelease = visitor.getModificationInfo("release");
+            JSONObject infoColor = visitor.getModificationInfo("visitorIdColor");
+            JSONObject infoFeature = visitor.getModificationInfo("featureEnabled");
+            JSONObject infoNull = visitor.getModificationInfo(null);
+            JSONObject infoWrong = visitor.getModificationInfo("wrong");
+
+            assertNull(infoNull);
+            assertNull(infoWrong);
+            assertEquals(infoRelease.getString("variationId"), "xxxxxx3m649g0h9nkuk0");
+            assertEquals(infoRelease.getString("variationGroupId"), "xxxxxx3m649g0h9nkuj0");
+            assertEquals(infoRelease.getString("campaignId"), "xxxxxx3m649g0h9nkui0");
+            assertFalse(infoRelease.getBoolean("isReference"));
+
+            assertEquals(infoColor.getString("variationId"), "xxxxxx4jaeg0gm49cn0");
+            assertEquals(infoColor.getString("variationGroupId"), "xxxxxx4jaeg0gm49ckg");
+            assertEquals(infoColor.getString("campaignId"), "xxxxxx4jaeg0gm49cjg");
+            assertFalse(infoColor.getBoolean("isReference"));
+
+            assertEquals(infoFeature.getString("variationId"), "xxxxxxe4jaeg0gi1bhq0");
+            assertEquals(infoFeature.getString("variationGroupId"), "xxxxxxe4jaeg0gi1bhpg");
+            assertEquals(infoFeature.getString("campaignId"), "xxxxxxe4jaeg0gi1bhog");
+            assertFalse(infoFeature.getBoolean("isReference"));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

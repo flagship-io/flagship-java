@@ -155,6 +155,9 @@ public class FlagshipIntegrationTests {
         Flagship.start(null, null, null);
         assertFalse(Flagship.isReady());
 
+        Flagship.start("null", "null", new FlagshipConfig().withFlagshipMode(null));
+        assertTrue(Flagship.isReady());
+
         Flagship.start("my_env_id", "my_api_key");
         assertNotNull(Flagship.getConfig());
         assertTrue(Flagship.isReady());

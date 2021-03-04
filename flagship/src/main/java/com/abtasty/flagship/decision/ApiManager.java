@@ -3,6 +3,7 @@ package com.abtasty.flagship.decision;
 import com.abtasty.flagship.BuildConfig;
 import com.abtasty.flagship.api.HttpHelper;
 import com.abtasty.flagship.api.Response;
+import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.main.FlagshipConfig;
 import com.abtasty.flagship.model.Campaign;
 import com.abtasty.flagship.utils.FlagshipConstants;
@@ -16,15 +17,14 @@ import java.util.HashMap;
 
 public class ApiManager extends DecisionManager {
 
-    public ApiManager(FlagshipConfig config) {
-        super(config);
+    public ApiManager() {
     }
 
     @Override
-    public ArrayList<Campaign> getCampaigns(String visitorId, HashMap<String, Object> context) {
+    public ArrayList<Campaign> getCampaigns(String envId, String visitorId, HashMap<String, Object> context) {
 
         HashMap<String, String> headers = new HashMap<String, String>();
-        headers.put("x-api-key", config.getApiKey());
+        headers.put("x-api-key", Flagship.getConfig().getApiKey());
         headers.put("x-sdk-client", "java");
         headers.put("x-sdk-version", BuildConfig.flagship_version_name);
         JSONObject json = new JSONObject();
@@ -37,7 +37,7 @@ public class ApiManager extends DecisionManager {
         json.put("context", jsonContext);
         ArrayList<Campaign> campaigns  = new ArrayList<Campaign>();
         try {
-            Response response = HttpHelper.sendHttpRequest(HttpHelper.RequestType.POST, DECISION_API + config.getEnvId() + CAMPAIGNS, headers, json.toString());
+            Response response = HttpHelper.sendHttpRequest(HttpHelper.RequestType.POST, DECISION_API + envId + CAMPAIGNS, headers, json.toString());
             if (response != null) {
                 logResponse(response);
                 setPanic(checkPanicResponse(response.getResponseContent()));

@@ -17,10 +17,14 @@ public class FlagshipConfig {
     private LogManager      logManager = new LogManager(Flagship.Log.ALL);
     private TrackingManager trackingManager = new TrackingManager();
 
+    private DecisionManager decisionManager = null;
+
     /**
      * Create a new empty FlagshipConfig configuration.
      */
-    public FlagshipConfig() {}
+    public FlagshipConfig() {
+        initDecisionMode();
+    }
 
     /**
      * Create a new FlagshipConfig configuration.
@@ -31,6 +35,11 @@ public class FlagshipConfig {
     protected FlagshipConfig(String envId, String apiKey) {
         this.envId = envId;
         this.apiKey = apiKey;
+        initDecisionMode();
+    }
+
+    private void initDecisionMode() {
+        this.decisionManager = (this.decisionMode == Flagship.Mode.DECISION_API) ? new ApiManager() : null;
     }
 
     /**
@@ -59,7 +68,10 @@ public class FlagshipConfig {
      * @return FlagshipConfig
      */
     public FlagshipConfig withFlagshipMode(Flagship.Mode mode) {
-        this.decisionMode = mode;
+        if (mode != null) {
+            this.decisionMode = mode;
+            initDecisionMode();
+        }
         return this;
     }
 
@@ -94,6 +106,10 @@ public class FlagshipConfig {
 
     public TrackingManager getTrackingManager() {
         return trackingManager;
+    }
+
+    public DecisionManager getDecisionManager() {
+        return decisionManager;
     }
 
     @Override

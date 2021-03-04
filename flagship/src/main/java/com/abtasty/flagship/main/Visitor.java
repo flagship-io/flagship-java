@@ -1,5 +1,6 @@
 package com.abtasty.flagship.main;
 
+import com.abtasty.flagship.api.TrackingManager;
 import com.abtasty.flagship.decision.DecisionManager;
 import com.abtasty.flagship.hits.Activate;
 import com.abtasty.flagship.hits.Hit;
@@ -19,22 +20,23 @@ import java.util.concurrent.CompletableFuture;
  */
 public class Visitor {
 
-    private String                          visitorId = null;
-    private FlagshipConfig                  config = null;
+    private String                          visitorId;
+    private FlagshipConfig                  config;
     private HashMap<String, Object>         context = new HashMap<>();
     private HashMap<String, Modification>   modifications = new HashMap<>();
-    private DecisionManager                 decisionManager = null;
+    private DecisionManager                 decisionManager;
+    private TrackingManager                 trackingManager;
 
     /**
      * Create a new visitor.
-     * @param decisionManager flagship decision manager.
      * @param config configuration used when the visitor has been created.
      * @param visitorId visitor unique identifier.
      * @param context visitor context.
      */
-    protected Visitor(DecisionManager decisionManager, FlagshipConfig config, String visitorId, HashMap<String, Object> context) {
-        this.decisionManager = decisionManager;
+    protected Visitor(FlagshipConfig config, String visitorId, HashMap<String, Object> context) {
         this.config = config;
+        this.decisionManager = config.getDecisionManager();
+        this.trackingManager = config.getTrackingManager();
         this.visitorId = visitorId;
         this.updateContext(context);
     }
@@ -107,7 +109,7 @@ public class Visitor {
     }
 
     private void updateContextValue(String key, Object value, OnSynchronizedListener onSynchronize) {
-        if (!decisionManager.isPanic()) {
+        if (!this.decisionManager.isPanic()) {
             if (key != null && value != null &&
                     (value instanceof String || value instanceof Number || value instanceof Boolean ||
                             value instanceof JSONObject || value instanceof JSONArray)) {
@@ -134,10 +136,10 @@ public class Visitor {
     public void synchronizeModifications(OnSynchronizedListener onSynchronize) {
         CompletableFuture.runAsync(() -> {
             try {
-                ArrayList<Campaign> campaigns = this.decisionManager.getCampaigns(visitorId, context);
+                ArrayList<Campaign> campaigns = this.decisionManager.getCampaigns(this.config.getEnvId(), visitorId, context);
                 this.modifications.clear();
                 if (!decisionManager.isPanic()) {
-                    HashMap<String, Modification> modifications = this.decisionManager.getModifications(campaigns);
+                    HashMap<String, Modification> modifications = this.decisionManager.getModifications(this.config.getDecisionMode(), campaigns);
                     if (modifications != null)
                         this.modifications.putAll(modifications);
                 }
@@ -242,12 +244,12 @@ public class Visitor {
      * @param hit hit to track.
      */
     public void sendHit(Hit hit) {
-        if (!decisionManager.isPanic()) {
+        if (!decisionManager.isPanic() && this.trackingManager != null) {
             if (hit != null && hit.checkData()) {
                 if (hit instanceof Activate)
-                    config.getTrackingManager().sendActivation(visitorId, (Activate) hit);
+                    trackingManager.sendActivation(visitorId, (Activate) hit);
                 else
-                    config.getTrackingManager().sendHit(visitorId, hit);
+                    trackingManager.sendHit(visitorId, hit);
             }
         } else
             LogManager.log(LogManager.Tag.TRACKING, LogLevel.ERROR, String.format(FlagshipConstants.Errors.PANIC_ERROR, "sendHit()"));

@@ -16,9 +16,7 @@ public class Flagship {
 
     private static Flagship instance = null;
 
-    private FlagshipConfig  config              = null;
-    private DecisionManager decisionManager;
-//    FlagshipExceptionHandler handler = null;
+    private FlagshipConfig  config = null;
 
     public enum Mode {
         DECISION_API,
@@ -46,8 +44,6 @@ public class Flagship {
     protected void setConfig(FlagshipConfig config) {
         if (config != null) {
             this.config = config;
-            decisionManager = new ApiManager(this.config);
-            //        handler = new FlagshipExceptionHandler(this.config, Thread.getDefaultUncaughtExceptionHandler());
         }
     }
 
@@ -85,9 +81,11 @@ public class Flagship {
      * @return boolean ready.
      */
     public static Boolean isReady() {
-        if (instance == null || instance.config == null || instance.config.getApiKey() == null || instance.config.getEnvId() == null)
-            return false;
-        return true;
+        return instance != null &&
+                instance.config != null &&
+                instance.config.getApiKey() != null &&
+                instance.config.getEnvId() != null &&
+                instance.config.getDecisionManager() != null;
     }
 
     /**
@@ -115,7 +113,7 @@ public class Flagship {
      */
     public static Visitor newVisitor(String visitorId, HashMap<String, Object> context) {
         if (isReady() && visitorId != null)
-            return new Visitor(instance.decisionManager, getConfig(), visitorId, (context != null) ? context : new HashMap<String, Object>());
+            return new Visitor(getConfig(), visitorId, (context != null) ? context : new HashMap<String, Object>());
         return null;
     }
 }

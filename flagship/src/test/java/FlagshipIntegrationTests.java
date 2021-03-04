@@ -17,12 +17,15 @@ import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -34,24 +37,29 @@ import static org.powermock.api.mockito.PowerMockito.doAnswer;
 import static org.powermock.api.mockito.PowerMockito.spy;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ URL.class, HttpHelper.class })
+@PrepareForTest({URL.class, HttpHelper.class})
 public class FlagshipIntegrationTests {
 
-    private HashMap<String, OnRequestValidation>  requestToVerify             = new HashMap<>();
-    private HashMap<String, HttpURLConnection>    responseToMock              = new HashMap<>();
-    private Boolean                                     requestsVerified            = true;
-    private Boolean                                     missingRequestVerification  = false;
+    private HashMap<String, OnRequestValidation> requestToVerify = new HashMap<>();
+    private ConcurrentHashMap<String, ArrayList<HttpURLConnection>> responseToMock = new ConcurrentHashMap<>();
+    private Boolean requestsVerified = true;
+    private Boolean missingRequestVerification = false;
+
 
     public FlagshipIntegrationTests() {
+
         try {
             spy(HttpHelper.class);
             doAnswer(new Answer<Object>() {
                 @Override
                 public Object answer(InvocationOnMock invocation) throws Throwable {
                     URL url = invocation.getArgument(0);
-                    if (responseToMock.containsKey(url.toString()))
-                        return responseToMock.get(url.toString());
-                    else
+                    if (responseToMock.containsKey(url.toString())) {
+                        ArrayList<HttpURLConnection> list = responseToMock.get(url.toString());
+                        HttpURLConnection connection = list.get(0);
+                        list.remove(0);
+                        return connection;
+                    } else
                         return invocation.callRealMethod();
                 }
             }).when(HttpHelper.class, "createConnection", any());
@@ -74,7 +82,7 @@ public class FlagshipIntegrationTests {
                     }
                     return response;
                 }
-            }).when(HttpHelper.class, "parseResponse", null, null, null, null, null);
+            }).when(HttpHelper.class, "parseResponse", any(), any(), any(), any(), any());
         } catch (Exception e) {
             e.printStackTrace();
             fail();
@@ -102,7 +110,19 @@ public class FlagshipIntegrationTests {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            responseToMock.put(url, connection);
+            insertResponseToMock(url, connection);
+//            responseToMock.put(url, connection);
+        }
+    }
+
+    public void insertResponseToMock(String url, HttpURLConnection connection) {
+        if (responseToMock.containsKey(url)) {
+            ArrayList<HttpURLConnection> list = responseToMock.get(url);
+            list.add(connection);
+        } else {
+            ArrayList<HttpURLConnection> list = new ArrayList<>();
+            list.add(connection);
+            responseToMock.put(url, list);
         }
     }
 
@@ -111,59 +131,21 @@ public class FlagshipIntegrationTests {
 
         requestsVerified = true;
         missingRequestVerification = false;
-        for (Map.Entry<String, HttpURLConnection> entry : responseToMock.entrySet()) {
-            entry.getValue().disconnect();
+        for (Map.Entry<String, ArrayList<HttpURLConnection>> entry : responseToMock.entrySet()) {
+            ArrayList<HttpURLConnection> list = entry.getValue();
+            for (HttpURLConnection connection : list) {
+                connection.disconnect();
+            }
+            list.clear();
         }
         responseToMock.clear();
         requestToVerify.clear();
-
-//        try {
-//            spy(HttpHelper.class);
-//            doAnswer(new Answer<Object>() {
-//                @Override
-//                public Object answer(InvocationOnMock invocation) throws Throwable {
-//                    URL url = invocation.getArgument(0);
-//                    if (responseToMock.containsKey(url.toString()))
-//                        return responseToMock.get(url.toString());
-//                    else
-//                        return invocation.callRealMethod();
-//                }
-//            }).when(HttpHelper.class, "createConnection", any());
-//
-//            doAnswer(new Answer<Object>() {
-//                @Override
-//                public Object answer(InvocationOnMock invocation) throws Throwable {
-//                    Response response = (Response) invocation.callRealMethod();
-//                    if (requestToVerify.containsKey(response.requestUrl)) {
-//                        try {
-//                            requestToVerify.get(response.getRequestUrl()).onRequestValidation(response);
-//                        } catch (Error | Exception e) {
-//                            requestsVerified = false;
-//                            System.err.println("Error verifying : " + response.requestUrl);
-//                            e.printStackTrace();
-//                        }
-//                    } else {
-//                        missingRequestVerification = true;
-//                        System.err.println("Error url not verified : " + response.requestUrl);
-//                    }
-//                    return response;
-//                }
-//            }).when(HttpHelper.class, "parseResponse", any(), any(), any(), any(), any());
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            fail();
-//        }
     }
 
     @After
     public void after() {
         assertTrue(requestsVerified);
         assertFalse(missingRequestVerification);
-//        try {
-//            Thread.sleep(2000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
     }
 
     @Test
@@ -236,7 +218,7 @@ public class FlagshipIntegrationTests {
         assertEquals(visitor0.getContext().size(), 0);
 
         Visitor finalVisitor = visitor0;
-        Visitor visitor1 = Flagship.newVisitor("visitor_1",  new HashMap<String, Object>() {{
+        Visitor visitor1 = Flagship.newVisitor("visitor_1", new HashMap<String, Object>() {{
             put("boolean", true);
             put("int", 32);
             put("float", 3.14);
@@ -287,7 +269,6 @@ public class FlagshipIntegrationTests {
                 assertTrue(content.has("context"));
                 assertTrue(content.getJSONObject("context").getBoolean("vip"));
                 assertEquals(content.getJSONObject("context").getInt("age"), 32);
-                assertTrue(content.has("visitorId"));
                 assertEquals(content.get("visitorId"), "visitor_1");
             });
 
@@ -304,7 +285,7 @@ public class FlagshipIntegrationTests {
                 assertEquals(visitor.getModification("release", 0), 100);
                 synchronizeLatch.countDown();
             });
-            if (!synchronizeLatch.await(1, TimeUnit.SECONDS))
+            if (!synchronizeLatch.await(30, TimeUnit.SECONDS))
                 fail();
         } catch (Exception e) {
             e.printStackTrace();
@@ -364,9 +345,46 @@ public class FlagshipIntegrationTests {
     @Test
     public void hits() {
 
-        CountDownLatch nbHit = new CountDownLatch(5);
+        Flagship.start("my_env_id", "my_api_key");
+        Visitor visitor = Flagship.newVisitor("visitor_1");
 
+        /////////////////// TEST SCREEN HIT //////////////////
         mockResponse("https://ariane.abtasty.com", 200, "");
+
+        CountDownLatch screenHit = new CountDownLatch(1);
+        verifyRequest("https://ariane.abtasty.com", (request) -> {
+            assertEquals(request.getType().toString(), "POST");
+            JSONObject content = new JSONObject(request.getRequestContent());
+            assertEquals(content.getString("vid"), "visitor_1");
+            assertEquals(content.getString("ds"), "APP");
+            assertEquals(content.get("cid"), "my_env_id");
+            assertEquals(content.get("t"), "SCREENVIEW");
+            assertEquals(content.get("uip"), "127.0.0.1");
+            assertEquals(content.get("dl"), "screen location");
+            assertEquals(content.get("sr"), "200x100");
+            assertEquals(content.get("ul"), "fr_FR");
+            assertEquals(content.getInt("sn"), 2);
+            screenHit.countDown();
+        });
+
+        Screen screen = new Screen("screen location")
+                .withResolution(200, 100)
+                .withLocale("fr_FR")
+                .withIp("127.0.0.1")
+                .withSessionNumber(2);
+        visitor.sendHit(screen);
+        try {
+            if (!screenHit.await(200, TimeUnit.MILLISECONDS)) {
+                System.out.println("ERROR AWAIT SCREEN");
+                fail();
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        /////////////////// TEST PAGE HIT //////////////////
+        mockResponse("https://ariane.abtasty.com", 200, "");
+        CountDownLatch pageHit = new CountDownLatch(1);
 
         verifyRequest("https://ariane.abtasty.com", (request) -> {
             assertEquals(request.getType().toString(), "POST");
@@ -374,74 +392,76 @@ public class FlagshipIntegrationTests {
             assertEquals(content.getString("vid"), "visitor_1");
             assertEquals(content.getString("ds"), "APP");
             assertEquals(content.get("cid"), "my_env_id");
-            assertTrue(content.has("t"));
-            switch (content.get("t").toString()) {
-                case ("SCREENVIEW"): {
-                    assertEquals(content.get("uip"), "127.0.0.1");
-                    assertEquals(content.get("dl"), "screen location");
-                    assertEquals(content.get("sr"), "200x100");
-                    assertEquals(content.get("ul"), "fr_FR");
-                    assertEquals(content.getInt("sn"), 2);
-                    nbHit.countDown();
-                    break;
-                }
-                case ("PAGEVIEW"): {
-                    assertEquals(content.get("dl"), "https://location.com");
-                    nbHit.countDown();
-                    break;
-                }
-                case ("EVENT"): {
-                    assertEquals(content.get("el"), "label");
-                    assertEquals(content.get("ea"), "action");
-                    assertEquals(content.get("ec"), "User Engagement");
-                    assertEquals(content.getInt("ev"), 100);
-                    nbHit.countDown();
-                    break;
-                }
-                case ("TRANSACTION"): {
-                    assertEquals(content.get("icn"), 1);
-                    assertEquals(content.getDouble("tt"), 19.99);
-                    assertEquals(content.getDouble("tr"), 199.99);
-                    assertEquals(content.getDouble("ts"), 9.99);
-                    assertEquals(content.get("tc"), "EUR");
-                    assertEquals(content.get("sm"), "1day");
-                    assertEquals(content.get("tid"), "#12345");
-                    assertEquals(content.get("ta"), "affiliation");
-                    assertEquals(content.get("tcc"), "code");
-                    assertEquals(content.get("pm"), "creditcard");
-                    nbHit.countDown();
-                    break;
-                }
-                case ("ITEM"): {
-                    assertEquals(content.getInt("iq"), 1);
-                    assertEquals(content.get("tid"), "#12345");
-                    assertEquals(content.getDouble("ip"), 199.99);
-                    assertEquals(content.get("iv"), "test");
-                    assertEquals(content.get("in"), "product");
-                    assertEquals(content.get("ic"), "sku123");
-                    nbHit.countDown();
-                    break;
-                }
-            }
+            assertEquals(content.get("t"), "PAGEVIEW");
+            assertEquals(content.get("dl"), "https://location.com");
+            pageHit.countDown();
         });
-
-
-        Flagship.start("my_env_id", "my_api_key");
-        Visitor visitor = Flagship.newVisitor("visitor_1");
-
-        Screen screen = new Screen("screen location")
-                .withResolution(200, 100)
-                .withLocale("fr_FR")
-                .withIp("127.0.0.1")
-                .withSessionNumber(2);
         Page page = new Page("https://location.com");
-        Page page2 = new Page("not a url");
+        visitor.sendHit(page);
+        try {
+            if (!pageHit.await(200, TimeUnit.MILLISECONDS)) {
+                System.out.println("ERROR AWAIT PAGE");
+                fail();
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        /////////////////// TEST EVENT HIT //////////////////
+        mockResponse("https://ariane.abtasty.com", 200, "");
+        CountDownLatch eventHit = new CountDownLatch(1);
+
+        verifyRequest("https://ariane.abtasty.com", (request) -> {
+            assertEquals(request.getType().toString(), "POST");
+            JSONObject content = new JSONObject(request.getRequestContent());
+            assertEquals(content.getString("vid"), "visitor_1");
+            assertEquals(content.getString("ds"), "APP");
+            assertEquals(content.get("cid"), "my_env_id");
+            assertEquals(content.get("t"), "EVENT");
+
+            assertEquals(content.get("el"), "label");
+            assertEquals(content.get("ea"), "action");
+            assertEquals(content.get("ec"), "User Engagement");
+            assertEquals(content.getInt("ev"), 100);
+            eventHit.countDown();
+        });
         Event event = new Event(Event.EventCategory.USER_ENGAGEMENT, "action")
                 .withEventLabel("label")
                 .withEventValue(100);
-        Event event2 = new Event(Event.EventCategory.USER_ENGAGEMENT, null)
-                .withEventLabel("wrong")
-                .withEventValue(100);
+        visitor.sendHit(event);
+        try {
+            if (!eventHit.await(200, TimeUnit.MILLISECONDS)) {
+                System.out.println("ERROR AWAIT EVENT");
+                fail();
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        /////////////////// TEST TRANSACTION HIT //////////////////
+        mockResponse("https://ariane.abtasty.com", 200, "");
+        CountDownLatch transactionHit = new CountDownLatch(1);
+
+        verifyRequest("https://ariane.abtasty.com", (request) -> {
+            assertEquals(request.getType().toString(), "POST");
+            JSONObject content = new JSONObject(request.getRequestContent());
+            assertEquals(content.getString("vid"), "visitor_1");
+            assertEquals(content.getString("ds"), "APP");
+            assertEquals(content.get("cid"), "my_env_id");
+            assertEquals(content.get("t"), "TRANSACTION");
+
+            assertEquals(content.get("icn"), 1);
+            assertEquals(content.getDouble("tt"), 19.99);
+            assertEquals(content.getDouble("tr"), 199.99);
+            assertEquals(content.getDouble("ts"), 9.99);
+            assertEquals(content.get("tc"), "EUR");
+            assertEquals(content.get("sm"), "1day");
+            assertEquals(content.get("tid"), "#12345");
+            assertEquals(content.get("ta"), "affiliation");
+            assertEquals(content.get("tcc"), "code");
+            assertEquals(content.get("pm"), "creditcard");
+            transactionHit.countDown();
+        });
         Transaction transaction = new Transaction("#12345", "affiliation")
                 .withCouponCode("code")
                 .withCurrency("EUR")
@@ -451,29 +471,49 @@ public class FlagshipIntegrationTests {
                 .withTaxes(19.99f)
                 .withTotalRevenue(199.99f)
                 .withShippingMethod("1day");
-        Transaction transaction2 = new Transaction(null, "affiliation");
-        Item item = new Item("#12345", "product", "sku123")
-                .withItemCategory("test")
-                .withItemPrice(199.99f)
-                .withItemQuantity(1);
-        Item item2 = new Item("#12345", null, "sku123");
-
-        visitor.sendHit(screen);
-        visitor.sendHit(page);
-        visitor.sendHit(page2);
-        visitor.sendHit(event);
-        visitor.sendHit(event2);
         visitor.sendHit(transaction);
-        visitor.sendHit(transaction2);
-        visitor.sendHit(item);
-        visitor.sendHit(item2);
         try {
-            if (!nbHit.await(2, TimeUnit.SECONDS))
+            if (!transactionHit.await(200, TimeUnit.MILLISECONDS)) {
+                System.out.println("ERROR AWAIT PAGE");
                 fail();
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
+        /////////////////// TEST ITEM HIT //////////////////
+        mockResponse("https://ariane.abtasty.com", 200, "");
+        CountDownLatch itemHit = new CountDownLatch(1);
+
+        verifyRequest("https://ariane.abtasty.com", (request) -> {
+            assertEquals(request.getType().toString(), "POST");
+            JSONObject content = new JSONObject(request.getRequestContent());
+            assertEquals(content.getString("vid"), "visitor_1");
+            assertEquals(content.getString("ds"), "APP");
+            assertEquals(content.get("cid"), "my_env_id");
+            assertEquals(content.get("t"), "ITEM");
+
+            assertEquals(content.getInt("iq"), 1);
+            assertEquals(content.get("tid"), "#12345");
+            assertEquals(content.getDouble("ip"), 199.99);
+            assertEquals(content.get("iv"), "test");
+            assertEquals(content.get("in"), "product");
+            assertEquals(content.get("ic"), "sku123");
+            itemHit.countDown();
+        });
+        Item item = new Item("#12345", "product", "sku123")
+                .withItemCategory("test")
+                .withItemPrice(199.99f)
+                .withItemQuantity(1);
+        visitor.sendHit(item);
+        try {
+            if (!itemHit.await(200, TimeUnit.MILLISECONDS)) {
+                System.out.println("ERROR AWAIT PAGE");
+                fail();
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test

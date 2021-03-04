@@ -1,67 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="FlagshipIntegrationTests" tests="6" skipped="0" failures="1" errors="0" timestamp="2021-03-03T18:26:57" hostname="raph-XPS-13-9370" time="1.209">
+<testsuite name="FlagshipIntegrationTests" tests="6" skipped="0" failures="0" errors="0" timestamp="2021-03-04T11:16:05" hostname="raph-XPS-13-9370" time="1.245">
   <properties/>
-  <testcase name="config" classname="FlagshipIntegrationTests" time="0.029"/>
+  <testcase name="config" classname="FlagshipIntegrationTests" time="0.025"/>
   <testcase name="updateContext" classname="FlagshipIntegrationTests" time="0.01"/>
-  <testcase name="synchronize" classname="FlagshipIntegrationTests" time="0.128"/>
-  <testcase name="activate" classname="FlagshipIntegrationTests" time="0.017"/>
-  <testcase name="hits" classname="FlagshipIntegrationTests" time="0.001">
-    <failure message="org.opentest4j.AssertionFailedError" type="org.opentest4j.AssertionFailedError">org.opentest4j.AssertionFailedError
-	at org.junit.jupiter.api.AssertionUtils.fail(AssertionUtils.java:35)
-	at org.junit.jupiter.api.Assertions.fail(Assertions.java:98)
-	at FlagshipIntegrationTests.&lt;init&gt;(FlagshipIntegrationTests.java:80)
-	at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
-	at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:62)
-	at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
-	at java.lang.reflect.Constructor.newInstance(Constructor.java:423)
-	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl.createTestInstance(PowerMockJUnit44RunnerDelegateImpl.java:197)
-	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl.createTest(PowerMockJUnit44RunnerDelegateImpl.java:182)
-	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl.invokeTestMethod(PowerMockJUnit44RunnerDelegateImpl.java:204)
-	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl.runMethods(PowerMockJUnit44RunnerDelegateImpl.java:160)
-	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl$1.run(PowerMockJUnit44RunnerDelegateImpl.java:134)
-	at org.junit.internal.runners.ClassRoadie.runUnprotected(ClassRoadie.java:34)
-	at org.junit.internal.runners.ClassRoadie.runProtected(ClassRoadie.java:44)
-	at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl.run(PowerMockJUnit44RunnerDelegateImpl.java:136)
-	at org.powermock.modules.junit4.common.internal.impl.JUnit4TestSuiteChunkerImpl.run(JUnit4TestSuiteChunkerImpl.java:117)
-	at org.powermock.modules.junit4.common.internal.impl.AbstractCommonPowerMockRunner.run(AbstractCommonPowerMockRunner.java:57)
-	at org.powermock.modules.junit4.PowerMockRunner.run(PowerMockRunner.java:59)
-	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.runTestClass(JUnitTestClassExecutor.java:110)
-	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:58)
-	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:38)
-	at org.gradle.api.internal.tasks.testing.junit.AbstractJUnitTestClassProcessor.processTestClass(AbstractJUnitTestClassProcessor.java:62)
-	at org.gradle.api.internal.tasks.testing.SuiteTestClassProcessor.processTestClass(SuiteTestClassProcessor.java:51)
-	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
-	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.lang.reflect.Method.invoke(Method.java:498)
-	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:36)
-	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
-	at org.gradle.internal.dispatch.ContextClassLoaderDispatch.dispatch(ContextClassLoaderDispatch.java:33)
-	at org.gradle.internal.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler.invoke(ProxyDispatchAdapter.java:94)
-	at com.sun.proxy.$Proxy2.processTestClass(Unknown Source)
-	at org.gradle.api.internal.tasks.testing.worker.TestWorker.processTestClass(TestWorker.java:119)
-	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
-	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.lang.reflect.Method.invoke(Method.java:498)
-	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:36)
-	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
-	at org.gradle.internal.remote.internal.hub.MessageHubBackedObjectConnection$DispatchWrapper.dispatch(MessageHubBackedObjectConnection.java:182)
-	at org.gradle.internal.remote.internal.hub.MessageHubBackedObjectConnection$DispatchWrapper.dispatch(MessageHubBackedObjectConnection.java:164)
-	at org.gradle.internal.remote.internal.hub.MessageHub$Handler.run(MessageHub.java:414)
-	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
-	at org.gradle.internal.concurrent.ManagedExecutorImpl$1.run(ManagedExecutorImpl.java:48)
-	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
-	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
-	at org.gradle.internal.concurrent.ThreadFactoryImpl$ManagedThreadRunnable.run(ThreadFactoryImpl.java:56)
-	at java.lang.Thread.run(Thread.java:748)
-</failure>
-  </testcase>
+  <testcase name="synchronize" classname="FlagshipIntegrationTests" time="0.155"/>
+  <testcase name="activate" classname="FlagshipIntegrationTests" time="0.02"/>
+  <testcase name="hits" classname="FlagshipIntegrationTests" time="0.022"/>
   <testcase name="panic" classname="FlagshipIntegrationTests" time="1.007"/>
   <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[?[0;2m[2021-03-03 19:26:57][Flagship][INFO][INITIALIZATION] Flagship SDK started.?[0m
-?[0;2m[2021-03-03 19:26:57][Flagship][INFO][INITIALIZATION] Flagship SDK started.?[0m
-?[0;2m[2021-03-03 19:26:57][Flagship][INFO][UPDATE_CONTEXT] 'visitor_1' 
+  <system-err><![CDATA[?[0;2m[2021-03-04 12:16:05][Flagship][INFO][INITIALIZATION] Flagship SDK started.?[0m
+?[0;2m[2021-03-04 12:16:05][Flagship][INFO][INITIALIZATION] Flagship SDK started.?[0m
+?[0;2m[2021-03-04 12:16:05][Flagship][INFO][UPDATE_CONTEXT] 'visitor_1' 
 {
   "context": {
     "vip": true,
@@ -70,7 +19,7 @@
   "visitorId": "visitor_1",
   "modifications": {}
 }?[0m
-?[0;2m[2021-03-03 19:26:57][Flagship][INFO][CAMPAIGNS] [POST] https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true [200]
+?[0;2m[2021-03-04 12:16:05][Flagship][INFO][CAMPAIGNS] [POST] https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true [200]
 {
   "campaigns": [
     {
@@ -100,7 +49,7 @@
   ],
   "visitorId": "visitor_1"
 }?[0m
-?[0;2m[2021-03-03 19:26:57][Flagship][INFO][SYNCHRONIZE] 'visitor_1' 
+?[0;2m[2021-03-04 12:16:05][Flagship][INFO][SYNCHRONIZE] 'visitor_1' 
 {
   "context": {
     "vip": true,
@@ -112,8 +61,8 @@
     "release": 100
   }
 }?[0m
-?[0;2m[2021-03-03 19:26:57][Flagship][INFO][INITIALIZATION] Flagship SDK started.?[0m
-?[0;2m[2021-03-03 19:26:57][Flagship][INFO][UPDATE_CONTEXT] 'visitor_1' 
+?[0;2m[2021-03-04 12:16:05][Flagship][INFO][INITIALIZATION] Flagship SDK started.?[0m
+?[0;2m[2021-03-04 12:16:05][Flagship][INFO][UPDATE_CONTEXT] 'visitor_1' 
 {
   "context": {
     "daysSinceLastLaunch": 2,
@@ -123,7 +72,7 @@
   "visitorId": "visitor_1",
   "modifications": {}
 }?[0m
-?[0;2m[2021-03-03 19:26:57][Flagship][INFO][CAMPAIGNS] [POST] https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true [200]
+?[0;2m[2021-03-04 12:16:05][Flagship][INFO][CAMPAIGNS] [POST] https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true [200]
 {
   "campaigns": [
     {
@@ -192,7 +141,7 @@
   ],
   "visitorId": "visitor_1"
 }?[0m
-?[0;2m[2021-03-03 19:26:57][Flagship][INFO][SYNCHRONIZE] 'visitor_1' 
+?[0;2m[2021-03-04 12:16:05][Flagship][INFO][SYNCHRONIZE] 'visitor_1' 
 {
   "context": {
     "daysSinceLastLaunch": 2,
@@ -209,55 +158,85 @@
     "title": "Hello"
   }
 }?[0m
-?[0;31m[2021-03-03 19:26:57][Flagship][ERROR][GET_MODIFICATION] No modification for key 'target'. Default value is returned.?[0m
-?[0;31m[2021-03-03 19:26:57][Flagship][ERROR][GET_MODIFICATION] No modification for key 'wrong'. Default value is returned.?[0m
-?[0;2m[2021-03-03 19:26:57][Flagship][INFO][ACTIVATE]  [POST]  https://decision.flagship.io/v2/activate  [200] 
+?[0;31m[2021-03-04 12:16:05][Flagship][ERROR][GET_MODIFICATION] No modification for key 'target'. Default value is returned.?[0m
+?[0;31m[2021-03-04 12:16:05][Flagship][ERROR][GET_MODIFICATION] No modification for key 'wrong'. Default value is returned.?[0m
+?[0;2m[2021-03-04 12:16:05][Flagship][INFO][ACTIVATE]  [POST]  https://decision.flagship.io/v2/activate  [200] 
 {
   "vid": "visitor_1",
   "vaid": "xxxxxx65k9h02cuc1ae0",
   "caid": "xxxxxxjh6h101fk8lbsg",
   "cid": "my_env_id"
 }?[0m
-org.mockito.exceptions.misusing.UnfinishedStubbingException: 
-Unfinished stubbing detected here:
--> at FlagshipIntegrationTests.<init>(FlagshipIntegrationTests.java:59)
-
-E.g. thenReturn() may be missing.
-Examples of correct stubbing:
-    when(mock.isOk()).thenReturn(true);
-    when(mock.isOk()).thenThrow(exception);
-    doThrow(exception).when(mock).someVoidMethod();
-Hints:
- 1. missing thenReturn()
- 2. you are trying to stub a final method, which is not supported
- 3. you are stubbing the behaviour of another mock inside before 'thenReturn' instruction is completed
-
-	at FlagshipIntegrationTests.<init>(FlagshipIntegrationTests.java:77)
-	at org.junit.internal.runners.ClassRoadie.runUnprotected(ClassRoadie.java:34)
-	at org.junit.internal.runners.ClassRoadie.runProtected(ClassRoadie.java:44)
-	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.runTestClass(JUnitTestClassExecutor.java:110)
-	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:58)
-	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:38)
-	at org.gradle.api.internal.tasks.testing.junit.AbstractJUnitTestClassProcessor.processTestClass(AbstractJUnitTestClassProcessor.java:62)
-	at org.gradle.api.internal.tasks.testing.SuiteTestClassProcessor.processTestClass(SuiteTestClassProcessor.java:51)
-	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:36)
-	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
-	at org.gradle.internal.dispatch.ContextClassLoaderDispatch.dispatch(ContextClassLoaderDispatch.java:33)
-	at org.gradle.internal.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler.invoke(ProxyDispatchAdapter.java:94)
-	at org.gradle.api.internal.tasks.testing.worker.TestWorker.processTestClass(TestWorker.java:119)
-	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:36)
-	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
-	at org.gradle.internal.remote.internal.hub.MessageHubBackedObjectConnection$DispatchWrapper.dispatch(MessageHubBackedObjectConnection.java:182)
-	at org.gradle.internal.remote.internal.hub.MessageHubBackedObjectConnection$DispatchWrapper.dispatch(MessageHubBackedObjectConnection.java:164)
-	at org.gradle.internal.remote.internal.hub.MessageHub$Handler.run(MessageHub.java:414)
-	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
-	at org.gradle.internal.concurrent.ManagedExecutorImpl$1.run(ManagedExecutorImpl.java:48)
-	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
-	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
-	at org.gradle.internal.concurrent.ThreadFactoryImpl$ManagedThreadRunnable.run(ThreadFactoryImpl.java:56)
-	at java.lang.Thread.run(Thread.java:748)
-?[0;2m[2021-03-03 19:26:57][Flagship][INFO][INITIALIZATION] Flagship SDK started.?[0m
-?[0;2m[2021-03-03 19:26:57][Flagship][INFO][UPDATE_CONTEXT] 'visitor_1' 
+?[0;2m[2021-03-04 12:16:05][Flagship][INFO][INITIALIZATION] Flagship SDK started.?[0m
+?[0;2m[2021-03-04 12:16:05][Flagship][INFO][UPDATE_CONTEXT] 'visitor_1' 
+{
+  "context": {},
+  "visitorId": "visitor_1",
+  "modifications": {}
+}?[0m
+?[0;2m[2021-03-04 12:16:05][Flagship][INFO][HIT]  [POST]  https://ariane.abtasty.com  [200] 
+{
+  "vid": "visitor_1",
+  "t": "SCREENVIEW",
+  "ul": "fr_FR",
+  "dl": "screen location",
+  "sn": 2,
+  "uip": "127.0.0.1",
+  "cid": "my_env_id",
+  "ds": "APP",
+  "sr": "200x100"
+}?[0m
+?[0;2m[2021-03-04 12:16:05][Flagship][INFO][HIT]  [POST]  https://ariane.abtasty.com  [200] 
+{
+  "vid": "visitor_1",
+  "t": "PAGEVIEW",
+  "dl": "https://location.com",
+  "cid": "my_env_id",
+  "ds": "APP"
+}?[0m
+?[0;2m[2021-03-04 12:16:05][Flagship][INFO][HIT]  [POST]  https://ariane.abtasty.com  [200] 
+{
+  "vid": "visitor_1",
+  "ev": 100,
+  "t": "EVENT",
+  "el": "label",
+  "ea": "action",
+  "ec": "User Engagement",
+  "cid": "my_env_id",
+  "ds": "APP"
+}?[0m
+?[0;2m[2021-03-04 12:16:05][Flagship][INFO][HIT]  [POST]  https://ariane.abtasty.com  [200] 
+{
+  "tt": 19.99,
+  "ta": "affiliation",
+  "tid": "#12345",
+  "ds": "APP",
+  "tc": "EUR",
+  "vid": "visitor_1",
+  "t": "TRANSACTION",
+  "tcc": "code",
+  "icn": 1,
+  "sm": "1day",
+  "pm": "creditcard",
+  "tr": 199.99,
+  "cid": "my_env_id",
+  "ts": 9.99
+}?[0m
+?[0;2m[2021-03-04 12:16:05][Flagship][INFO][HIT]  [POST]  https://ariane.abtasty.com  [200] 
+{
+  "vid": "visitor_1",
+  "t": "ITEM",
+  "in": "product",
+  "ip": 199.99,
+  "iq": 1,
+  "ic": "sku123",
+  "iv": "test",
+  "tid": "#12345",
+  "cid": "my_env_id",
+  "ds": "APP"
+}?[0m
+?[0;2m[2021-03-04 12:16:05][Flagship][INFO][INITIALIZATION] Flagship SDK started.?[0m
+?[0;2m[2021-03-04 12:16:05][Flagship][INFO][UPDATE_CONTEXT] 'visitor_1' 
 {
   "context": {
     "daysSinceLastLaunch": 2,
@@ -267,10 +246,10 @@ Hints:
   "visitorId": "visitor_1",
   "modifications": {}
 }?[0m
-?[0;2m[2021-03-03 19:26:57][Flagship][INFO][CAMPAIGNS] [POST] https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true [200]
+?[0;2m[2021-03-04 12:16:05][Flagship][INFO][CAMPAIGNS] [POST] https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true [200]
 {"panic": true}?[0m
-?[0;33m[2021-03-03 19:26:57][Flagship][WARNING][SYNCHRONIZE] Panic mode is on.?[0m
-?[0;2m[2021-03-03 19:26:57][Flagship][INFO][SYNCHRONIZE] 'visitor_1' 
+?[0;33m[2021-03-04 12:16:05][Flagship][WARNING][SYNCHRONIZE] Panic mode is on.?[0m
+?[0;2m[2021-03-04 12:16:05][Flagship][INFO][SYNCHRONIZE] 'visitor_1' 
 {
   "context": {
     "daysSinceLastLaunch": 2,
@@ -280,8 +259,8 @@ Hints:
   "visitorId": "visitor_1",
   "modifications": {}
 }?[0m
-?[0;31m[2021-03-03 19:26:57][Flagship][ERROR][UPDATE_CONTEXT] 'updateContext()' deactivated while panic mode is on.?[0m
-?[0;31m[2021-03-03 19:26:57][Flagship][ERROR][GET_MODIFICATION] 'getModiciation()' deactivated while panic mode is on.?[0m
-?[0;31m[2021-03-03 19:26:57][Flagship][ERROR][HIT] 'sendHit()' deactivated while panic mode is on.?[0m
+?[0;31m[2021-03-04 12:16:05][Flagship][ERROR][UPDATE_CONTEXT] 'updateContext()' deactivated while panic mode is on.?[0m
+?[0;31m[2021-03-04 12:16:05][Flagship][ERROR][GET_MODIFICATION] 'getModiciation()' deactivated while panic mode is on.?[0m
+?[0;31m[2021-03-04 12:16:05][Flagship][ERROR][HIT] 'sendHit()' deactivated while panic mode is on.?[0m
 ]]></system-err>
 </testsuite>

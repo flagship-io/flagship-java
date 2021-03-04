@@ -1,5 +1,6 @@
 package com.abtasty.flagship.main;
 
+import com.abtasty.flagship.BuildConfig;
 import com.abtasty.flagship.decision.ApiManager;
 import com.abtasty.flagship.decision.DecisionManager;
 //import com.abtasty.flagship.utils.FlagshipExceptionHandler;
@@ -76,7 +77,7 @@ public class Flagship {
             LogManager.log(LogManager.Tag.INITIALIZATION, LogLevel.ERROR, FlagshipConstants.Errors.INITIALIZATION_PARAM_ERROR);
         instance().setConfig(config);
         if (isReady())
-            LogManager.log(LogManager.Tag.INITIALIZATION, LogLevel.INFO, FlagshipConstants.Info.STARTED);
+            LogManager.log(LogManager.Tag.INITIALIZATION, LogLevel.INFO, String.format(FlagshipConstants.Info.STARTED, BuildConfig.flagship_version_name));
     }
 
     /**

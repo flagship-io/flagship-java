@@ -1,5 +1,6 @@
 package com.abtasty.flagship.decision;
 
+import com.abtasty.flagship.BuildConfig;
 import com.abtasty.flagship.api.HttpHelper;
 import com.abtasty.flagship.api.Response;
 import com.abtasty.flagship.main.FlagshipConfig;
@@ -24,6 +25,8 @@ public class ApiManager extends DecisionManager {
 
         HashMap<String, String> headers = new HashMap<String, String>();
         headers.put("x-api-key", config.getApiKey());
+        headers.put("x-sdk-client", "java");
+        headers.put("x-sdk-version", BuildConfig.flagship_version_name);
         JSONObject json = new JSONObject();
         JSONObject jsonContext = new JSONObject();
         for (HashMap.Entry<String, Object> e : context.entrySet()) {
@@ -32,7 +35,7 @@ public class ApiManager extends DecisionManager {
         json.put("visitorId", visitorId);
         json.put("trigger_hit", false);
         json.put("context", jsonContext);
-        ArrayList<Campaign> campaigns  = new ArrayList();
+        ArrayList<Campaign> campaigns  = new ArrayList<Campaign>();
         try {
             Response response = HttpHelper.sendHttpRequest(HttpHelper.RequestType.POST, DECISION_API + config.getEnvId() + CAMPAIGNS, headers, json.toString());
             if (response != null) {

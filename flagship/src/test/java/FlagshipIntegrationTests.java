@@ -1,3 +1,4 @@
+import com.abtasty.flagship.BuildConfig;
 import com.abtasty.flagship.api.HttpHelper;
 import com.abtasty.flagship.api.Response;
 import com.abtasty.flagship.hits.*;
@@ -6,7 +7,6 @@ import com.abtasty.flagship.main.FlagshipConfig;
 import com.abtasty.flagship.main.Visitor;
 import com.abtasty.flagship.utils.LogLevel;
 import com.abtasty.flagship.utils.LogManager;
-import com.sun.corba.se.impl.oa.poa.AOMEntry;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
@@ -170,7 +170,7 @@ public class FlagshipIntegrationTests {
 
             @Override
             public void onLog(Tag tag, LogLevel level, String message) {
-                if (message.equals("Flagship SDK started.") && tag == Tag.INITIALIZATION && level == LogLevel.INFO)
+                if (message.contains("Flagship SDK") && tag == Tag.INITIALIZATION && level == LogLevel.INFO)
                     logLatch.countDown();
             }
         }
@@ -264,8 +264,9 @@ public class FlagshipIntegrationTests {
 
             verifyRequest("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", (request) -> {
                 assertTrue(request.getType().toString().equalsIgnoreCase("POST"));
-                assertTrue(request.getRequestHeaders().containsKey("x-api-key"));
                 assertEquals(request.getRequestHeaders().get("x-api-key"), "my_api_key");
+                assertEquals(request.getRequestHeaders().get("x-sdk-version"), BuildConfig.flagship_version_name);
+                assertEquals(request.getRequestHeaders().get("x-sdk-client"), "java");
                 JSONObject content = new JSONObject(request.requestContent);
                 assertTrue(content.has("context"));
                 assertTrue(content.getJSONObject("context").getBoolean("vip"));
@@ -301,6 +302,8 @@ public class FlagshipIntegrationTests {
         mockResponse("https://decision.flagship.io/v2/activate", 200, "");
 
         verifyRequest("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", (request) -> {
+            assertEquals(request.getRequestHeaders().get("x-sdk-version"), BuildConfig.flagship_version_name);
+            assertEquals(request.getRequestHeaders().get("x-sdk-client"), "java");
         });
 
         CountDownLatch nbHit = new CountDownLatch(2);
@@ -375,10 +378,8 @@ public class FlagshipIntegrationTests {
                 .withSessionNumber(2);
         visitor.sendHit(screen);
         try {
-            if (!screenHit.await(200, TimeUnit.MILLISECONDS)) {
-                System.out.println("ERROR AWAIT SCREEN");
+            if (!screenHit.await(200, TimeUnit.MILLISECONDS))
                 fail();
-            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -400,10 +401,8 @@ public class FlagshipIntegrationTests {
         Page page = new Page("https://location.com");
         visitor.sendHit(page);
         try {
-            if (!pageHit.await(200, TimeUnit.MILLISECONDS)) {
-                System.out.println("ERROR AWAIT PAGE");
+            if (!pageHit.await(200, TimeUnit.MILLISECONDS))
                 fail();
-            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -431,10 +430,8 @@ public class FlagshipIntegrationTests {
                 .withEventValue(100);
         visitor.sendHit(event);
         try {
-            if (!eventHit.await(200, TimeUnit.MILLISECONDS)) {
-                System.out.println("ERROR AWAIT EVENT");
+            if (!eventHit.await(200, TimeUnit.MILLISECONDS))
                 fail();
-            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -474,10 +471,8 @@ public class FlagshipIntegrationTests {
                 .withShippingMethod("1day");
         visitor.sendHit(transaction);
         try {
-            if (!transactionHit.await(200, TimeUnit.MILLISECONDS)) {
-                System.out.println("ERROR AWAIT PAGE");
+            if (!transactionHit.await(200, TimeUnit.MILLISECONDS))
                 fail();
-            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -508,10 +503,8 @@ public class FlagshipIntegrationTests {
                 .withItemQuantity(1);
         visitor.sendHit(item);
         try {
-            if (!itemHit.await(200, TimeUnit.MILLISECONDS)) {
-                System.out.println("ERROR AWAIT PAGE");
+            if (!itemHit.await(200, TimeUnit.MILLISECONDS))
                 fail();
-            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

@@ -1,10 +1,5 @@
 package com.abtasty.flagship.main;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.concurrent.CompletableFuture;
-import java.util.logging.Logger;
-
 import com.abtasty.flagship.decision.DecisionManager;
 import com.abtasty.flagship.hits.Activate;
 import com.abtasty.flagship.hits.Hit;
@@ -13,7 +8,11 @@ import com.abtasty.flagship.model.Modification;
 import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.LogLevel;
 import com.abtasty.flagship.utils.LogManager;
-import org.json.*;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Flagship visitor representation.
@@ -244,8 +243,12 @@ public class Visitor {
      */
     public void sendHit(Hit hit) {
         if (!decisionManager.isPanic()) {
-            if (hit != null && hit.checkData())
-                config.getTrackingManager().sendHit(visitorId, hit);
+            if (hit != null && hit.checkData()) {
+                if (hit instanceof Activate)
+                    config.getTrackingManager().sendActivation(visitorId, (Activate) hit);
+                else
+                    config.getTrackingManager().sendHit(visitorId, hit);
+            }
         } else
             LogManager.log(LogManager.Tag.TRACKING, LogLevel.ERROR, String.format(FlagshipConstants.Errors.PANIC_ERROR, "sendHit()"));
     }

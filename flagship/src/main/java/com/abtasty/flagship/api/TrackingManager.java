@@ -1,5 +1,6 @@
 package com.abtasty.flagship.api;
 
+import com.abtasty.flagship.BuildConfig;
 import com.abtasty.flagship.hits.Activate;
 import com.abtasty.flagship.hits.Hit;
 import com.abtasty.flagship.utils.FlagshipConstants;
@@ -16,11 +17,22 @@ public class TrackingManager implements IFlagshipEndpoints {
     }
 
     public void sendHit(String visitorId, Hit hit) {
-        String endpoint = hit instanceof Activate ? DECISION_API + ACTIVATION : ARIANE;
+        this.sendHit(ARIANE, null, visitorId, hit);
+    }
+
+    public void sendActivation(String visitorId, Activate hit) {
+        String endPoint = DECISION_API + ACTIVATION;
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put("x-sdk-client", "java");
+        headers.put("x-sdk-version", BuildConfig.flagship_version_name);
+        sendHit(endPoint, headers, visitorId, hit);
+    }
+
+    private void sendHit(String endpoint, HashMap<String, String> headers, String visitorId, Hit hit) {
         JSONObject data = hit.getData();
         data.put(FlagshipConstants.HitKeyMap.VISITOR_ID, visitorId);
         if (hit.checkData()) {
-            HttpHelper.sendAsyncHttpRequest(HttpHelper.RequestType.POST, endpoint, null, data.toString(), new HttpHelper.IResponse() {
+            HttpHelper.sendAsyncHttpRequest(HttpHelper.RequestType.POST, endpoint, headers, data.toString(), new HttpHelper.IResponse() {
                 @Override
                 public void onSuccess(Response response) {
                     logHit(hit, response);

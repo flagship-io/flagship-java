@@ -41,7 +41,7 @@
 </td>
 <td>
 <div class="infoBox" id="duration">
-<div class="counter">0.867s</div>
+<div class="counter">0.714s</div>
 <p>duration</p>
 </div>
 </td>
@@ -79,42 +79,42 @@
 </thead>
 <tr>
 <td class="success">activate</td>
-<td class="success">0.020s</td>
+<td class="success">0.017s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">config</td>
-<td class="success">0.002s</td>
+<td class="success">0.005s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">getModifications</td>
-<td class="success">0.030s</td>
+<td class="success">0.039s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">getModificationsInfo</td>
-<td class="success">0.013s</td>
+<td class="success">0.033s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">hits</td>
-<td class="success">0.366s</td>
+<td class="success">0.018s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">panic</td>
-<td class="success">0.413s</td>
+<td class="success">0.412s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">synchronize</td>
-<td class="success">0.019s</td>
+<td class="success">0.146s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">updateContext</td>
-<td class="success">0.004s</td>
+<td class="success">0.044s</td>
 <td class="success">passed</td>
 </tr>
 </table>
@@ -122,14 +122,172 @@
 <div id="tab1" class="tab">
 <h2>Standard error</h2>
 <span class="code">
-<pre>?[0;2m[2021-03-04 14:45:35][Flagship][INFO][INITIALIZATION] Flagship SDK started.?[0m
-?[0;2m[2021-03-04 14:45:35][Flagship][INFO][UPDATE_CONTEXT] 'visitor_1' 
+<pre>?[0;2m[2021-03-04 16:28:18][Flagship][INFO][INITIALIZATION] Flagship SDK (version: 1.0.0) started.?[0m
+?[0;2m[2021-03-04 16:28:18][Flagship][INFO][UPDATE_CONTEXT] 'visitor_1' 
+{
+  &quot;context&quot;: {
+    &quot;vip&quot;: true,
+    &quot;age&quot;: 32
+  },
+  &quot;visitorId&quot;: &quot;visitor_1&quot;,
+  &quot;modifications&quot;: {}
+}?[0m
+?[0;2m[2021-03-04 16:28:18][Flagship][INFO][CAMPAIGNS] [POST] https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true [200]
+{
+  &quot;campaigns&quot;: [
+    {
+      &quot;variationGroupId&quot;: &quot;xxxxxxjh6h101fk8lbsg&quot;,
+      &quot;id&quot;: &quot;xxxxxxjh6h101fk8lbrg&quot;,
+      &quot;variation&quot;: {
+        &quot;reference&quot;: false,
+        &quot;id&quot;: &quot;xxxxxx65k9h02cuc1ae0&quot;,
+        &quot;modifications&quot;: {
+          &quot;type&quot;: &quot;JSON&quot;,
+          &quot;value&quot;: {&quot;isref&quot;: &quot;not a all&quot;}
+        }
+      }
+    },
+    {
+      &quot;variationGroupId&quot;: &quot;xxxxxx3m649g0h9nkuj0&quot;,
+      &quot;id&quot;: &quot;xxxxxx3m649g0h9nkui0&quot;,
+      &quot;variation&quot;: {
+        &quot;reference&quot;: false,
+        &quot;id&quot;: &quot;xxxxxx3m649g0h9nkuk0&quot;,
+        &quot;modifications&quot;: {
+          &quot;type&quot;: &quot;FLAG&quot;,
+          &quot;value&quot;: {&quot;release&quot;: 100}
+        }
+      }
+    }
+  ],
+  &quot;visitorId&quot;: &quot;visitor_1&quot;
+}?[0m
+?[0;2m[2021-03-04 16:28:18][Flagship][INFO][SYNCHRONIZE] 'visitor_1' 
+{
+  &quot;context&quot;: {
+    &quot;vip&quot;: true,
+    &quot;age&quot;: 32
+  },
+  &quot;visitorId&quot;: &quot;visitor_1&quot;,
+  &quot;modifications&quot;: {
+    &quot;isref&quot;: &quot;not a all&quot;,
+    &quot;release&quot;: 100
+  }
+}?[0m
+?[0;2m[2021-03-04 16:28:18][Flagship][INFO][INITIALIZATION] Flagship SDK (version: 1.0.0) started.?[0m
+?[0;2m[2021-03-04 16:28:18][Flagship][INFO][UPDATE_CONTEXT] 'visitor_1' 
+{
+  &quot;context&quot;: {
+    &quot;daysSinceLastLaunch&quot;: 2,
+    &quot;isVIPUser&quot;: true,
+    &quot;age&quot;: 32
+  },
+  &quot;visitorId&quot;: &quot;visitor_1&quot;,
+  &quot;modifications&quot;: {}
+}?[0m
+?[0;2m[2021-03-04 16:28:18][Flagship][INFO][CAMPAIGNS] [POST] https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true [200]
+{
+  &quot;campaigns&quot;: [
+    {
+      &quot;variationGroupId&quot;: &quot;xxxxxx4jaeg0gm49ckg&quot;,
+      &quot;id&quot;: &quot;xxxxxx4jaeg0gm49cjg&quot;,
+      &quot;variation&quot;: {
+        &quot;reference&quot;: false,
+        &quot;id&quot;: &quot;xxxxxx4jaeg0gm49cn0&quot;,
+        &quot;modifications&quot;: {
+          &quot;type&quot;: &quot;JSON&quot;,
+          &quot;value&quot;: {
+            &quot;visitorIdColor&quot;: &quot;#E5B21D&quot;,
+            &quot;title&quot;: &quot;Hello&quot;
+          }
+        }
+      }
+    },
+    {
+      &quot;variationGroupId&quot;: &quot;xxxxxxe4jaeg0gi1bhpg&quot;,
+      &quot;id&quot;: &quot;xxxxxxe4jaeg0gi1bhog&quot;,
+      &quot;variation&quot;: {
+        &quot;reference&quot;: false,
+        &quot;id&quot;: &quot;xxxxxxe4jaeg0gi1bhq0&quot;,
+        &quot;modifications&quot;: {
+          &quot;type&quot;: &quot;FLAG&quot;,
+          &quot;value&quot;: {&quot;featureEnabled&quot;: true}
+        }
+      }
+    },
+    {
+      &quot;variationGroupId&quot;: &quot;xxxxxxjh6h101fk8lbsg&quot;,
+      &quot;id&quot;: &quot;xxxxxxjh6h101fk8lbrg&quot;,
+      &quot;variation&quot;: {
+        &quot;reference&quot;: false,
+        &quot;id&quot;: &quot;xxxxxx65k9h02cuc1ae0&quot;,
+        &quot;modifications&quot;: {
+          &quot;type&quot;: &quot;JSON&quot;,
+          &quot;value&quot;: {&quot;isref&quot;: &quot;not a all&quot;}
+        }
+      }
+    },
+    {
+      &quot;variationGroupId&quot;: &quot;xxxxxx3m649g0h9nkuj0&quot;,
+      &quot;id&quot;: &quot;xxxxxx3m649g0h9nkui0&quot;,
+      &quot;variation&quot;: {
+        &quot;reference&quot;: false,
+        &quot;id&quot;: &quot;xxxxxx3m649g0h9nkuk0&quot;,
+        &quot;modifications&quot;: {
+          &quot;type&quot;: &quot;FLAG&quot;,
+          &quot;value&quot;: {&quot;release&quot;: 100}
+        }
+      }
+    },
+    {
+      &quot;variationGroupId&quot;: &quot;xxxxxxc8tbo3s7bp5im0&quot;,
+      &quot;id&quot;: &quot;xxxxxxc8tbo3s7bp5il0&quot;,
+      &quot;variation&quot;: {
+        &quot;reference&quot;: false,
+        &quot;id&quot;: &quot;xxxxxxc8tbo3s7bp5in0&quot;,
+        &quot;modifications&quot;: {
+          &quot;type&quot;: &quot;JSON&quot;,
+          &quot;value&quot;: {&quot;all_users&quot;: 1}
+        }
+      }
+    }
+  ],
+  &quot;visitorId&quot;: &quot;visitor_1&quot;
+}?[0m
+?[0;2m[2021-03-04 16:28:18][Flagship][INFO][SYNCHRONIZE] 'visitor_1' 
+{
+  &quot;context&quot;: {
+    &quot;daysSinceLastLaunch&quot;: 2,
+    &quot;isVIPUser&quot;: true,
+    &quot;age&quot;: 32
+  },
+  &quot;visitorId&quot;: &quot;visitor_1&quot;,
+  &quot;modifications&quot;: {
+    &quot;featureEnabled&quot;: true,
+    &quot;isref&quot;: &quot;not a all&quot;,
+    &quot;visitorIdColor&quot;: &quot;#E5B21D&quot;,
+    &quot;release&quot;: 100,
+    &quot;all_users&quot;: 1,
+    &quot;title&quot;: &quot;Hello&quot;
+  }
+}?[0m
+?[0;31m[2021-03-04 16:28:18][Flagship][ERROR][GET_MODIFICATION] No modification for key 'target'. Default value is returned.?[0m
+?[0;31m[2021-03-04 16:28:18][Flagship][ERROR][GET_MODIFICATION] No modification for key 'wrong'. Default value is returned.?[0m
+?[0;2m[2021-03-04 16:28:18][Flagship][INFO][ACTIVATE]  [POST]  https://decision.flagship.io/v2/activate  [200] 
+{
+  &quot;vid&quot;: &quot;visitor_1&quot;,
+  &quot;vaid&quot;: &quot;xxxxxx65k9h02cuc1ae0&quot;,
+  &quot;caid&quot;: &quot;xxxxxxjh6h101fk8lbsg&quot;,
+  &quot;cid&quot;: &quot;my_env_id&quot;
+}?[0m
+?[0;2m[2021-03-04 16:28:18][Flagship][INFO][INITIALIZATION] Flagship SDK (version: 1.0.0) started.?[0m
+?[0;2m[2021-03-04 16:28:18][Flagship][INFO][UPDATE_CONTEXT] 'visitor_1' 
 {
   &quot;context&quot;: {},
   &quot;visitorId&quot;: &quot;visitor_1&quot;,
   &quot;modifications&quot;: {}
 }?[0m
-?[0;2m[2021-03-04 14:45:36][Flagship][INFO][HIT]  [POST]  https://ariane.abtasty.com  [200] 
+?[0;2m[2021-03-04 16:28:18][Flagship][INFO][HIT]  [POST]  https://ariane.abtasty.com  [200] 
 {
   &quot;vid&quot;: &quot;visitor_1&quot;,
   &quot;t&quot;: &quot;SCREENVIEW&quot;,
@@ -141,7 +299,7 @@
   &quot;ds&quot;: &quot;APP&quot;,
   &quot;sr&quot;: &quot;200x100&quot;
 }?[0m
-?[0;2m[2021-03-04 14:45:36][Flagship][INFO][HIT]  [POST]  https://ariane.abtasty.com  [200] 
+?[0;2m[2021-03-04 16:28:19][Flagship][INFO][HIT]  [POST]  https://ariane.abtasty.com  [200] 
 {
   &quot;vid&quot;: &quot;visitor_1&quot;,
   &quot;t&quot;: &quot;PAGEVIEW&quot;,
@@ -149,7 +307,7 @@
   &quot;cid&quot;: &quot;my_env_id&quot;,
   &quot;ds&quot;: &quot;APP&quot;
 }?[0m
-?[0;2m[2021-03-04 14:45:36][Flagship][INFO][HIT]  [POST]  https://ariane.abtasty.com  [200] 
+?[0;2m[2021-03-04 16:28:19][Flagship][INFO][HIT]  [POST]  https://ariane.abtasty.com  [200] 
 {
   &quot;vid&quot;: &quot;visitor_1&quot;,
   &quot;ev&quot;: 100,
@@ -160,7 +318,7 @@
   &quot;cid&quot;: &quot;my_env_id&quot;,
   &quot;ds&quot;: &quot;APP&quot;
 }?[0m
-?[0;2m[2021-03-04 14:45:36][Flagship][INFO][HIT]  [POST]  https://ariane.abtasty.com  [200] 
+?[0;2m[2021-03-04 16:28:19][Flagship][INFO][HIT]  [POST]  https://ariane.abtasty.com  [200] 
 {
   &quot;tt&quot;: 19.99,
   &quot;ta&quot;: &quot;affiliation&quot;,
@@ -177,7 +335,7 @@
   &quot;cid&quot;: &quot;my_env_id&quot;,
   &quot;ts&quot;: 9.99
 }?[0m
-?[0;2m[2021-03-04 14:45:36][Flagship][INFO][HIT]  [POST]  https://ariane.abtasty.com  [200] 
+?[0;2m[2021-03-04 16:28:19][Flagship][INFO][HIT]  [POST]  https://ariane.abtasty.com  [200] 
 {
   &quot;vid&quot;: &quot;visitor_1&quot;,
   &quot;t&quot;: &quot;ITEM&quot;,
@@ -190,60 +348,8 @@
   &quot;cid&quot;: &quot;my_env_id&quot;,
   &quot;ds&quot;: &quot;APP&quot;
 }?[0m
-?[0;2m[2021-03-04 14:45:36][Flagship][INFO][INITIALIZATION] Flagship SDK started.?[0m
-?[0;2m[2021-03-04 14:45:36][Flagship][INFO][UPDATE_CONTEXT] 'visitor_1' 
-{
-  &quot;context&quot;: {
-    &quot;vip&quot;: true,
-    &quot;age&quot;: 32
-  },
-  &quot;visitorId&quot;: &quot;visitor_1&quot;,
-  &quot;modifications&quot;: {}
-}?[0m
-?[0;2m[2021-03-04 14:45:36][Flagship][INFO][CAMPAIGNS] [POST] https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true [200]
-{
-  &quot;campaigns&quot;: [
-    {
-      &quot;variationGroupId&quot;: &quot;xxxxxxjh6h101fk8lbsg&quot;,
-      &quot;id&quot;: &quot;xxxxxxjh6h101fk8lbrg&quot;,
-      &quot;variation&quot;: {
-        &quot;reference&quot;: false,
-        &quot;id&quot;: &quot;xxxxxx65k9h02cuc1ae0&quot;,
-        &quot;modifications&quot;: {
-          &quot;type&quot;: &quot;JSON&quot;,
-          &quot;value&quot;: {&quot;isref&quot;: &quot;not a all&quot;}
-        }
-      }
-    },
-    {
-      &quot;variationGroupId&quot;: &quot;xxxxxx3m649g0h9nkuj0&quot;,
-      &quot;id&quot;: &quot;xxxxxx3m649g0h9nkui0&quot;,
-      &quot;variation&quot;: {
-        &quot;reference&quot;: false,
-        &quot;id&quot;: &quot;xxxxxx3m649g0h9nkuk0&quot;,
-        &quot;modifications&quot;: {
-          &quot;type&quot;: &quot;FLAG&quot;,
-          &quot;value&quot;: {&quot;release&quot;: 100}
-        }
-      }
-    }
-  ],
-  &quot;visitorId&quot;: &quot;visitor_1&quot;
-}?[0m
-?[0;2m[2021-03-04 14:45:36][Flagship][INFO][SYNCHRONIZE] 'visitor_1' 
-{
-  &quot;context&quot;: {
-    &quot;vip&quot;: true,
-    &quot;age&quot;: 32
-  },
-  &quot;visitorId&quot;: &quot;visitor_1&quot;,
-  &quot;modifications&quot;: {
-    &quot;isref&quot;: &quot;not a all&quot;,
-    &quot;release&quot;: 100
-  }
-}?[0m
-?[0;2m[2021-03-04 14:45:36][Flagship][INFO][INITIALIZATION] Flagship SDK started.?[0m
-?[0;2m[2021-03-04 14:45:36][Flagship][INFO][UPDATE_CONTEXT] 'visitor_1' 
+?[0;2m[2021-03-04 16:28:19][Flagship][INFO][INITIALIZATION] Flagship SDK (version: 1.0.0) started.?[0m
+?[0;2m[2021-03-04 16:28:19][Flagship][INFO][UPDATE_CONTEXT] 'visitor_1' 
 {
   &quot;context&quot;: {
     &quot;daysSinceLastLaunch&quot;: 2,
@@ -253,116 +359,10 @@
   &quot;visitorId&quot;: &quot;visitor_1&quot;,
   &quot;modifications&quot;: {}
 }?[0m
-?[0;2m[2021-03-04 14:45:36][Flagship][INFO][CAMPAIGNS] [POST] https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true [200]
-{
-  &quot;campaigns&quot;: [
-    {
-      &quot;variationGroupId&quot;: &quot;xxxxxx4jaeg0gm49ckg&quot;,
-      &quot;id&quot;: &quot;xxxxxx4jaeg0gm49cjg&quot;,
-      &quot;variation&quot;: {
-        &quot;reference&quot;: false,
-        &quot;id&quot;: &quot;xxxxxx4jaeg0gm49cn0&quot;,
-        &quot;modifications&quot;: {
-          &quot;type&quot;: &quot;JSON&quot;,
-          &quot;value&quot;: {
-            &quot;visitorIdColor&quot;: &quot;#E5B21D&quot;,
-            &quot;title&quot;: &quot;Hello&quot;
-          }
-        }
-      }
-    },
-    {
-      &quot;variationGroupId&quot;: &quot;xxxxxxe4jaeg0gi1bhpg&quot;,
-      &quot;id&quot;: &quot;xxxxxxe4jaeg0gi1bhog&quot;,
-      &quot;variation&quot;: {
-        &quot;reference&quot;: false,
-        &quot;id&quot;: &quot;xxxxxxe4jaeg0gi1bhq0&quot;,
-        &quot;modifications&quot;: {
-          &quot;type&quot;: &quot;FLAG&quot;,
-          &quot;value&quot;: {&quot;featureEnabled&quot;: true}
-        }
-      }
-    },
-    {
-      &quot;variationGroupId&quot;: &quot;xxxxxxjh6h101fk8lbsg&quot;,
-      &quot;id&quot;: &quot;xxxxxxjh6h101fk8lbrg&quot;,
-      &quot;variation&quot;: {
-        &quot;reference&quot;: false,
-        &quot;id&quot;: &quot;xxxxxx65k9h02cuc1ae0&quot;,
-        &quot;modifications&quot;: {
-          &quot;type&quot;: &quot;JSON&quot;,
-          &quot;value&quot;: {&quot;isref&quot;: &quot;not a all&quot;}
-        }
-      }
-    },
-    {
-      &quot;variationGroupId&quot;: &quot;xxxxxx3m649g0h9nkuj0&quot;,
-      &quot;id&quot;: &quot;xxxxxx3m649g0h9nkui0&quot;,
-      &quot;variation&quot;: {
-        &quot;reference&quot;: false,
-        &quot;id&quot;: &quot;xxxxxx3m649g0h9nkuk0&quot;,
-        &quot;modifications&quot;: {
-          &quot;type&quot;: &quot;FLAG&quot;,
-          &quot;value&quot;: {&quot;release&quot;: 100}
-        }
-      }
-    },
-    {
-      &quot;variationGroupId&quot;: &quot;xxxxxxc8tbo3s7bp5im0&quot;,
-      &quot;id&quot;: &quot;xxxxxxc8tbo3s7bp5il0&quot;,
-      &quot;variation&quot;: {
-        &quot;reference&quot;: false,
-        &quot;id&quot;: &quot;xxxxxxc8tbo3s7bp5in0&quot;,
-        &quot;modifications&quot;: {
-          &quot;type&quot;: &quot;JSON&quot;,
-          &quot;value&quot;: {&quot;all_users&quot;: 1}
-        }
-      }
-    }
-  ],
-  &quot;visitorId&quot;: &quot;visitor_1&quot;
-}?[0m
-?[0;2m[2021-03-04 14:45:36][Flagship][INFO][SYNCHRONIZE] 'visitor_1' 
-{
-  &quot;context&quot;: {
-    &quot;daysSinceLastLaunch&quot;: 2,
-    &quot;isVIPUser&quot;: true,
-    &quot;age&quot;: 32
-  },
-  &quot;visitorId&quot;: &quot;visitor_1&quot;,
-  &quot;modifications&quot;: {
-    &quot;featureEnabled&quot;: true,
-    &quot;isref&quot;: &quot;not a all&quot;,
-    &quot;visitorIdColor&quot;: &quot;#E5B21D&quot;,
-    &quot;release&quot;: 100,
-    &quot;all_users&quot;: 1,
-    &quot;title&quot;: &quot;Hello&quot;
-  }
-}?[0m
-?[0;31m[2021-03-04 14:45:36][Flagship][ERROR][GET_MODIFICATION] No modification for key 'target'. Default value is returned.?[0m
-?[0;31m[2021-03-04 14:45:36][Flagship][ERROR][GET_MODIFICATION] No modification for key 'wrong'. Default value is returned.?[0m
-?[0;2m[2021-03-04 14:45:36][Flagship][INFO][ACTIVATE]  [POST]  https://decision.flagship.io/v2/activate  [200] 
-{
-  &quot;vid&quot;: &quot;visitor_1&quot;,
-  &quot;vaid&quot;: &quot;xxxxxx65k9h02cuc1ae0&quot;,
-  &quot;caid&quot;: &quot;xxxxxxjh6h101fk8lbsg&quot;,
-  &quot;cid&quot;: &quot;my_env_id&quot;
-}?[0m
-?[0;2m[2021-03-04 14:45:36][Flagship][INFO][INITIALIZATION] Flagship SDK started.?[0m
-?[0;2m[2021-03-04 14:45:36][Flagship][INFO][UPDATE_CONTEXT] 'visitor_1' 
-{
-  &quot;context&quot;: {
-    &quot;daysSinceLastLaunch&quot;: 2,
-    &quot;isVIPUser&quot;: true,
-    &quot;age&quot;: 32
-  },
-  &quot;visitorId&quot;: &quot;visitor_1&quot;,
-  &quot;modifications&quot;: {}
-}?[0m
-?[0;2m[2021-03-04 14:45:36][Flagship][INFO][CAMPAIGNS] [POST] https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true [200]
+?[0;2m[2021-03-04 16:28:19][Flagship][INFO][CAMPAIGNS] [POST] https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true [200]
 {&quot;panic&quot;: true}?[0m
-?[0;33m[2021-03-04 14:45:36][Flagship][WARNING][SYNCHRONIZE] Panic mode is on.?[0m
-?[0;2m[2021-03-04 14:45:36][Flagship][INFO][SYNCHRONIZE] 'visitor_1' 
+?[0;33m[2021-03-04 16:28:19][Flagship][WARNING][SYNCHRONIZE] Panic mode is on.?[0m
+?[0;2m[2021-03-04 16:28:19][Flagship][INFO][SYNCHRONIZE] 'visitor_1' 
 {
   &quot;context&quot;: {
     &quot;daysSinceLastLaunch&quot;: 2,
@@ -372,10 +372,10 @@
   &quot;visitorId&quot;: &quot;visitor_1&quot;,
   &quot;modifications&quot;: {}
 }?[0m
-?[0;31m[2021-03-04 14:45:36][Flagship][ERROR][UPDATE_CONTEXT] 'updateContext()' deactivated while panic mode is on.?[0m
-?[0;31m[2021-03-04 14:45:36][Flagship][ERROR][GET_MODIFICATION] 'getModiciation()' deactivated while panic mode is on.?[0m
-?[0;31m[2021-03-04 14:45:36][Flagship][ERROR][HIT] 'sendHit()' deactivated while panic mode is on.?[0m
-?[0;2m[2021-03-04 14:45:36][Flagship][INFO][CAMPAIGNS] [POST] https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true [200]
+?[0;31m[2021-03-04 16:28:19][Flagship][ERROR][UPDATE_CONTEXT] 'updateContext()' deactivated while panic mode is on.?[0m
+?[0;31m[2021-03-04 16:28:19][Flagship][ERROR][GET_MODIFICATION] 'getModiciation()' deactivated while panic mode is on.?[0m
+?[0;31m[2021-03-04 16:28:19][Flagship][ERROR][HIT] 'sendHit()' deactivated while panic mode is on.?[0m
+?[0;2m[2021-03-04 16:28:19][Flagship][INFO][CAMPAIGNS] [POST] https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true [200]
 {
   &quot;campaigns&quot;: [
     {
@@ -444,7 +444,7 @@
   ],
   &quot;visitorId&quot;: &quot;visitor_1&quot;
 }?[0m
-?[0;2m[2021-03-04 14:45:36][Flagship][INFO][SYNCHRONIZE] 'visitor_1' 
+?[0;2m[2021-03-04 16:28:19][Flagship][INFO][SYNCHRONIZE] 'visitor_1' 
 {
   &quot;context&quot;: {
     &quot;daysSinceLastLaunch&quot;: 2,
@@ -461,8 +461,8 @@
     &quot;title&quot;: &quot;Hello&quot;
   }
 }?[0m
-?[0;2m[2021-03-04 14:45:36][Flagship][INFO][INITIALIZATION] Flagship SDK started.?[0m
-?[0;2m[2021-03-04 14:45:36][Flagship][INFO][UPDATE_CONTEXT] 'visitor_1' 
+?[0;2m[2021-03-04 16:28:19][Flagship][INFO][INITIALIZATION] Flagship SDK (version: 1.0.0) started.?[0m
+?[0;2m[2021-03-04 16:28:19][Flagship][INFO][UPDATE_CONTEXT] 'visitor_1' 
 {
   &quot;context&quot;: {
     &quot;daysSinceLastLaunch&quot;: 2,
@@ -472,7 +472,7 @@
   &quot;visitorId&quot;: &quot;visitor_1&quot;,
   &quot;modifications&quot;: {}
 }?[0m
-?[0;2m[2021-03-04 14:45:36][Flagship][INFO][CAMPAIGNS] [POST] https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true [200]
+?[0;2m[2021-03-04 16:28:19][Flagship][INFO][CAMPAIGNS] [POST] https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true [200]
 {
   &quot;campaigns&quot;: [
     {
@@ -541,7 +541,7 @@
   ],
   &quot;visitorId&quot;: &quot;visitor_1&quot;
 }?[0m
-?[0;2m[2021-03-04 14:45:36][Flagship][INFO][SYNCHRONIZE] 'visitor_1' 
+?[0;2m[2021-03-04 16:28:19][Flagship][INFO][SYNCHRONIZE] 'visitor_1' 
 {
   &quot;context&quot;: {
     &quot;daysSinceLastLaunch&quot;: 2,
@@ -558,13 +558,13 @@
     &quot;title&quot;: &quot;Hello&quot;
   }
 }?[0m
-?[0;31m[2021-03-04 14:45:36][Flagship][ERROR][GET_MODIFICATION] Modification for key 'featureEnabled' has a different type. Default value is returned.?[0m
-?[0;31m[2021-03-04 14:45:36][Flagship][ERROR][GET_MODIFICATION] Modification for key 'isref' has a different type. Default value is returned.?[0m
-?[0;31m[2021-03-04 14:45:36][Flagship][ERROR][GET_MODIFICATION] Key 'null' must not be null. Default value is returned.?[0m
-?[0;31m[2021-03-04 14:45:36][Flagship][ERROR][GET_MODIFICATION] Key 'null' must not be null. Default value is returned.?[0m
-?[0;31m[2021-03-04 14:45:36][Flagship][ERROR][GET_MODIFICATION] No modification for key 'null'. Default value is returned.?[0m
-?[0;2m[2021-03-04 14:45:36][Flagship][INFO][INITIALIZATION] Flagship SDK started.?[0m
-?[0;2m[2021-03-04 14:45:36][Flagship][INFO][UPDATE_CONTEXT] 'visitor_1' 
+?[0;31m[2021-03-04 16:28:19][Flagship][ERROR][GET_MODIFICATION] Modification for key 'featureEnabled' has a different type. Default value is returned.?[0m
+?[0;31m[2021-03-04 16:28:19][Flagship][ERROR][GET_MODIFICATION] Modification for key 'isref' has a different type. Default value is returned.?[0m
+?[0;31m[2021-03-04 16:28:19][Flagship][ERROR][GET_MODIFICATION] Key 'null' must not be null. Default value is returned.?[0m
+?[0;31m[2021-03-04 16:28:19][Flagship][ERROR][GET_MODIFICATION] Key 'null' must not be null. Default value is returned.?[0m
+?[0;31m[2021-03-04 16:28:19][Flagship][ERROR][GET_MODIFICATION] No modification for key 'null'. Default value is returned.?[0m
+?[0;2m[2021-03-04 16:28:19][Flagship][INFO][INITIALIZATION] Flagship SDK (version: 1.0.0) started.?[0m
+?[0;2m[2021-03-04 16:28:19][Flagship][INFO][UPDATE_CONTEXT] 'visitor_1' 
 {
   &quot;context&quot;: {
     &quot;daysSinceLastLaunch&quot;: 2,
@@ -574,7 +574,7 @@
   &quot;visitorId&quot;: &quot;visitor_1&quot;,
   &quot;modifications&quot;: {}
 }?[0m
-?[0;2m[2021-03-04 14:45:36][Flagship][INFO][CAMPAIGNS] [POST] https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true [200]
+?[0;2m[2021-03-04 16:28:19][Flagship][INFO][CAMPAIGNS] [POST] https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true [200]
 {
   &quot;campaigns&quot;: [
     {
@@ -643,7 +643,7 @@
   ],
   &quot;visitorId&quot;: &quot;visitor_1&quot;
 }?[0m
-?[0;2m[2021-03-04 14:45:36][Flagship][INFO][SYNCHRONIZE] 'visitor_1' 
+?[0;2m[2021-03-04 16:28:19][Flagship][INFO][SYNCHRONIZE] 'visitor_1' 
 {
   &quot;context&quot;: {
     &quot;daysSinceLastLaunch&quot;: 2,
@@ -660,10 +660,10 @@
     &quot;title&quot;: &quot;Hello&quot;
   }
 }?[0m
-?[0;31m[2021-03-04 14:45:36][Flagship][ERROR][GET_MODIFICATION_INFO] No modification for key 'null'.?[0m
-?[0;31m[2021-03-04 14:45:36][Flagship][ERROR][GET_MODIFICATION_INFO] No modification for key 'wrong'.?[0m
-?[0;31m[2021-03-04 14:45:36][Flagship][ERROR][INITIALIZATION] Params 'envId' and 'apiKey' must not be null.?[0m
-?[0;2m[2021-03-04 14:45:36][Flagship][INFO][INITIALIZATION] Flagship SDK started.?[0m
+?[0;31m[2021-03-04 16:28:19][Flagship][ERROR][GET_MODIFICATION_INFO] No modification for key 'null'.?[0m
+?[0;31m[2021-03-04 16:28:19][Flagship][ERROR][GET_MODIFICATION_INFO] No modification for key 'wrong'.?[0m
+?[0;31m[2021-03-04 16:28:19][Flagship][ERROR][INITIALIZATION] Params 'envId' and 'apiKey' must not be null.?[0m
+?[0;2m[2021-03-04 16:28:19][Flagship][INFO][INITIALIZATION] Flagship SDK (version: 1.0.0) started.?[0m
 </pre>
 </span>
 </div>
@@ -675,7 +675,7 @@
 <input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
 </label>
 </div>Generated by 
-<a href="http://www.gradle.org">Gradle 6.5</a> at 4 mars 2021 14:45:37</p>
+<a href="http://www.gradle.org">Gradle 6.5</a> at 4 mars 2021 16:28:19</p>
 </div>
 </div>
 </body>

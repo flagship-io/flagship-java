@@ -23,7 +23,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,7 +41,7 @@ import static org.powermock.api.mockito.PowerMockito.spy;
 public class FlagshipIntegrationTests {
 
     private HashMap<String, OnRequestValidation> requestToVerify = new HashMap<>();
-    private ConcurrentHashMap<String, ArrayList<HttpURLConnection>> responseToMock = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, HttpURLConnection> responseToMock = new ConcurrentHashMap<>();
     private Boolean requestsVerified = true;
     private Boolean missingRequestVerification = false;
 
@@ -56,10 +55,7 @@ public class FlagshipIntegrationTests {
                 public Object answer(InvocationOnMock invocation) throws Throwable {
                     URL url = invocation.getArgument(0);
                     if (responseToMock.containsKey(url.toString())) {
-                        ArrayList<HttpURLConnection> list = responseToMock.get(url.toString());
-                        HttpURLConnection connection = list.get(0);
-                        list.remove(0);
-                        return connection;
+                       return responseToMock.get(url.toString());
                     } else
                         return invocation.callRealMethod();
                 }
@@ -112,19 +108,11 @@ public class FlagshipIntegrationTests {
                 e.printStackTrace();
             }
             insertResponseToMock(url, connection);
-//            responseToMock.put(url, connection);
         }
     }
 
     public void insertResponseToMock(String url, HttpURLConnection connection) {
-        if (responseToMock.containsKey(url)) {
-            ArrayList<HttpURLConnection> list = responseToMock.get(url);
-            list.add(connection);
-        } else {
-            ArrayList<HttpURLConnection> list = new ArrayList<>();
-            list.add(connection);
-            responseToMock.put(url, list);
-        }
+        responseToMock.put(url, connection);
     }
 
     @Before
@@ -132,12 +120,8 @@ public class FlagshipIntegrationTests {
 
         requestsVerified = true;
         missingRequestVerification = false;
-        for (Map.Entry<String, ArrayList<HttpURLConnection>> entry : responseToMock.entrySet()) {
-            ArrayList<HttpURLConnection> list = entry.getValue();
-            for (HttpURLConnection connection : list) {
-                connection.disconnect();
-            }
-            list.clear();
+        for (Map.Entry<String, HttpURLConnection> entry : responseToMock.entrySet()) {
+            entry.getValue().disconnect();
         }
         responseToMock.clear();
         requestToVerify.clear();
@@ -147,6 +131,12 @@ public class FlagshipIntegrationTests {
     public void after() {
         assertTrue(requestsVerified);
         assertFalse(missingRequestVerification);
+
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
@@ -343,19 +333,17 @@ public class FlagshipIntegrationTests {
             });
             if (!synchronizeLatch.await(1, TimeUnit.SECONDS) && !nbHit.await(1, TimeUnit.SECONDS))
                 fail();
-//            Thread.sleep(1000);
         } catch (Exception e) {
             e.printStackTrace();
+            fail();
         }
     }
 
     @Test
-    public void hits() {
-
+    public void screenHit() {
         Flagship.start("my_env_id", "my_api_key");
         Visitor visitor = Flagship.newVisitor("visitor_1");
 
-        /////////////////// TEST SCREEN HIT //////////////////
         mockResponse("https://ariane.abtasty.com", 200, "");
 
         CountDownLatch screenHit = new CountDownLatch(1);
@@ -385,7 +373,14 @@ public class FlagshipIntegrationTests {
                 fail();
         } catch (InterruptedException e) {
             e.printStackTrace();
+            fail();
         }
+    }
+
+    @Test
+    public void pageHit() {
+        Flagship.start("my_env_id", "my_api_key");
+        Visitor visitor = Flagship.newVisitor("visitor_1");
 
         /////////////////// TEST PAGE HIT //////////////////
         mockResponse("https://ariane.abtasty.com", 200, "");
@@ -408,7 +403,14 @@ public class FlagshipIntegrationTests {
                 fail();
         } catch (InterruptedException e) {
             e.printStackTrace();
+            fail();
         }
+    }
+
+    @Test
+    public void eventHit() {
+        Flagship.start("my_env_id", "my_api_key");
+        Visitor visitor = Flagship.newVisitor("visitor_1");
 
         /////////////////// TEST EVENT HIT //////////////////
         mockResponse("https://ariane.abtasty.com", 200, "");
@@ -437,7 +439,14 @@ public class FlagshipIntegrationTests {
                 fail();
         } catch (InterruptedException e) {
             e.printStackTrace();
+            fail();
         }
+    }
+
+    @Test
+    public void transactionHit() {
+        Flagship.start("my_env_id", "my_api_key");
+        Visitor visitor = Flagship.newVisitor("visitor_1");
 
         /////////////////// TEST TRANSACTION HIT //////////////////
         mockResponse("https://ariane.abtasty.com", 200, "");
@@ -478,7 +487,14 @@ public class FlagshipIntegrationTests {
                 fail();
         } catch (InterruptedException e) {
             e.printStackTrace();
+            fail();
         }
+    }
+
+    @Test
+    public void itemHit() {
+        Flagship.start("my_env_id", "my_api_key");
+        Visitor visitor = Flagship.newVisitor("visitor_1");
 
         /////////////////// TEST ITEM HIT //////////////////
         mockResponse("https://ariane.abtasty.com", 200, "");
@@ -510,20 +526,20 @@ public class FlagshipIntegrationTests {
                 fail();
         } catch (InterruptedException e) {
             e.printStackTrace();
+            fail();
         }
     }
+
 
     @Test
     public void panic() throws InterruptedException {
         AtomicBoolean calls = new AtomicBoolean(false);
-        CountDownLatch campaignsLatch = new CountDownLatch(1);
+        CountDownLatch campaignCall0 = new CountDownLatch(1);
         mockResponse("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", 200, FlagshipIntegrationConstants.panic);
         mockResponse("https://decision.flagship.io/v2/activate", 200, "");
         mockResponse("https://ariane.abtasty.com", 200, "");
 
         verifyRequest("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", (request) -> {
-//            callCampaigns.set(true);
-            campaignsLatch.countDown();
         });
 
         verifyRequest("https://decision.flagship.io/v2/activate", (request) -> {
@@ -547,11 +563,17 @@ public class FlagshipIntegrationTests {
             assertFalse(visitor.getContext().containsKey("hello"));
             assertEquals(visitor.getModification("wrong", "wrong", true), "wrong");
             visitor.sendHit(new Screen("Integration Test"));
+            campaignCall0.countDown();
         });
 
-        Thread.sleep(200);
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            fail();
+        }
         assertFalse(calls.get());
-
+//
         AtomicInteger campaignCall = new AtomicInteger(0);
         mockResponse("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", 200, FlagshipIntegrationConstants.synchronizeResponse2);
         verifyRequest("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", (request) -> {
@@ -560,6 +582,10 @@ public class FlagshipIntegrationTests {
         visitor.synchronizeModifications(null);
         Thread.sleep(200);
         assertEquals(campaignCall.get(), 1);
+
+        for (Map.Entry<String, HttpURLConnection> entry : responseToMock.entrySet()) {
+            entry.getValue().disconnect();
+        }
     }
 
     @Test

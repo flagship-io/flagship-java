@@ -25,6 +25,7 @@ jobs:
         echo "::exportVariable name=FLAGSHIP_VERSION_NAME2::${GITHUB_REF#refs/tags/}"
         echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
         echo "TAG_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+        echo "FLAGSHIP_VERSION_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
         echo "${GITHUB_REF#refs/tags/}"
         echo ${GITHUB_REF#refs/tags/}
         echo $FLAGSHIP_VERSION_NAME
@@ -34,6 +35,7 @@ jobs:
     - name: Env2
       run: |
         echo $FLAGSHIP_VERSION_NAME
+        echo $TAG_VERSION
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Gradle wrapper
@@ -42,6 +44,6 @@ jobs:
       env:
         ARTIFACTORY_USER: ${{ secrets.ARTIFACTORY_USER }}
         ARTIFACTORY_KEY: ${{ secrets.ARTIFACTORY_KEY }}
-        FLAGSHIP_VERSION_NAME: ${GITHUB_REF#refs/tags/}
+       # FLAGSHIP_VERSION_NAME: ${GITHUB_REF#refs/tags/}
       run: bash ./gradlew release
       

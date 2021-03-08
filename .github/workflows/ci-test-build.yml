@@ -23,9 +23,9 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Clean
-      run: ./gradew clean
+      run: ./gradlew clean
     - name: Assemble
       run: ./gradlew assemble
     - name: Test
-      run: ./gradew test
+      run: ./gradlew test
       

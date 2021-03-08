@@ -1,10 +1,16 @@
 
 name: CD Release & Publish
 
+#on:
+#  push:
+#    tags:
+#      - '*.*.*'
+# - '*.*'
 on:
   push:
-    tags:
-      - '*.*.*'
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:

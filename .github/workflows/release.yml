@@ -28,6 +28,7 @@ jobs:
       run: |
             echo $FLAGSHIP_VERSION_NAME
             echo ${GITHUB_REF#refs/tags/}
+            echo ${GITHUB_REF/refs\/tags\//}
             export FLAGSHIP_VERSION_NAME=${GITHUB_REF#refs/tags/}
             echo ::exportVariable name=FLAGSHIP_VERSION_NAME::${GITHUB_REF#refs/tags/}
             echo ::exportVariable name=ARTIFACTORY_USER::${{ secrets.ARTIFACTORY_USER }}

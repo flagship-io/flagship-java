@@ -29,6 +29,11 @@ jobs:
             echo ::exportVariable name=FLAGSHIP_VERSION_NAME::${GITHUB_REF#refs/tags/}
             echo ::exportVariable name=ARTIFACTORY_USER::${{ secrets.ARTIFACTORY_USER }}
             echo ::exportVariable name=ARTIFACTORY_KEY::${{ secrets.ARTIFACTORY_KEY }}
+    - name: Debug
+      run: |
+            echo $FLAGSHIP_VERSION_NAME
+            echo $ARTIFACTORY_USER
+            echo $ARTIFACTORY_KEY
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Gradle wrapper

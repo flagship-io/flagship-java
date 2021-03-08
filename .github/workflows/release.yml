@@ -17,7 +17,7 @@ jobs:
     env:
       ARTIFACTORY_USER: ${{ secrets.ARTIFACTORY_USER }}
       ARTIFACTORY_KEY: ${{ secrets.ARTIFACTORY_KEY }}
-      FLAGSHIP_VERSION_NAME: ${GITHUB_REF/refs\/tags\//}
+      FLAGSHIP_VERSION_NAME: ${GITHUB_REF/refs/tags/}
     name: Run Unit Tests
     runs-on: ubuntu-latest
    # if: contains(github.event.head_commit.message, '#ci-auto') == false

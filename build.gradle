@@ -8,8 +8,8 @@ buildscript {
     def flagship_version_name = System.getenv('FLAGSHIP_VERSION_NAME')
     def flagship_version_code = System.getenv('FLAGSHIP_VERSION_CODE')
 
-    def bintray_user = System.getenv('BINTRAY_USER')
-    def bintray_key = System.getenv('BINTRAY_KEY')
+    def bintray_user = System.getenv('ARTIFACTORY_USER')
+    def bintray_key = System.getenv('ARTIFACTORY_KEY')
 
     if (flagship_version_name != null)
         rootProject.ext.flagship_version_name = flagship_version_name
@@ -30,8 +30,8 @@ buildscript {
             def keystoreProperties = new Properties()
             keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
-            rootProject.ext.bintray_user = keystoreProperties.getProperty("bintray_user")
-            rootProject.ext.bintray_key = keystoreProperties.getProperty("bintray_key")
+            rootProject.ext.bintray_user = keystoreProperties.getProperty("artifactory_user")
+            rootProject.ext.bintray_key = keystoreProperties.getProperty("artifactory_key")
 
         } catch (Exception e) {
             rootProject.ext.bintray_user = ''

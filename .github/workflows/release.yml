@@ -19,23 +19,9 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8  
-    - name: Env
+    - name: Get version
       run: |
-        echo ::exportVariable name=FLAGSHIP_VERSION_NAME::${GITHUB_REF#refs/tags/}
-        echo "::exportVariable name=FLAGSHIP_VERSION_NAME2::${GITHUB_REF#refs/tags/}"
-        echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
-        echo "TAG_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
         echo "FLAGSHIP_VERSION_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
-        echo "${GITHUB_REF#refs/tags/}"
-        echo ${GITHUB_REF#refs/tags/}
-        echo $FLAGSHIP_VERSION_NAME
-        echo $FLAGSHIP_VERSION_NAME2
-        echo $TAG_VERSION
-        echo $VERSION
-    - name: Env2
-      run: |
-        echo $FLAGSHIP_VERSION_NAME
-        echo $TAG_VERSION
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Gradle wrapper

@@ -1,10 +1,15 @@
 apply plugin: 'maven-publish'
 apply plugin: "com.jfrog.artifactory"
 
-
-
 //./gradlew clean artifactoryPublish
 artifactoryPublish.skip = true
+
+task release {
+    dependsOn 'clean'
+    dependsOn 'assemble'
+    dependsOn 'test'
+    dependsOn 'artifactoryPublish'
+}
 
 artifactory {
     contextUrl = 'https://abtasty.jfrog.io/artifactory/'

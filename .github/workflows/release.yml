@@ -22,10 +22,12 @@ jobs:
     - name: Env
       run: |
         echo ::exportVariable name=FLAGSHIP_VERSION_NAME::${GITHUB_REF#refs/tags/}
+        echo "::exportVariable name=FLAGSHIP_VERSION_NAME2::${GITHUB_REF#refs/tags/}"
         echo "TAG_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
         echo "${GITHUB_REF#refs/tags/}"
         echo ${GITHUB_REF#refs/tags/}
         echo $FLAGSHIP_VERSION_NAME
+        echo $FLAGSHIP_VERSION_NAME2
         echo $TAG_VERSION
     - name: Env2
       run: |

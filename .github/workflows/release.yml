@@ -29,6 +29,7 @@ jobs:
         java-version: 1.8
     - name: Env
       run: |
+            Write-Output "::set-env name=FLAGSHIP_VERSION_NAME::${GITHUB_REF#refs/tags/}"
             echo ::exportVariable name=FLAGSHIP_VERSION_NAME::${GITHUB_REF#refs/tags/}
             echo ::exportVariable name=ARTIFACTORY_USER::${{ secrets.ARTIFACTORY_USER }}
             echo ::exportVariable name=ARTIFACTORY_KEY::${{ secrets.ARTIFACTORY_KEY }}

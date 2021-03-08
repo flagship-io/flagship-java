@@ -30,4 +30,4 @@
 
 ## Licence
 
-[Apache License.](https://github.com/abtasty/flagship-python-sdk/blob/master/LICENSE)
+[Apache License.](https://github.com/raf-abtasty/flagship-java/blob/main/LICENSE)

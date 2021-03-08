@@ -25,7 +25,7 @@ jobs:
     - name: Clean
       run: ./gradew clean
     - name: Assemble
-      run: ./gradew assemble
+      run: ./gradlew assemble
     - name: Test
       run: ./gradew test
       

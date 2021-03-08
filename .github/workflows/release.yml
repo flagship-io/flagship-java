@@ -37,5 +37,5 @@ jobs:
       env:
         ARTIFACTORY_USER: ${{ secrets.ARTIFACTORY_USER }}
         ARTIFACTORY_KEY: ${{ secrets.ARTIFACTORY_KEY }}
-        FLAGSHIP_VERSION_NAME: ${GITHUB_REF/refs/tags/}
+        FLAGSHIP_VERSION_NAME: x.x.x
       

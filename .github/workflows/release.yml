@@ -10,10 +10,6 @@ on:
 
 jobs:
   build:
-    env:
-      ARTIFACTORY_USER: ${{ secrets.ARTIFACTORY_USER }}
-      ARTIFACTORY_KEY: ${{ secrets.ARTIFACTORY_KEY }}
-      FLAGSHIP_VERSION_NAME: ${GITHUB_REF/refs/tags/}
     name: Run Unit Tests
     runs-on: ubuntu-latest
    # if: contains(github.event.head_commit.message, '#ci-auto') == false
@@ -23,9 +19,11 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
-    - name: Env
-      run: |
-        echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+   # - name: Set env
+     
+    #- name: Env
+    #  run: |
+   #     echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
      #       echo “::set-env name=FLAGSHIP_VERSION_NAME::${GITHUB_REF#refs/tags/}”
       #      echo ::exportVariable name=FLAGSHIP_VERSION_NAME::${GITHUB_REF#refs/tags/}
        #     echo ::exportVariable name=ARTIFACTORY_USER::${{ secrets.ARTIFACTORY_USER }}
@@ -36,4 +34,8 @@ jobs:
       run: gradle wrapper
     - name: Release (clean, assemble, test, publish)
       run: bash ./gradlew release
+      env:
+        ARTIFACTORY_USER: ${{ secrets.ARTIFACTORY_USER }}
+        ARTIFACTORY_KEY: ${{ secrets.ARTIFACTORY_KEY }}
+        FLAGSHIP_VERSION_NAME: ${GITHUB_REF/refs/tags/}
       

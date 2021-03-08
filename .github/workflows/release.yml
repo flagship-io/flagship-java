@@ -20,7 +20,7 @@ jobs:
       ARTIFACTORY_KEY: ${{ secrets.ARTIFACTORY_KEY }}
     name: Run Unit Tests
     runs-on: ubuntu-latest
-    if: contains(github.event.head_commit.message, '#ci-auto') == false
+   # if: contains(github.event.head_commit.message, '#ci-auto') == false
     steps:
     - uses: actions/checkout@v2.2.0
     - name: Set up JDK 1.8

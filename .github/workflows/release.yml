@@ -1,16 +1,12 @@
 
 name: CD Release & Publish
 
-#on:
-#  push:
-#    tags:
-#      - '*.*.*'
-# - '*.*'
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    tags:
+      - '*.*.*'
+# - '*.*'
+
 
 jobs:
   build:
@@ -27,8 +23,9 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
-   # - name: Env
-    #  run: |
+    - name: Env
+      run: |
+        echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
      #       echo “::set-env name=FLAGSHIP_VERSION_NAME::${GITHUB_REF#refs/tags/}”
       #      echo ::exportVariable name=FLAGSHIP_VERSION_NAME::${GITHUB_REF#refs/tags/}
        #     echo ::exportVariable name=ARTIFACTORY_USER::${{ secrets.ARTIFACTORY_USER }}

@@ -12,7 +12,7 @@ on:
 jobs:
   build:
     env:
-      #FLAGSHIP_VERSION_NAME: ${GITHUB_REF/refs\/tags\/}
+      FLAGSHIP_VERSION_NAME: ${GITHUB_REF/refs/tags/}
       ARTIFACTORY_USER: ${{ secrets.ARTIFACTORY_USER }}
       ARTIFACTORY_KEY: ${{ secrets.ARTIFACTORY_KEY }}
 
@@ -26,7 +26,7 @@ jobs:
         java-version: 1.8
     - name: Env
       run: |
-            echo ::exportVariable name=FLAGSHIP_VERSION_NAME::${GITHUB_REF/refs\/tags\/}
+            echo ::exportVariable name=FLAGSHIP_VERSION_NAME::${{FLAGSHIP_VERSION_NAME}}
             echo ::exportVariable name=ARTIFACTORY_USER::${{ secrets.ARTIFACTORY_USER }}
             echo ::exportVariable name=ARTIFACTORY_KEY::${{ secrets.ARTIFACTORY_KEY }}
     - name: Grant execute permission for gradlew

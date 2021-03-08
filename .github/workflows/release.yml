@@ -9,11 +9,9 @@ on:
 jobs:
   build:
     env:
-      TAG: ${GITHUB_REF#refs/tags/}
+      FLAGSHIP_VERSION_NAME: ${GITHUB_REF#refs/tags/}
       ARTIFACTORY_USER: ${{ secrets.ARTIFACTORY_USER }}
       ARTIFACTORY_KEY: ${{ secrets.ARTIFACTORY_KEY }}
-      
-
     name: Run Unit Tests
     runs-on: ubuntu-latest
     if: contains(github.event.head_commit.message, '#ci-auto') == false
@@ -25,22 +23,13 @@ jobs:
         java-version: 1.8
     - name: Env
       run: |
-            echo $TAG
-            echo ${GITHUB_REF#refs/tags/}
-            echo ${GITHUB_REF/refs\/tags\//}
-            export FLAGSHIP_VERSION_NAME=${GITHUB_REF#refs/tags/}
-            export TAG=${GITHUB_REF#refs/tags/}
-            echo "version = $FLAGSHIP_VERSION_NAME"
-            echo "tag = $TAG"
             echo ::exportVariable name=FLAGSHIP_VERSION_NAME::${GITHUB_REF#refs/tags/}
             echo ::exportVariable name=ARTIFACTORY_USER::${{ secrets.ARTIFACTORY_USER }}
             echo ::exportVariable name=ARTIFACTORY_KEY::${{ secrets.ARTIFACTORY_KEY }}
-            echo "version = $FLAGSHIP_VERSION_NAME"
-            echo "tag = $TAG"
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Gradle wrapper
       run: gradle wrapper
     - name: Release (clean, assemble, test, publish)
-      run: ./gradlew release
+      run: bash ./gradlew release
       

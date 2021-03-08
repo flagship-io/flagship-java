@@ -5,6 +5,11 @@ apply plugin: "com.jfrog.artifactory"
 artifactoryPublish.skip = true
 
 task release {
+
+    print("\n=> bintray_user : " + bintray_user)
+    print("\n=> bintray_key : " + bintray_key)
+    print("\n=> version name : " + flagship_version_name)
+
     dependsOn 'clean'
     dependsOn 'assemble'
     dependsOn 'test'

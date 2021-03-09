@@ -4,7 +4,7 @@
 name: Artifactory rollback CI
 
 on:
-  delete:
+  deleted:
     tags:
       - '*.*.*'
       - '*.*'

@@ -15,12 +15,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Get version
-      run: |
-        echo "FLAGSHIP_VERSION_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
-        echo ${GITHUB_REF#refs/tags/}
-        echo "${{ github.event.ref }}"
-        echo "${{ github.event.ref }}"
     - name: Artifactory delete version
       run: |
-        curl --location --request DELETE 'https://abtasty.jfrog.io/artifactory/flagship-java/com/abtasty/flagship-java/${{ github.event.ref }}'
+        curl --location --request DELETE 'https://abtasty.jfrog.io/artifactory/flagship-java/com/abtasty/flagship-java/${{ github.event.ref }}' --header 'Authorization: Bearer ${{ secrets.ARTIFACTORY_TOKEN }}'

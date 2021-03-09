@@ -23,4 +23,4 @@ jobs:
         echo "${{ github.event.ref }}"
     - name: Artifactory delete version
       run: |
-        curl --location --request DELETE 'https://abtasty.jfrog.io/artifactory/flagship-java/com/abtasty/flagship-java/$FLAGSHIP_VERSION_NAME'
+        curl --location --request DELETE 'https://abtasty.jfrog.io/artifactory/flagship-java/com/abtasty/flagship-java/${{ github.event.ref }}'

@@ -5,7 +5,7 @@ import com.abtasty.flagship.hits.*;
 import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.main.FlagshipConfig;
 import com.abtasty.flagship.main.Visitor;
-import com.abtasty.flagship.utils.LogLevel;
+import com.abtasty.flagship.utils.ILogManager;
 import com.abtasty.flagship.utils.LogManager;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -13,12 +13,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.net.HttpURLConnection;
@@ -30,6 +30,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.powermock.api.mockito.PowerMockito.doAnswer;
@@ -145,21 +147,17 @@ public class FlagshipIntegrationTests {
         assertEquals(Flagship.getConfig().getApiKey(), "my_api_key");
 
         CountDownLatch logLatch = new CountDownLatch(1);
-        class CustomLogManager extends LogManager {
-
-            public CustomLogManager(Flagship.Log logMode) {
-                super(logMode);
-            }
+        class CustomLogManager extends ILogManager {
 
             @Override
-            public void onLog(Tag tag, LogLevel level, String message) {
-                if (message.contains("Flagship SDK") && tag == Tag.INITIALIZATION && level == LogLevel.INFO)
+            public void onLog(Level level, String tag, String message) {
+                if (message.contains("Flagship SDK") && tag == LogManager.Tag.INITIALIZATION.getName() && level == Level.INFO)
                     logLatch.countDown();
             }
         }
         Flagship.start("my_env_id_2", "my_api_key_2", new FlagshipConfig()
                 .withFlagshipMode(Flagship.Mode.DECISION_API)
-                .withLogManager(new CustomLogManager(Flagship.Log.ALL)));
+                .withLogManager(new CustomLogManager()));
         assertNotNull(Flagship.getConfig());
         assertTrue(Flagship.isReady());
         assertEquals(Flagship.getConfig().getEnvId(), "my_env_id_2");
@@ -177,22 +175,22 @@ public class FlagshipIntegrationTests {
     public void updateContext() {
 
         CountDownLatch logLatch = new CountDownLatch(2);
-        class CustomLogManager extends LogManager {
+        class CustomLogManager extends ILogManager {
 
-            public CustomLogManager(Flagship.Log logMode) {
-                super(logMode);
+            public CustomLogManager(ILogManager.LogMode mode) {
+                super(mode);
             }
 
             @Override
-            public void onLog(Tag tag, LogLevel level, String message) {
-                if (level == LogLevel.WARNING)
+            public void onLog(Level level, String tag, String message) {
+                if (level == Level.WARNING)
                     logLatch.countDown();
             }
         }
 
         Flagship.start("my_env_id", "my_api_key", new FlagshipConfig()
                 .withFlagshipMode(Flagship.Mode.DECISION_API)
-                .withLogManager(new CustomLogManager(Flagship.Log.ALL)));
+                .withLogManager(new CustomLogManager(ILogManager.LogMode.ALL)));
 
         Visitor visitor0 = Flagship.newVisitor(null);
         assertNull(visitor0);

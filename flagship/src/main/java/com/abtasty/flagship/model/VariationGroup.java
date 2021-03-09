@@ -1,13 +1,12 @@
 package com.abtasty.flagship.model;
 
-import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.utils.FlagshipConstants;
-import com.abtasty.flagship.utils.LogLevel;
 import com.abtasty.flagship.utils.LogManager;
 import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.logging.Level;
 
 public class VariationGroup implements Serializable {
 
@@ -63,7 +62,7 @@ public class VariationGroup implements Serializable {
             }
             return new VariationGroup(campaignId, variationGroupId, variations, targetingGroups, selectedVariationId);
         } catch (Exception e) {
-            LogManager.log(LogManager.Tag.PARSING, LogLevel.ERROR, FlagshipConstants.Errors.PARSING_VARIATIONGROUP_ERROR);
+            LogManager.log(LogManager.Tag.PARSING, Level.SEVERE, FlagshipConstants.Errors.PARSING_VARIATIONGROUP_ERROR);
             return null;
         }
     }

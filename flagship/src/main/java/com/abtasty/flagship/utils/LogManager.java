@@ -1,12 +1,11 @@
 package com.abtasty.flagship.utils;
 
 import com.abtasty.flagship.main.Flagship;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.*;
 
-public class LogManager implements ILogManager {
+public class LogManager extends ILogManager {
 
     public enum Tag {
         GLOBAL("[GLOBAL]"),
@@ -89,13 +88,11 @@ public class LogManager implements ILogManager {
         }
     }
 
-    private Flagship.Log    logMode = Flagship.Log.ALL;
     private String          mainTag = "[Flagship]";
     private Logger          logger = Logger.getLogger(LogManager.class.getName());
 
-    public LogManager(Flagship.Log logMode) {
-        if (logMode != null)
-            this.logMode = logMode;
+    public LogManager() {
+        super();
         ConsoleHandler h = new ConsoleHandler();
         Formatter formatter = new LogFormatter();
         h.setFormatter(formatter);
@@ -104,37 +101,16 @@ public class LogManager implements ILogManager {
             logger.addHandler(h);
     }
 
-    public static void log(Tag tag, LogLevel level, String message) {
+    public static void log(Tag tag, Level level, String message) {
         if (Flagship.getConfig() != null) {
-            LogManager logManager = Flagship.getConfig().getLogManager();
-            if (logManager.checkLogModeAllowed(level) && tag != null && message != null)
-                logManager.onLog(tag, level, message);
+            ILogManager logManager = Flagship.getConfig().getLogManager();
+            if (logManager.isLogApplyToLogMode(level) && tag != null && message != null)
+                logManager.onLog(level, tag.getName(), message);
         }
     }
 
     @Override
-    public void onLog(Tag tag, LogLevel level, String message) {
-        logger.log(level.getValue(), this.mainTag + "[" + level.toString() + "]" + tag.getName() + " " + message);
-    }
-
-    @Override
-    public void onException(Tag tag, LogLevel level, String stacktrace) {
-        onLog(tag, level, stacktrace);
-    }
-
-    protected Boolean checkLogModeAllowed(LogLevel level) {
-        boolean check = true;
-        switch (this.logMode) {
-            case NONE:
-                check = false;
-                break;
-            case ALL:
-                check = true;
-                break;
-            case ERRORS:
-                check =  (level == LogLevel.ERROR || level == LogLevel.WARNING || level == LogLevel.EXCEPTION);
-                break;
-        }
-        return check;
+    public void onLog(Level level, String tag, String message) {
+        logger.log(level, this.mainTag + "[" + level.toString() + "]" + tag + " " + message);
     }
 }

@@ -1,12 +1,11 @@
 package com.abtasty.flagship.model;
 
-import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.utils.FlagshipConstants;
-import com.abtasty.flagship.utils.LogLevel;
 import com.abtasty.flagship.utils.LogManager;
 import org.json.JSONObject;
 
 import java.io.Serializable;
+import java.util.logging.Level;
 
 public class Variation implements Serializable {
 
@@ -69,7 +68,7 @@ public class Variation implements Serializable {
             int allocation = variationObj.optInt("allocation", -1);
             return new Variation(campaignId, variationGroupId, variationId, isReference, modifications, allocation);
         } catch (Exception e) {
-            LogManager.log(LogManager.Tag.PARSING, LogLevel.ERROR, FlagshipConstants.Errors.PARSING_VARIATION_ERROR);
+            LogManager.log(LogManager.Tag.PARSING, Level.SEVERE, FlagshipConstants.Errors.PARSING_VARIATION_ERROR);
             return null;
         }
     }

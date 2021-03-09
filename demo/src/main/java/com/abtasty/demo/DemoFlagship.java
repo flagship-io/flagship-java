@@ -7,16 +7,32 @@ import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.main.FlagshipConfig;
 import com.abtasty.flagship.main.Visitor;
 import com.abtasty.flagship.model.Modification;
+import com.abtasty.flagship.utils.ILogManager;
 
 import java.util.HashMap;
+import java.util.logging.Level;
 
 public class DemoFlagship {
 
     public static void main(String[] args) {
 
 
+        class CustomLogManager extends ILogManager {
+
+            public CustomLogManager(LogMode mode) {
+                super(mode);
+            }
+
+            @Override
+            public void onLog(Level level, String tag, String message) {
+                if (isLogApplyToLogMode(level)) {
+                    System.out.println("FLAGSHIP => " + tag + " " + message);
+                }
+            }
+        }
+
 //        Flagship.start("my env id", "my api key", new FlagshipConfig());
-        Flagship.start("bkk4s7gcmjcg07fke9dg", "Q6FDmj6F188nh75lhEato2MwoyXDS7y34VrAL4Aa");
+        Flagship.start("bkk4s7gcmjcg07fke9dg", "Q6FDmj6F188nh75lhEato2MwoyXDS7y34VrAL4Aa", new FlagshipConfig().withLogManager(new CustomLogManager(ILogManager.LogMode.ALL)));
         Visitor visitor = Flagship.newVisitor("toto");
         HashMap<String, Object> hashMap = new HashMap<String, Object>();
 //        hashMap.put("Age", new FlagshipConfig());

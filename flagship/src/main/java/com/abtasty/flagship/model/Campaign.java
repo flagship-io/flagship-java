@@ -2,13 +2,13 @@ package com.abtasty.flagship.model;
 
 import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.utils.FlagshipConstants;
-import com.abtasty.flagship.utils.LogLevel;
 import com.abtasty.flagship.utils.LogManager;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.logging.Level;
 
 public class Campaign implements Serializable {
 
@@ -54,7 +54,7 @@ public class Campaign implements Serializable {
             });
             return campaigns;
         } catch (Exception e){
-            LogManager.log(LogManager.Tag.PARSING, LogLevel.ERROR, FlagshipConstants.Errors.PARSING_CAMPAIGN_ERROR);
+            LogManager.log(LogManager.Tag.PARSING, Level.SEVERE, FlagshipConstants.Errors.PARSING_CAMPAIGN_ERROR);
             return null;
         }
     }
@@ -80,7 +80,7 @@ public class Campaign implements Serializable {
             return new Campaign(id, variationGroups);
         }
         catch (Exception e){
-            LogManager.log(LogManager.Tag.PARSING, LogLevel.ERROR, FlagshipConstants.Errors.PARSING_CAMPAIGN_ERROR);
+            LogManager.log(LogManager.Tag.PARSING, Level.SEVERE, FlagshipConstants.Errors.PARSING_CAMPAIGN_ERROR);
             return null;
         }
     }

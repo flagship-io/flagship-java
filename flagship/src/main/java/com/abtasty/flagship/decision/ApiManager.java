@@ -4,16 +4,15 @@ import com.abtasty.flagship.BuildConfig;
 import com.abtasty.flagship.api.HttpHelper;
 import com.abtasty.flagship.api.Response;
 import com.abtasty.flagship.main.Flagship;
-import com.abtasty.flagship.main.FlagshipConfig;
 import com.abtasty.flagship.model.Campaign;
 import com.abtasty.flagship.utils.FlagshipConstants;
-import com.abtasty.flagship.utils.LogLevel;
 import com.abtasty.flagship.utils.LogManager;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.logging.Level;
 
 public class ApiManager extends DecisionManager {
 
@@ -45,10 +44,10 @@ public class ApiManager extends DecisionManager {
                     ArrayList<Campaign> newCampaigns = parseCampaigns(response.getResponseContent());
                     campaigns.addAll(newCampaigns);
                 } else
-                    LogManager.log(LogManager.Tag.SYNCHRONIZE, LogLevel.WARNING, FlagshipConstants.Errors.PANIC);
+                    LogManager.log(LogManager.Tag.SYNCHRONIZE, Level.WARNING, FlagshipConstants.Errors.PANIC);
             }
         } catch (IOException e) {
-            LogManager.log(LogManager.Tag.SYNCHRONIZE, LogLevel.ERROR, e.getMessage());
+            LogManager.log(LogManager.Tag.SYNCHRONIZE, Level.SEVERE, e.getMessage());
         }
         return campaigns;
     }
@@ -58,7 +57,7 @@ public class ApiManager extends DecisionManager {
             JSONObject json = new JSONObject(content);
             return json.has("panic");
         } catch (Exception e) {
-            LogManager.log(LogManager.Tag.PARSING, LogLevel.ERROR, FlagshipConstants.Errors.PARSING_CAMPAIGN_ERROR);
+            LogManager.log(LogManager.Tag.PARSING, Level.SEVERE, FlagshipConstants.Errors.PARSING_CAMPAIGN_ERROR);
         }
         return false;
     }
@@ -77,6 +76,6 @@ public class ApiManager extends DecisionManager {
                 .append("[" + response.getResponseCode() + "]")
                 .append("\n")
                 .append(content);
-        LogManager.log(LogManager.Tag.CAMPAIGNS, response.isSuccess() ? LogLevel.INFO : LogLevel.ERROR, message.toString());
+        LogManager.log(LogManager.Tag.CAMPAIGNS, response.isSuccess() ? Level.INFO : Level.SEVERE, message.toString());
     }
 }

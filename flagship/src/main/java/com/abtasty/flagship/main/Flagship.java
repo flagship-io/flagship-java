@@ -2,10 +2,10 @@ package com.abtasty.flagship.main;
 
 import com.abtasty.flagship.BuildConfig;
 import com.abtasty.flagship.utils.FlagshipConstants;
-import com.abtasty.flagship.utils.LogLevel;
 import com.abtasty.flagship.utils.LogManager;
 
 import java.util.HashMap;
+import java.util.logging.Level;
 
 /**
  * Flagship main singleton.
@@ -19,10 +19,6 @@ public class Flagship {
     public enum Mode {
         DECISION_API,
 //        BUCKETING,
-    }
-
-    public enum Log {
-        NONE, ALL, ERRORS
     }
 
     protected static Flagship instance() {
@@ -68,10 +64,10 @@ public class Flagship {
         config.withEnvId(envId);
         config.withApiKey(apiKey);
         if (config.getEnvId() == null || config.getApiKey() == null)
-            LogManager.log(LogManager.Tag.INITIALIZATION, LogLevel.ERROR, FlagshipConstants.Errors.INITIALIZATION_PARAM_ERROR);
+            LogManager.log(LogManager.Tag.INITIALIZATION, Level.SEVERE, FlagshipConstants.Errors.INITIALIZATION_PARAM_ERROR);
         instance().setConfig(config);
         if (isReady())
-            LogManager.log(LogManager.Tag.INITIALIZATION, LogLevel.INFO, String.format(FlagshipConstants.Info.STARTED, BuildConfig.flagship_version_name));
+            LogManager.log(LogManager.Tag.INITIALIZATION, Level.INFO, String.format(FlagshipConstants.Info.STARTED, BuildConfig.flagship_version_name));
     }
 
     /**

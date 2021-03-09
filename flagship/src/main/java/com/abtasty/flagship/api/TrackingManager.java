@@ -4,12 +4,12 @@ import com.abtasty.flagship.BuildConfig;
 import com.abtasty.flagship.hits.Activate;
 import com.abtasty.flagship.hits.Hit;
 import com.abtasty.flagship.utils.FlagshipConstants;
-import com.abtasty.flagship.utils.LogLevel;
 import com.abtasty.flagship.utils.LogManager;
 import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 
 public class TrackingManager implements IFlagshipEndpoints {
 
@@ -48,13 +48,13 @@ public class TrackingManager implements IFlagshipEndpoints {
                 }
             });
         } else {
-            LogManager.log(LogManager.Tag.TRACKING, LogLevel.ERROR, String.format(FlagshipConstants.Errors.HIT_INVALID_DATA_ERROR, hit.getType(), hit.toString()));
+            LogManager.log(LogManager.Tag.TRACKING, Level.SEVERE, String.format(FlagshipConstants.Errors.HIT_INVALID_DATA_ERROR, hit.getType(), hit.toString()));
         }
     }
 
     private void logHit(Hit h, Response response) {
         LogManager.Tag tag = (h instanceof Activate) ? LogManager.Tag.ACTIVATE : LogManager.Tag.TRACKING;
-        LogLevel level = response.isSuccess() ? LogLevel.INFO : LogLevel.ERROR;
+        Level level = response.isSuccess() ? Level.INFO : Level.SEVERE;
         StringBuilder content = new StringBuilder();
         content.append(" [" + response.getType() + "] ")
                 .append(" " + response.getRequestUrl() + " ")

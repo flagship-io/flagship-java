@@ -3,7 +3,7 @@ package com.abtasty.flagship.main;
 import com.abtasty.flagship.api.TrackingManager;
 import com.abtasty.flagship.decision.ApiManager;
 import com.abtasty.flagship.decision.DecisionManager;
-import com.abtasty.flagship.utils.LogLevel;
+import com.abtasty.flagship.utils.ILogManager;
 import com.abtasty.flagship.utils.LogManager;
 
 /**
@@ -14,7 +14,7 @@ public class FlagshipConfig {
     private String          envId = null;
     private String          apiKey = null;
     private Flagship.Mode   decisionMode = Flagship.Mode.DECISION_API;
-    private LogManager      logManager = new LogManager(Flagship.Log.ALL);
+    private ILogManager     logManager = new LogManager();
     private TrackingManager trackingManager = new TrackingManager();
 
     private DecisionManager decisionManager = null;
@@ -80,11 +80,8 @@ public class FlagshipConfig {
      * @param logManager custom implementation of LogManager.
      * @return FlagshipConfig
      */
-    public FlagshipConfig withLogManager(LogManager logManager) {
-        if (logManager == null)
-            this.logManager = new LogManager(Flagship.Log.NONE);
-        else
-            this.logManager = logManager;
+    public FlagshipConfig withLogManager(ILogManager logManager) {
+        this.logManager = logManager;
         return this;
     }
 
@@ -100,7 +97,7 @@ public class FlagshipConfig {
         return decisionMode;
     }
 
-    public LogManager getLogManager() {
+    public ILogManager getLogManager() {
         return logManager;
     }
 

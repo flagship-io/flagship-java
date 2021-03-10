@@ -21,24 +21,29 @@ public class DemoFlagship {
 
             @Override
             public void onLog(Level level, String tag, String message) {
-                if (isLogApplyToLogMode(level)) {
-                    System.out.println("FLAGSHIP => " + tag + " " + message);
-                }
+                System.out.println("FLAGSHIP => " + tag + " " + message);
             }
         }
 
 //        Flagship.start("my env id", "my api key", new FlagshipConfig());
-        Flagship.start("bkk4s7gcmjcg07fke9dg", "Q6FDmj6F188nh75lhEato2MwoyXDS7y34VrAL4Aa", new FlagshipConfig()
+//        Flagship.start("bkk4s7gcmjcg07fke9dg", "Q6FDmj6F188nh75lhEato2MwoyXDS7y34VrAL4Aa", new FlagshipConfig()
+//                .withFlagshipMode(Flagship.Mode.DECISION_API)
 //                .withLogManager(new CustomLogManager())
-                .withTimeout(200));
+//                .withLogMode(ILogManager.LogMode.ALL)
+//                .withTimeout(2));
 //        Flagship.start("bkk4s7gcmjcg07fke9dg", "Q6FDmj6F188nh75lhEato2MwoyXDS7y34VrAL4Aa", new FlagshipConfig().withLogManager(new CustomLogManager(ILogManager.LogMode.ALL)));
         Visitor visitor = Flagship.newVisitor("toto");
+        Visitor visitor2 = Flagship.newVisitor("toto2", new HashMap<String, Object>() {{
+            put("age", 31);
+            put("isVip", true);
+        }});
         HashMap<String, Object> hashMap = new HashMap<String, Object>();
 //        hashMap.put("Age", new FlagshipConfig());
         hashMap.put("Age", 31);
         hashMap.put("isVIPUser", true);
         hashMap.put("daysSinceLastLaunch", 2);
         visitor.updateContext(hashMap);
+        visitor2.updateContext("lastPurchase", 1615384464);
         visitor.updateContext("title", "Grand Mamamouchi", () -> {
             System.out.println("Update context synchronized");
         });

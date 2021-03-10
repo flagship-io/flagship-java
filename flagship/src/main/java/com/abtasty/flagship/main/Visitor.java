@@ -171,7 +171,7 @@ public class Visitor {
     }
 
     /**
-     * Retrieve a modification value by its key. If no modification match the given key, default value will be returned.
+     * Retrieve a modification value by its key. If no modification match the given key or if the stored value type and default value type do not match, default value will be returned.
      *
      * @param key key associated to the modification.
      * @param defaultValue default value to return.

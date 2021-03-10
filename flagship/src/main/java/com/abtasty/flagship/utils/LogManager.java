@@ -114,7 +114,7 @@ public class LogManager extends ILogManager {
         if (Flagship.getConfig() != null) {
             ILogManager logManager = Flagship.getConfig().getLogManager();
             if (logManager != null && logManager.isLogApplyToLogMode(level) && tag != null && message != null)
-                logManager.onLog(level, tag.getName(), message);
+                logManager.newLog(level, tag.getName(), message);
         }
     }
 

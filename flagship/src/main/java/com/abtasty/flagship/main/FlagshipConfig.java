@@ -11,12 +11,12 @@ import com.abtasty.flagship.utils.LogManager;
  */
 public class FlagshipConfig {
 
-    private String              envId = null;
-    private String              apiKey = null;
-    private Flagship.Mode       decisionMode = Flagship.Mode.DECISION_API;
-    private int                 timeout = 2000;
-    private ILogManager.LogMode logMode = ILogManager.LogMode.ALL;
-    private ILogManager         logManager = new LogManager(logMode);
+    private String              envId           = null;
+    private String              apiKey          = null;
+    private Flagship.Mode       decisionMode    = Flagship.Mode.DECISION_API;
+    private int                 timeout         = 2000;
+    private ILogManager.LogMode logMode         = ILogManager.LogMode.ALL;
+    private ILogManager         logManager      = new LogManager(logMode);
     private TrackingManager     trackingManager = new TrackingManager();
 
     private DecisionManager decisionManager = null;
@@ -100,7 +100,7 @@ public class FlagshipConfig {
 
     /**
      * Specify timeout for api request.
-     * @param timeout timeout int milliseconds. Default is 2000.
+     * @param timeout milliseconds for connect and read timeouts. Default is 2000.
      * @return FlagshipConfig
      */
     public FlagshipConfig withTimeout(int timeout) {
@@ -129,11 +129,11 @@ public class FlagshipConfig {
         return logManager;
     }
 
-    public TrackingManager getTrackingManager() {
+    protected TrackingManager getTrackingManager() {
         return trackingManager;
     }
 
-    public DecisionManager getDecisionManager() {
+    protected DecisionManager getDecisionManager() {
         return decisionManager;
     }
 

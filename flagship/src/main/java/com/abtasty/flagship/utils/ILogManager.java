@@ -45,8 +45,17 @@ public abstract class ILogManager {
         return apply;
     }
 
+    /**
+     * Set the log mode for filtering logs.
+     * @param mode
+     */
     public void setMode(LogMode mode) {
         this.mode = mode;
+    }
+
+    protected void newLog(Level level, String tag, String message) {
+        if (isLogApplyToLogMode(level))
+            onLog(level, tag, message);
     }
 
     public abstract void onLog(Level level, String tag, String message);

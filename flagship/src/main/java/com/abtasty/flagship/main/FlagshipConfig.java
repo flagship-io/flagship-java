@@ -11,11 +11,12 @@ import com.abtasty.flagship.utils.LogManager;
  */
 public class FlagshipConfig {
 
-    private String          envId = null;
-    private String          apiKey = null;
-    private Flagship.Mode   decisionMode = Flagship.Mode.DECISION_API;
-    private ILogManager     logManager = new LogManager();
-    private TrackingManager trackingManager = new TrackingManager();
+    private String              envId = null;
+    private String              apiKey = null;
+    private Flagship.Mode       decisionMode = Flagship.Mode.DECISION_API;
+    private ILogManager.LogMode logMode = ILogManager.LogMode.ALL;
+    private ILogManager         logManager = new LogManager(logMode);
+    private TrackingManager     trackingManager = new TrackingManager();
 
     private DecisionManager decisionManager = null;
 
@@ -23,7 +24,7 @@ public class FlagshipConfig {
      * Create a new empty FlagshipConfig configuration.
      */
     public FlagshipConfig() {
-        initDecisionMode();
+        init();
     }
 
     /**
@@ -35,10 +36,10 @@ public class FlagshipConfig {
     protected FlagshipConfig(String envId, String apiKey) {
         this.envId = envId;
         this.apiKey = apiKey;
-        initDecisionMode();
+        init();
     }
 
-    private void initDecisionMode() {
+    private void init() {
         this.decisionManager = (this.decisionMode == Flagship.Mode.DECISION_API) ? new ApiManager() : null;
     }
 
@@ -70,7 +71,7 @@ public class FlagshipConfig {
     public FlagshipConfig withFlagshipMode(Flagship.Mode mode) {
         if (mode != null) {
             this.decisionMode = mode;
-            initDecisionMode();
+            init();
         }
         return this;
     }
@@ -82,6 +83,17 @@ public class FlagshipConfig {
      */
     public FlagshipConfig withLogManager(ILogManager logManager) {
         this.logManager = logManager;
+        return this;
+    }
+
+    /**
+     * Specify a mode to filter SDK logs.
+     * @param mode
+     * @return FlagshipConfig
+     */
+    public FlagshipConfig withLogMode(ILogManager.LogMode mode) {
+        if (mode != null)
+            this.logManager.setMode(mode);
         return this;
     }
 

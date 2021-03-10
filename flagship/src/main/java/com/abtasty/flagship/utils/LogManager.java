@@ -91,8 +91,17 @@ public class LogManager extends ILogManager {
     private String          mainTag = "[Flagship]";
     private Logger          logger = Logger.getLogger(LogManager.class.getName());
 
+    public LogManager(ILogManager.LogMode mode) {
+        super(mode);
+        init();
+    }
+
     public LogManager() {
         super();
+        init();
+    }
+
+    private void init() {
         ConsoleHandler h = new ConsoleHandler();
         Formatter formatter = new LogFormatter();
         h.setFormatter(formatter);
@@ -104,7 +113,7 @@ public class LogManager extends ILogManager {
     public static void log(Tag tag, Level level, String message) {
         if (Flagship.getConfig() != null) {
             ILogManager logManager = Flagship.getConfig().getLogManager();
-            if (logManager.isLogApplyToLogMode(level) && tag != null && message != null)
+            if (logManager != null && logManager.isLogApplyToLogMode(level) && tag != null && message != null)
                 logManager.onLog(level, tag.getName(), message);
         }
     }

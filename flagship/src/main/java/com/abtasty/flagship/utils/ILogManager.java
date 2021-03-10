@@ -45,5 +45,9 @@ public abstract class ILogManager {
         return apply;
     }
 
+    public void setMode(LogMode mode) {
+        this.mode = mode;
+    }
+
     public abstract void onLog(Level level, String tag, String message);
 }

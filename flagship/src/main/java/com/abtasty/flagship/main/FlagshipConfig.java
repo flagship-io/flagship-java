@@ -14,6 +14,7 @@ public class FlagshipConfig {
     private String              envId = null;
     private String              apiKey = null;
     private Flagship.Mode       decisionMode = Flagship.Mode.DECISION_API;
+    private int                 timeout = 2000;
     private ILogManager.LogMode logMode = ILogManager.LogMode.ALL;
     private ILogManager         logManager = new LogManager(logMode);
     private TrackingManager     trackingManager = new TrackingManager();
@@ -95,6 +96,21 @@ public class FlagshipConfig {
         if (mode != null)
             this.logManager.setMode(mode);
         return this;
+    }
+
+    /**
+     * Specify timeout for api request.
+     * @param timeout timeout int milliseconds. Default is 2000.
+     * @return FlagshipConfig
+     */
+    public FlagshipConfig withTimeout(int timeout) {
+        if (timeout > 0)
+            this.timeout = timeout;
+        return this;
+    }
+
+    public int getTimeout() {
+        return timeout;
     }
 
     public String getEnvId() {

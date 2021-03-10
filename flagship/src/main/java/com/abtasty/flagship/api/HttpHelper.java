@@ -41,11 +41,23 @@ public class HttpHelper {
                                            String uri,
                                            HashMap<String, String> headers,
                                            String content) throws IOException {
+        return sendHttpRequest(type, uri, headers, content, 0);
+    }
+
+    public static Response sendHttpRequest(RequestType type,
+                                           String uri,
+                                           HashMap<String, String> headers,
+                                           String content,
+                                           int timeout) throws IOException {
 
         URL url = new URL(uri);
         HttpURLConnection conn = createConnection(url);
         conn.setRequestMethod(type.name);
         conn.setRequestProperty("Content-Type", "application/json");
+        if (timeout > 0) {
+            conn.setConnectTimeout(timeout);
+            conn.setReadTimeout(timeout);
+        }
         if (headers != null && headers.size() > 0) {
             for (HashMap.Entry<String, String> e : headers.entrySet()) {
                 conn.setRequestProperty(e.getKey(), e.getValue());

@@ -36,7 +36,11 @@ public class ApiManager extends DecisionManager {
         json.put("context", jsonContext);
         ArrayList<Campaign> campaigns  = new ArrayList<Campaign>();
         try {
-            Response response = HttpHelper.sendHttpRequest(HttpHelper.RequestType.POST, DECISION_API + envId + CAMPAIGNS, headers, json.toString());
+            Response response = HttpHelper.sendHttpRequest(HttpHelper.RequestType.POST,
+                    DECISION_API + envId + CAMPAIGNS,
+                    headers,
+                    json.toString(),
+                    Flagship.getConfig().getTimeout());
             if (response != null) {
                 logResponse(response);
                 setPanic(checkPanicResponse(response.getResponseContent()));

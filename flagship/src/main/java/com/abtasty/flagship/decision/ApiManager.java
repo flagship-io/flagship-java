@@ -46,7 +46,8 @@ public class ApiManager extends DecisionManager {
                 setPanic(checkPanicResponse(response.getResponseContent()));
                 if (!isPanic()) {
                     ArrayList<Campaign> newCampaigns = parseCampaigns(response.getResponseContent());
-                    campaigns.addAll(newCampaigns);
+                    if (newCampaigns != null)
+                        campaigns.addAll(newCampaigns);
                 } else
                     LogManager.log(LogManager.Tag.SYNCHRONIZE, Level.WARNING, FlagshipConstants.Errors.PANIC);
             }

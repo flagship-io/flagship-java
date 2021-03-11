@@ -2,7 +2,7 @@ package com.abtasty.flagship.main;
 
 import com.abtasty.flagship.BuildConfig;
 import com.abtasty.flagship.utils.FlagshipConstants;
-import com.abtasty.flagship.utils.LogManager;
+import com.abtasty.flagship.utils.FlagshipLogManager;
 
 import java.util.HashMap;
 import java.util.logging.Level;
@@ -64,10 +64,10 @@ public class Flagship {
         config.withEnvId(envId);
         config.withApiKey(apiKey);
         if (config.getEnvId() == null || config.getApiKey() == null)
-            LogManager.log(LogManager.Tag.INITIALIZATION, Level.SEVERE, FlagshipConstants.Errors.INITIALIZATION_PARAM_ERROR);
+            FlagshipLogManager.log(FlagshipLogManager.Tag.INITIALIZATION, Level.SEVERE, FlagshipConstants.Errors.INITIALIZATION_PARAM_ERROR);
         instance().setConfig(config);
         if (isReady())
-            LogManager.log(LogManager.Tag.INITIALIZATION, Level.INFO, String.format(FlagshipConstants.Info.STARTED, BuildConfig.flagship_version_name));
+            FlagshipLogManager.log(FlagshipLogManager.Tag.INITIALIZATION, Level.INFO, String.format(FlagshipConstants.Info.STARTED, BuildConfig.flagship_version_name));
     }
 
     /**

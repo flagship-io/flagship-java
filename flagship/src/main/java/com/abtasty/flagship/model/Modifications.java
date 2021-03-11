@@ -1,7 +1,7 @@
 package com.abtasty.flagship.model;
 
 import com.abtasty.flagship.utils.FlagshipConstants;
-import com.abtasty.flagship.utils.LogManager;
+import com.abtasty.flagship.utils.FlagshipLogManager;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.Serializable;
@@ -61,11 +61,11 @@ public class Modifications implements Serializable {
                 if (value instanceof Boolean || value instanceof Number || value instanceof String || value instanceof JSONObject || value instanceof JSONArray || value == null)
                     values.put(key, new Modification(key, campaignId, variationGroupId, variationId, isReference, value));
                 else
-                    LogManager.log(LogManager.Tag.PARSING, Level.SEVERE, FlagshipConstants.Errors.PARSING_MODIFICATION_ERROR);
+                    FlagshipLogManager.log(FlagshipLogManager.Tag.PARSING, Level.SEVERE, FlagshipConstants.Errors.PARSING_MODIFICATION_ERROR);
             });
             return new Modifications(campaignId, variationGroupId, variationId, isReference, type, values);
         } catch (Exception e) {
-            LogManager.log(LogManager.Tag.PARSING, Level.SEVERE, FlagshipConstants.Errors.PARSING_MODIFICATION_ERROR);
+            FlagshipLogManager.log(FlagshipLogManager.Tag.PARSING, Level.SEVERE, FlagshipConstants.Errors.PARSING_MODIFICATION_ERROR);
             return null;
         }
     }

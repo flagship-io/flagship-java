@@ -3,8 +3,8 @@ package com.abtasty.flagship.main;
 import com.abtasty.flagship.api.TrackingManager;
 import com.abtasty.flagship.decision.ApiManager;
 import com.abtasty.flagship.decision.DecisionManager;
-import com.abtasty.flagship.utils.ILogManager;
 import com.abtasty.flagship.utils.LogManager;
+import com.abtasty.flagship.utils.FlagshipLogManager;
 
 /**
  * Flagship SDK configuration class to provide at initialization.
@@ -15,8 +15,8 @@ public class FlagshipConfig {
     private String              apiKey          = null;
     private Flagship.Mode       decisionMode    = Flagship.Mode.DECISION_API;
     private int                 timeout         = 2000;
-    private ILogManager.LogMode logMode         = ILogManager.LogMode.ALL;
-    private ILogManager         logManager      = new LogManager(logMode);
+    private LogManager.LogMode logMode         = LogManager.LogMode.ALL;
+    private LogManager logManager      = new FlagshipLogManager(logMode);
     private TrackingManager     trackingManager = new TrackingManager();
 
     private DecisionManager decisionManager = null;
@@ -82,7 +82,7 @@ public class FlagshipConfig {
      * @param logManager custom implementation of LogManager.
      * @return FlagshipConfig
      */
-    public FlagshipConfig withLogManager(ILogManager logManager) {
+    public FlagshipConfig withLogManager(LogManager logManager) {
         this.logManager = logManager;
         return this;
     }
@@ -92,7 +92,7 @@ public class FlagshipConfig {
      * @param mode
      * @return FlagshipConfig
      */
-    public FlagshipConfig withLogMode(ILogManager.LogMode mode) {
+    public FlagshipConfig withLogMode(LogManager.LogMode mode) {
         if (mode != null)
             this.logManager.setMode(mode);
         return this;
@@ -125,7 +125,7 @@ public class FlagshipConfig {
         return decisionMode;
     }
 
-    public ILogManager getLogManager() {
+    public LogManager getLogManager() {
         return logManager;
     }
 

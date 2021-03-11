@@ -6,7 +6,7 @@ import com.abtasty.flagship.api.Response;
 import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.model.Campaign;
 import com.abtasty.flagship.utils.FlagshipConstants;
-import com.abtasty.flagship.utils.LogManager;
+import com.abtasty.flagship.utils.FlagshipLogManager;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -49,10 +49,10 @@ public class ApiManager extends DecisionManager {
                     if (newCampaigns != null)
                         campaigns.addAll(newCampaigns);
                 } else
-                    LogManager.log(LogManager.Tag.SYNCHRONIZE, Level.WARNING, FlagshipConstants.Errors.PANIC);
+                    FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, Level.WARNING, FlagshipConstants.Errors.PANIC);
             }
         } catch (IOException e) {
-            LogManager.log(LogManager.Tag.SYNCHRONIZE, Level.SEVERE, e.getMessage());
+            FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, Level.SEVERE, e.getMessage());
         }
         return campaigns;
     }
@@ -62,7 +62,7 @@ public class ApiManager extends DecisionManager {
             JSONObject json = new JSONObject(content);
             return json.has("panic");
         } catch (Exception e) {
-            LogManager.log(LogManager.Tag.PARSING, Level.SEVERE, FlagshipConstants.Errors.PARSING_CAMPAIGN_ERROR);
+            FlagshipLogManager.log(FlagshipLogManager.Tag.PARSING, Level.SEVERE, FlagshipConstants.Errors.PARSING_CAMPAIGN_ERROR);
         }
         return false;
     }
@@ -81,6 +81,6 @@ public class ApiManager extends DecisionManager {
                 .append("[" + response.getResponseCode() + "]")
                 .append("\n")
                 .append(content);
-        LogManager.log(LogManager.Tag.CAMPAIGNS, response.isSuccess() ? Level.INFO : Level.SEVERE, message.toString());
+        FlagshipLogManager.log(FlagshipLogManager.Tag.CAMPAIGNS, response.isSuccess() ? Level.INFO : Level.SEVERE, message.toString());
     }
 }

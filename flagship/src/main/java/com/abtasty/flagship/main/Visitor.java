@@ -7,7 +7,7 @@ import com.abtasty.flagship.hits.Hit;
 import com.abtasty.flagship.model.Campaign;
 import com.abtasty.flagship.model.Modification;
 import com.abtasty.flagship.utils.FlagshipConstants;
-import com.abtasty.flagship.utils.LogManager;
+import com.abtasty.flagship.utils.FlagshipLogManager;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -76,7 +76,7 @@ public class Visitor {
                 this.updateContextValue(e.getKey(), e.getValue(), onSynchronize);
             }
         }
-        this.logVisitor(LogManager.Tag.UPDATE_CONTEXT);
+        this.logVisitor(FlagshipLogManager.Tag.UPDATE_CONTEXT);
     }
 
     /**
@@ -116,11 +116,11 @@ public class Visitor {
                             value instanceof JSONObject || value instanceof JSONArray)) {
                 this.context.put(key, value);
             } else
-                LogManager.log(LogManager.Tag.UPDATE_CONTEXT, Level.WARNING, FlagshipConstants.Errors.CONTEXT_PARAM_ERROR);
+                FlagshipLogManager.log(FlagshipLogManager.Tag.UPDATE_CONTEXT, Level.WARNING, FlagshipConstants.Errors.CONTEXT_PARAM_ERROR);
             if (onSynchronize != null)
                 synchronizeModifications(onSynchronize);
         } else
-            LogManager.log(LogManager.Tag.UPDATE_CONTEXT, Level.SEVERE, String.format(FlagshipConstants.Errors.PANIC_ERROR, "updateContext()"));
+            FlagshipLogManager.log(FlagshipLogManager.Tag.UPDATE_CONTEXT, Level.SEVERE, String.format(FlagshipConstants.Errors.PANIC_ERROR, "updateContext()"));
     }
 
     /**
@@ -148,15 +148,15 @@ public class Visitor {
                 e.printStackTrace();
             }
         }).whenCompleteAsync((Void, error) -> {
-            logVisitor(LogManager.Tag.SYNCHRONIZE);
+            logVisitor(FlagshipLogManager.Tag.SYNCHRONIZE);
             if (onSynchronize != null)
                 onSynchronize.onSynchronized();
         });
     }
 
-    private void logVisitor(LogManager.Tag tag) {
+    private void logVisitor(FlagshipLogManager.Tag tag) {
         String visitorStr = String.format(FlagshipConstants.Errors.VISITOR, visitorId, toString());
-        LogManager.log(tag, Level.INFO, visitorStr);
+        FlagshipLogManager.log(tag, Level.INFO, visitorStr);
     }
 
     /**
@@ -183,9 +183,9 @@ public class Visitor {
         if (!decisionManager.isPanic()) {
             try {
                 if (key == null) {
-                    LogManager.log(LogManager.Tag.GET_MODIFICATION, Level.SEVERE, String.format(FlagshipConstants.Errors.GET_MODIFICATION_KEY_ERROR, key));
+                    FlagshipLogManager.log(FlagshipLogManager.Tag.GET_MODIFICATION, Level.SEVERE, String.format(FlagshipConstants.Errors.GET_MODIFICATION_KEY_ERROR, key));
                 } else if (!this.modifications.containsKey(key)) {
-                    LogManager.log(LogManager.Tag.GET_MODIFICATION, Level.SEVERE, String.format(FlagshipConstants.Errors.GET_MODIFICATION_MISSING_ERROR, key));
+                    FlagshipLogManager.log(FlagshipLogManager.Tag.GET_MODIFICATION, Level.SEVERE, String.format(FlagshipConstants.Errors.GET_MODIFICATION_MISSING_ERROR, key));
                 } else {
                     Modification modification = this.modifications.get(key);
                     Object castValue = ((T) modification.getValue());
@@ -194,13 +194,13 @@ public class Visitor {
                             activateModification(modification);
                         return (T) castValue;
                     } else
-                        LogManager.log(LogManager.Tag.GET_MODIFICATION, Level.SEVERE, String.format(FlagshipConstants.Errors.GET_MODIFICATION_CAST_ERROR, key));
+                        FlagshipLogManager.log(FlagshipLogManager.Tag.GET_MODIFICATION, Level.SEVERE, String.format(FlagshipConstants.Errors.GET_MODIFICATION_CAST_ERROR, key));
                 }
             } catch (Exception e) {
-                LogManager.log(LogManager.Tag.GET_MODIFICATION, Level.SEVERE, String.format(FlagshipConstants.Errors.GET_MODIFICATION_ERROR, key));
+                FlagshipLogManager.log(FlagshipLogManager.Tag.GET_MODIFICATION, Level.SEVERE, String.format(FlagshipConstants.Errors.GET_MODIFICATION_ERROR, key));
             }
         } else
-            LogManager.log(LogManager.Tag.GET_MODIFICATION, Level.SEVERE, String.format(FlagshipConstants.Errors.PANIC_ERROR, "getModiciation()"));
+            FlagshipLogManager.log(FlagshipLogManager.Tag.GET_MODIFICATION, Level.SEVERE, String.format(FlagshipConstants.Errors.PANIC_ERROR, "getModiciation()"));
         return defaultValue;
     }
 
@@ -211,7 +211,7 @@ public class Visitor {
      */
     public JSONObject getModificationInfo(String key) {
         if (key == null || !this.modifications.containsKey(key)) {
-            LogManager.log(LogManager.Tag.GET_MODIFICATION_INFO, Level.SEVERE, String.format(FlagshipConstants.Errors.GET_MODIFICATION_INFO_ERROR, key));
+            FlagshipLogManager.log(FlagshipLogManager.Tag.GET_MODIFICATION_INFO, Level.SEVERE, String.format(FlagshipConstants.Errors.GET_MODIFICATION_INFO_ERROR, key));
             return null;
         } else {
             JSONObject obj = new JSONObject();
@@ -232,7 +232,7 @@ public class Visitor {
         if (!decisionManager.isPanic())
             this.getModification(key, null, true);
         else
-            LogManager.log(LogManager.Tag.TRACKING, Level.SEVERE, String.format(FlagshipConstants.Errors.PANIC_ERROR, "activateModification()"));
+            FlagshipLogManager.log(FlagshipLogManager.Tag.TRACKING, Level.SEVERE, String.format(FlagshipConstants.Errors.PANIC_ERROR, "activateModification()"));
     }
 
     private void activateModification(Modification modification) {
@@ -253,7 +253,7 @@ public class Visitor {
                     trackingManager.sendHit(visitorId, hit);
             }
         } else
-            LogManager.log(LogManager.Tag.TRACKING, Level.SEVERE, String.format(FlagshipConstants.Errors.PANIC_ERROR, "sendHit()"));
+            FlagshipLogManager.log(FlagshipLogManager.Tag.TRACKING, Level.SEVERE, String.format(FlagshipConstants.Errors.PANIC_ERROR, "sendHit()"));
     }
 
     @Override

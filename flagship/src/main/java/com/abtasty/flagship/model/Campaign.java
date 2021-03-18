@@ -42,12 +42,12 @@ public class Campaign implements Serializable {
         return modifications;
     }
 
-    public static ArrayList<Campaign> parse(String json) {
+    public static ArrayList<Campaign> parse(JSONArray campaignsArray) {
         try {
-            JSONObject main = new JSONObject(json);
+//            JSONObject main = new JSONObject(json);
             ArrayList<Campaign> campaigns = new ArrayList<>();
-            JSONArray campaignArray = main.getJSONArray("campaigns");
-            campaignArray.forEach(campaignObject -> {
+//            JSONArray campaignArray = main.getJSONArray("campaigns");
+            campaignsArray.forEach(campaignObject -> {
                 Campaign campaign = Campaign.parse((JSONObject) campaignObject);
                 if (campaign != null)
                     campaigns.add(campaign);

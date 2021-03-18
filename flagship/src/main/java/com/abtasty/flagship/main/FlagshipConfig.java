@@ -15,11 +15,10 @@ public class FlagshipConfig {
     private String              apiKey          = null;
     private Flagship.Mode       decisionMode    = Flagship.Mode.DECISION_API;
     private int                 timeout         = 2000;
-    private LogManager.LogMode logMode         = LogManager.LogMode.ALL;
-    private LogManager logManager      = new FlagshipLogManager(logMode);
+    private LogManager.LogMode  logMode         = LogManager.LogMode.ALL;
+    private LogManager          logManager      = new FlagshipLogManager(logMode);
     private TrackingManager     trackingManager = new TrackingManager();
-
-    private DecisionManager decisionManager = null;
+    private DecisionManager     decisionManager = null;
 
     /**
      * Create a new empty FlagshipConfig configuration.

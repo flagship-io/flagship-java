@@ -34,38 +34,42 @@ public class ApiManager extends DecisionManager {
         json.put("visitorId", visitorId);
         json.put("trigger_hit", false);
         json.put("context", jsonContext);
-        ArrayList<Campaign> campaigns  = new ArrayList<Campaign>();
+        ArrayList<Campaign> campaigns = new ArrayList<Campaign>();
         try {
             Response response = HttpHelper.sendHttpRequest(HttpHelper.RequestType.POST,
                     DECISION_API + envId + CAMPAIGNS,
                     headers,
                     json.toString(),
                     Flagship.getConfig().getTimeout());
-            if (response != null) {
-                logResponse(response);
-                setPanic(checkPanicResponse(response.getResponseContent()));
-                if (!isPanic()) {
-                    ArrayList<Campaign> newCampaigns = parseCampaigns(response.getResponseContent());
-                    if (newCampaigns != null)
-                        campaigns.addAll(newCampaigns);
-                } else
-                    FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, Level.WARNING, FlagshipConstants.Errors.PANIC);
-            }
+//            if (response != null) {
+//                logResponse(response);
+//                setPanic(checkPanicResponse(response.getResponseContent()));
+//                if (!isPanic()) {
+//                    ArrayList<Campaign> newCampaigns = parseCampaigns(response.getResponseContent());
+//                    if (newCampaigns != null)
+//                        campaigns.addAll(newCampaigns);
+//                } else
+//                    FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, Level.WARNING, FlagshipConstants.Errors.PANIC);
+//            }
+            logResponse(response);
+            ArrayList<Campaign> newCampaigns = parseCampaignsResponse(response.getResponseContent());
+            if (newCampaigns != null)
+                campaigns.addAll(newCampaigns);
         } catch (IOException e) {
             FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, Level.SEVERE, e.getMessage());
         }
         return campaigns;
     }
 
-    private boolean checkPanicResponse(String content) {
-        try {
-            JSONObject json = new JSONObject(content);
-            return json.has("panic");
-        } catch (Exception e) {
-            FlagshipLogManager.log(FlagshipLogManager.Tag.PARSING, Level.SEVERE, FlagshipConstants.Errors.PARSING_CAMPAIGN_ERROR);
-        }
-        return false;
-    }
+//    private boolean checkPanicResponse(String content) {
+//        try {
+//            JSONObject json = new JSONObject(content);
+//            return json.has("panic");
+//        } catch (Exception e) {
+//            FlagshipLogManager.log(FlagshipLogManager.Tag.PARSING, Level.SEVERE, FlagshipConstants.Errors.PARSING_CAMPAIGN_ERROR);
+//        }
+//        return false;
+//    }
 
     private void logResponse(Response response) {
 

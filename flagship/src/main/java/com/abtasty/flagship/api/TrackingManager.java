@@ -32,7 +32,7 @@ public class TrackingManager implements IFlagshipEndpoints {
         JSONObject data = hit.getData();
         data.put(FlagshipConstants.HitKeyMap.VISITOR_ID, visitorId);
         if (hit.checkData()) {
-            HttpHelper.sendAsyncHttpRequest(HttpHelper.RequestType.POST, endpoint, headers, data.toString(), new HttpHelper.IResponse() {
+            HttpManager.getInstance().sendAsyncHttpRequest(HttpManager.RequestType.POST, endpoint, headers, data.toString(), new HttpManager.IResponse() {
                 @Override
                 public void onSuccess(Response response) {
                     logHit(hit, response);
@@ -75,9 +75,9 @@ public class TrackingManager implements IFlagshipEndpoints {
                 data.put(item.getKey(), item.getValue());
             }
             body.put("data", data);
-            HttpHelper.sendAsyncHttpRequest(HttpHelper.RequestType.POST, endpoint, null, body.toString(), null);
+            HttpManager.getInstance().sendAsyncHttpRequest(HttpManager.RequestType.POST, endpoint, null, body.toString(), null);
         } catch (Exception e) {
-            e.printStackTrace();
+            FlagshipLogManager.exception(e);
         }
     }
 }

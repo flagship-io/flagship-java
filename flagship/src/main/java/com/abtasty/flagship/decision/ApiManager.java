@@ -1,17 +1,16 @@
 package com.abtasty.flagship.decision;
 
 import com.abtasty.flagship.BuildConfig;
-import com.abtasty.flagship.api.HttpHelper;
+import com.abtasty.flagship.api.HttpManager;
 import com.abtasty.flagship.api.Response;
 import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.model.Campaign;
-import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Level;
 
 public class ApiManager extends DecisionManager {
@@ -20,7 +19,7 @@ public class ApiManager extends DecisionManager {
     }
 
     @Override
-    public ArrayList<Campaign> getCampaigns(String envId, String visitorId, HashMap<String, Object> context) {
+    public ArrayList<Campaign> getCampaigns(String envId, String visitorId, ConcurrentMap<String, Object> context) {
 
         HashMap<String, String> headers = new HashMap<String, String>();
         headers.put("x-api-key", Flagship.getConfig().getApiKey());
@@ -36,7 +35,7 @@ public class ApiManager extends DecisionManager {
         json.put("context", jsonContext);
         ArrayList<Campaign> campaigns = new ArrayList<Campaign>();
         try {
-            Response response = HttpHelper.sendHttpRequest(HttpHelper.RequestType.POST,
+            Response response = HttpManager.getInstance().sendHttpRequest(HttpManager.RequestType.POST,
                     DECISION_API + envId + CAMPAIGNS,
                     headers,
                     json.toString(),
@@ -51,11 +50,13 @@ public class ApiManager extends DecisionManager {
 //                } else
 //                    FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, Level.WARNING, FlagshipConstants.Errors.PANIC);
 //            }
-            logResponse(response);
-            ArrayList<Campaign> newCampaigns = parseCampaignsResponse(response.getResponseContent());
-            if (newCampaigns != null)
-                campaigns.addAll(newCampaigns);
-        } catch (IOException e) {
+            if (response != null) {
+                logResponse(response);
+                ArrayList<Campaign> newCampaigns = parseCampaignsResponse(response.getResponseContent());
+                if (newCampaigns != null)
+                    campaigns.addAll(newCampaigns);
+            }
+        } catch (Exception e) {
             FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, Level.SEVERE, e.getMessage());
         }
         return campaigns;

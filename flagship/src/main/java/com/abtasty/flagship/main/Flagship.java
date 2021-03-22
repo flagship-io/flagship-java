@@ -1,6 +1,7 @@
 package com.abtasty.flagship.main;
 
 import com.abtasty.flagship.BuildConfig;
+import com.abtasty.flagship.api.HttpManager;
 import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 
@@ -14,7 +15,7 @@ public class Flagship {
 
     private static Flagship instance = null;
 
-    private FlagshipConfig  config = null;
+    private FlagshipConfig                  config = null;
 
     public enum Mode {
         DECISION_API,
@@ -24,12 +25,8 @@ public class Flagship {
     protected static Flagship instance() {
         if (instance == null) {
             synchronized (Flagship.class) {
-                Flagship inst = instance;
-                if (inst == null) {
-                    synchronized (Flagship.class) {
-                        instance = new Flagship();
-                    }
-                }
+                if (instance == null)
+                    instance = new Flagship();
             }
         }
         return instance;
@@ -44,7 +41,7 @@ public class Flagship {
     /**
      * Start the flagship SDK, with the default configuration.
      *
-     * @param envId : Environment id provided by Flagship.
+     * @param envId  : Environment id provided by Flagship.
      * @param apiKey : Secure api key provided by Flagship.
      */
     public static void start(String envId, String apiKey) {
@@ -54,7 +51,7 @@ public class Flagship {
     /**
      * Start the flagship SDK, with a custom configuration implementation.
      *
-     * @param envId : Environment id provided by Flagship.
+     * @param envId  : Environment id provided by Flagship.
      * @param apiKey : Secure api key provided by Flagship.
      * @param config : SDK configuration. @see FlagshipConfig
      */
@@ -66,12 +63,17 @@ public class Flagship {
         if (config.getEnvId() == null || config.getApiKey() == null)
             FlagshipLogManager.log(FlagshipLogManager.Tag.INITIALIZATION, Level.SEVERE, FlagshipConstants.Errors.INITIALIZATION_PARAM_ERROR);
         instance().setConfig(config);
-        if (isReady())
+        if (isReady()) {
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                HttpManager.getInstance().closeExecutor();
+            }));
             FlagshipLogManager.log(FlagshipLogManager.Tag.INITIALIZATION, Level.INFO, String.format(FlagshipConstants.Info.STARTED, BuildConfig.flagship_version_name));
+        }
     }
 
     /**
-     *  Check if the SDK is ready to use.
+     * Check if the SDK is ready to use.
+     *
      * @return boolean ready.
      */
     public static Boolean isReady() {
@@ -84,6 +86,7 @@ public class Flagship {
 
     /**
      * Return the current used configuration.
+     *
      * @return FlagshipConfig
      */
     public static FlagshipConfig getConfig() {
@@ -92,6 +95,7 @@ public class Flagship {
 
     /**
      * Create a new visitor without context.
+     *
      * @param visitorId : Unique visitor identifier.
      * @return Visitor
      */
@@ -101,8 +105,9 @@ public class Flagship {
 
     /**
      * Create a new visitor with a context.
+     *
      * @param visitorId : Unique visitor identifier.
-     * @param context : visitor context.
+     * @param context   : visitor context.
      * @return Visitor
      */
     public static Visitor newVisitor(String visitorId, HashMap<String, Object> context) {

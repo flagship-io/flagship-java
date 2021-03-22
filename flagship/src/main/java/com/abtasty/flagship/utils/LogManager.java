@@ -58,5 +58,17 @@ public abstract class LogManager {
             onLog(level, tag, message);
     }
 
+    /**
+     * Called when the SDK produce a log.
+     * @param level log level.
+     * @param tag location where the log come from.
+     * @param message log message.
+     */
     public abstract void onLog(Level level, String tag, String message);
+
+    /**
+     * Called when the SDK produce an Exception.
+     * @param e
+     */
+    public void onException(Exception e) { }
 }

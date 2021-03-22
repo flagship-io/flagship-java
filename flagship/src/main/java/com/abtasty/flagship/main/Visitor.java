@@ -10,9 +10,13 @@ import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Level;
 
 /**
@@ -20,12 +24,12 @@ import java.util.logging.Level;
  */
 public class Visitor {
 
-    private String                          visitorId;
-    private FlagshipConfig                  config;
-    private HashMap<String, Object>         context = new HashMap<>();
-    private HashMap<String, Modification>   modifications = new HashMap<>();
-    private DecisionManager                 decisionManager;
-    private TrackingManager                 trackingManager;
+    private final String                                visitorId;
+    private final FlagshipConfig                        config;
+    private final ConcurrentMap<String, Object>         context = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, Modification>   modifications = new ConcurrentHashMap<>();
+    private final DecisionManager                       decisionManager;
+    private final TrackingManager                       trackingManager;
 
     /**
      * Create a new visitor.
@@ -41,7 +45,7 @@ public class Visitor {
         this.updateContext(context);
     }
 
-    public HashMap<String, Object> getContext() {
+    public ConcurrentMap<String, Object> getContext() {
         return this.context;
     }
 
@@ -72,9 +76,11 @@ public class Visitor {
     public void updateContext(HashMap<String, Object> context, OnSynchronizedListener onSynchronize) {
         if (context != null) {
             for (HashMap.Entry<String, Object> e : context.entrySet()) {
-                this.updateContextValue(e.getKey(), e.getValue(), onSynchronize);
+                this.updateContext(e.getKey(), e.getValue());
             }
         }
+        if (onSynchronize != null)
+            synchronizeModifications(onSynchronize);
         this.logVisitor(FlagshipLogManager.Tag.UPDATE_CONTEXT);
     }
 
@@ -133,6 +139,7 @@ public class Visitor {
      *  This function will call the decision api and update all the campaigns modifications from the server according to the visitor context.
      *  @param onSynchronize synchronize callback
      */
+
     public void synchronizeModifications(OnSynchronizedListener onSynchronize) {
         CompletableFuture.runAsync(() -> {
             try {
@@ -144,7 +151,7 @@ public class Visitor {
                         this.modifications.putAll(modifications);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                FlagshipLogManager.exception(e);
             }
         }).whenCompleteAsync((Void, error) -> {
             logVisitor(FlagshipLogManager.Tag.SYNCHRONIZE);
@@ -178,8 +185,11 @@ public class Visitor {
      *         current visitor has seen this modification. It is possible to call activateModification() later.
      * @return modification value or default value.
      */
+    @SuppressWarnings("unchecked")
     public <T> T getModification(String key, T defaultValue, boolean activate) {
         if (!decisionManager.isPanic()) {
+//            if (decisionManager.isDataExpired(date))
+//                synchronizeModifications(null);
             try {
                 if (key == null) {
                     FlagshipLogManager.log(FlagshipLogManager.Tag.GET_MODIFICATION, Level.SEVERE, String.format(FlagshipConstants.Errors.GET_MODIFICATION_KEY_ERROR, key));
@@ -187,11 +197,11 @@ public class Visitor {
                     FlagshipLogManager.log(FlagshipLogManager.Tag.GET_MODIFICATION, Level.SEVERE, String.format(FlagshipConstants.Errors.GET_MODIFICATION_MISSING_ERROR, key));
                 } else {
                     Modification modification = this.modifications.get(key);
-                    Object castValue = ((T) modification.getValue());
+                    T castValue = ((T) modification.getValue());
                     if (defaultValue == null || castValue == null || castValue.getClass().equals(defaultValue.getClass())) {
                         if (activate)
                             activateModification(modification);
-                        return (T) castValue;
+                        return castValue;
                     } else
                         FlagshipLogManager.log(FlagshipLogManager.Tag.GET_MODIFICATION, Level.SEVERE, String.format(FlagshipConstants.Errors.GET_MODIFICATION_CAST_ERROR, key));
                 }
@@ -199,7 +209,7 @@ public class Visitor {
                 FlagshipLogManager.log(FlagshipLogManager.Tag.GET_MODIFICATION, Level.SEVERE, String.format(FlagshipConstants.Errors.GET_MODIFICATION_ERROR, key));
             }
         } else
-            FlagshipLogManager.log(FlagshipLogManager.Tag.GET_MODIFICATION, Level.SEVERE, String.format(FlagshipConstants.Errors.PANIC_ERROR, "getModiciation()"));
+            FlagshipLogManager.log(FlagshipLogManager.Tag.GET_MODIFICATION, Level.SEVERE, String.format(FlagshipConstants.Errors.PANIC_ERROR, "getModification()"));
         return defaultValue;
     }
 

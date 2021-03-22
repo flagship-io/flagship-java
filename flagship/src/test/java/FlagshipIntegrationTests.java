@@ -1,5 +1,5 @@
 import com.abtasty.flagship.BuildConfig;
-import com.abtasty.flagship.api.HttpHelper;
+import com.abtasty.flagship.api.HttpManager;
 import com.abtasty.flagship.api.Response;
 import com.abtasty.flagship.hits.*;
 import com.abtasty.flagship.main.Flagship;
@@ -21,11 +21,13 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -34,11 +36,10 @@ import java.util.logging.Level;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.powermock.api.mockito.PowerMockito.doAnswer;
-import static org.powermock.api.mockito.PowerMockito.spy;
+import static org.powermock.api.mockito.PowerMockito.*;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({URL.class, HttpHelper.class})
+@PrepareForTest({URL.class, HttpManager.class})
 public class FlagshipIntegrationTests {
 
     private HashMap<String, OnRequestValidation>            requestToVerify = new HashMap<>();
@@ -47,10 +48,16 @@ public class FlagshipIntegrationTests {
     private Boolean                                         missingRequestVerification = false;
 
 
+
     public FlagshipIntegrationTests() {
 
         try {
-            spy(HttpHelper.class);
+//            spy(HttpManager.class);
+            HttpManager manager = mock(HttpManager.class);
+//            manager.g
+            Field instance = HttpManager.class.getDeclaredField("instance");
+            instance.setAccessible(true);
+            instance.set(instance, manager);
             doAnswer(new Answer<Object>() {
                 @Override
                 public Object answer(InvocationOnMock invocation) throws Throwable {
@@ -60,7 +67,8 @@ public class FlagshipIntegrationTests {
                     } else
                         return invocation.callRealMethod();
                 }
-            }).when(HttpHelper.class, "createConnection", any());
+            }).when(manager, "createConnection", any());
+//            }).when(manager.createConnection(any()));
 
             doAnswer(new Answer<Object>() {
                 @Override
@@ -81,7 +89,8 @@ public class FlagshipIntegrationTests {
                     }
                     return response;
                 }
-            }).when(HttpHelper.class, "parseResponse", any(), any(), any(), any(), any());
+            }).when(manager, "parseResponse", any(), any(), any(), any(), any());
+//            }).when(HttpManager.class, "parseResponse", any(), any(), any(), any(), any());
         } catch (Exception e) {
             e.printStackTrace();
             fail();
@@ -129,6 +138,7 @@ public class FlagshipIntegrationTests {
         for (Map.Entry<String, HttpURLConnection> entry : responseToMock.entrySet()) {
             entry.getValue().disconnect();
         }
+        HttpManager.getInstance().closeExecutor();
     }
 
     @Test
@@ -214,7 +224,7 @@ public class FlagshipIntegrationTests {
         visitor1.updateContext("wrong2", new Response(0, "", "", null));
         visitor1.updateContext("key1", "value1");
         visitor1.updateContext("key2", 2);
-        HashMap<String, Object> context = visitor1.getContext();
+        ConcurrentMap<String, Object> context = visitor1.getContext();
         assertEquals(context.size(), 9);
         assertEquals(context.get("boolean"), true);
         assertEquals(context.get("int"), 32);
@@ -237,6 +247,7 @@ public class FlagshipIntegrationTests {
         }
     }
 
+    @PrepareForTest(HttpManager.class)
     @Test
     public void synchronize() {
 

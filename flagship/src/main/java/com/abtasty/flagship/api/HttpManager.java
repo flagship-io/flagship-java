@@ -1,18 +1,21 @@
 package com.abtasty.flagship.api;
 
+import com.abtasty.flagship.main.Flagship;
+import com.abtasty.flagship.utils.FlagshipLogManager;
+
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
-public class HttpHelper {
+public class HttpManager {
+
+    private static HttpManager instance;
+
+    private final ExecutorService httpExecutorService = Executors.newCachedThreadPool(); // todo place in its own singleton
 
     public enum RequestType {
         POST("POST"),
@@ -33,18 +36,30 @@ public class HttpHelper {
         public void onException(Exception e);
     }
 
-    public static HttpURLConnection createConnection(URL url) throws IOException {
+
+
+    public static synchronized HttpManager getInstance() {
+        if (instance == null) {
+            synchronized (HttpManager.class) {
+                if (instance == null)
+                    instance = new HttpManager();
+            }
+        }
+        return instance;
+    }
+
+    public HttpURLConnection createConnection(URL url) throws IOException {
         return (HttpURLConnection) url.openConnection();
     }
 
-    public static Response sendHttpRequest(RequestType type,
+    public Response sendHttpRequest(RequestType type,
                                            String uri,
                                            HashMap<String, String> headers,
                                            String content) throws IOException {
         return sendHttpRequest(type, uri, headers, content, 0);
     }
 
-    public static Response sendHttpRequest(RequestType type,
+    public Response sendHttpRequest(RequestType type,
                                            String uri,
                                            HashMap<String, String> headers,
                                            String content,
@@ -75,7 +90,7 @@ public class HttpHelper {
         return response;
     }
 
-    public static CompletableFuture<Response> sendAsyncHttpRequest(RequestType type,
+    public CompletableFuture<Response> sendAsyncHttpRequest(RequestType type,
                                                                    String uri,
                                                                    HashMap<String, String> headers,
                                                                    String content,
@@ -86,7 +101,7 @@ public class HttpHelper {
                 return sendHttpRequest(type, uri, headers, content);
             } catch (IOException e) {
                 responseCallback.onException(e);
-                e.printStackTrace();
+                FlagshipLogManager.exception(e);
             }
             return null;
 
@@ -98,27 +113,33 @@ public class HttpHelper {
         });
     }
 
-    private static Response parseResponse(HttpURLConnection conn, RequestType requestType, String requestUri,
+    private Response parseResponse(HttpURLConnection conn, RequestType requestType, String requestUri,
                                           HashMap<String, String> requestHeaders, String requestContent) throws IOException {
+
         int status = conn.getResponseCode();
-        Reader streamReader = new InputStreamReader((status > 299) ? conn.getErrorStream() : conn.getInputStream());
+        Reader streamReader = new InputStreamReader((status >= 400) ? conn.getErrorStream() : conn.getInputStream());
         BufferedReader in = new BufferedReader(streamReader);
         String inputLine;
         StringBuilder content = new StringBuilder();
         while ((inputLine = in.readLine()) != null) {
             content.append(inputLine);
         }
+        in.close();
+        streamReader.close();
         HashMap<String, String> headers = new HashMap<String, String>();
         for (String s : conn.getHeaderFields().keySet()) {
             headers.put(s, conn.getHeaderField(s));
         }
-        Response response = new Response(status, content.toString(), conn.getResponseMessage(), headers);
+        String message = conn.getResponseMessage();
+        Response response = new Response(status, content.toString(), message, headers);
         response.setRequestHeaders(requestHeaders);
         response.setRequestUrl(requestUri);
         response.setRequestContent(requestContent);
         response.setType(requestType);
-        in.close();
-        streamReader.close();
         return response;
+    }
+
+    public void closeExecutor() {
+        httpExecutorService.shutdownNow();
     }
 }

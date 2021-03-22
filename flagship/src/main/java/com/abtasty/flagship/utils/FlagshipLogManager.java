@@ -1,6 +1,10 @@
 package com.abtasty.flagship.utils;
 
 import com.abtasty.flagship.main.Flagship;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.*;
@@ -18,7 +22,9 @@ public class FlagshipLogManager extends LogManager {
         GET_MODIFICATION("[GET_MODIFICATION]"),
         GET_MODIFICATION_INFO("[GET_MODIFICATION_INFO]"),
         TRACKING("[HIT]"),
-        ACTIVATE("[ACTIVATE]");
+        ACTIVATE("[ACTIVATE]"),
+        EXCEPTION("[EXCEPTION]");
+
 
 
         String name = "";
@@ -118,8 +124,36 @@ public class FlagshipLogManager extends LogManager {
         }
     }
 
+    public static void exception(Exception e) {
+        if (Flagship.getConfig() != null) {
+            LogManager logManager = Flagship.getConfig().getLogManager();
+            logManager.onException(e);
+        }
+    }
+
+    private String exceptionToString(Exception e) {
+        String strException = null;
+        try {
+            StringWriter writer = new StringWriter();
+            PrintWriter printer = new PrintWriter(writer);
+            e.printStackTrace(printer);
+            strException = writer.toString();
+            printer.close();
+            writer.close();
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+        return strException;
+    }
+
     @Override
     public void onLog(Level level, String tag, String message) {
         logger.log(level, this.mainTag + "[" + level.toString() + "]" + tag + " " + message);
+    }
+
+    @Override
+    public void onException(Exception e) {
+        String strException = exceptionToString(e);
+        onLog(Level.SEVERE, Tag.EXCEPTION.getName(), strException);
     }
 }

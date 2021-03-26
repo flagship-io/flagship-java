@@ -11,7 +11,6 @@ import com.abtasty.flagship.utils.FlagshipLogManager;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
@@ -33,9 +32,10 @@ public class Visitor {
 
     /**
      * Create a new visitor.
-     * @param config configuration used when the visitor has been created.
+     *
+     * @param config    configuration used when the visitor has been created.
      * @param visitorId visitor unique identifier.
-     * @param context visitor context.
+     * @param context   visitor context.
      */
     protected Visitor(FlagshipConfig config, String visitorId, HashMap<String, Object> context) {
         this.config = config;
@@ -51,70 +51,32 @@ public class Visitor {
 
     /**
      * Update the visitor context values, matching the given keys, used for targeting.
-     *
+     * <p>
      * A new context value associated with this key will be created if there is no previous matching value.
      * Context keys must be String, and values types must be one of the following : Number, Boolean, String.
      *
-     * @param context: HashMap of keys, values.
+     * @param context:       HashMap of keys, values.
      */
     public void updateContext(HashMap<String, Object> context) {
-        this.updateContext(context, null);
-    }
-
-    /**
-     * Update the visitor context values, matching the given keys, used for targeting.
-     *
-     * A new context value associated with this key will be created if there is no previous matching value.
-     * Context keys must be String, and values types must be one of the following : Number, Boolean, String.
-     *
-     * @param context: HashMap of keys, values.
-     * @param onSynchronize: If set, the SDK will automatically call
-     *         synchronizeModifications() and then update the modifications from the server for all campaigns
-     *         according to the updated current visitor context. You can also update it manually later with :
-     *         synchronizeModifications()
-     */
-    public void updateContext(HashMap<String, Object> context, OnSynchronizedListener onSynchronize) {
         if (context != null) {
             for (HashMap.Entry<String, Object> e : context.entrySet()) {
                 this.updateContext(e.getKey(), e.getValue());
             }
         }
-        if (onSynchronize != null)
-            synchronizeModifications(onSynchronize);
         this.logVisitor(FlagshipLogManager.Tag.UPDATE_CONTEXT);
     }
 
+
     /**
      * Update the visitor context values, matching the given keys, used for targeting.
-     *
+     * <p>
      * A new context value associated with this key will be created if there is no previous matching value.
      * Context key must be String, and value type must be one of the following : Number, Boolean, String.
      *
-     * @param key: context key.
-     * @param value context value.
+     * @param key:           context key.
+     * @param value          context value.
      */
     public <T> void updateContext(String key, T value) {
-        this.updateContext(key, value, null);
-    }
-
-    /**
-     * Update the visitor context values, matching the given keys, used for targeting.
-     *
-     * A new context value associated with this key will be created if there is no previous matching value.
-     * Context key must be String, and value type must be one of the following : Number, Boolean, String.
-     *
-     * @param key: context key.
-     * @param value context value.
-     * @param onSynchronize: If set, the SDK will automatically call
-     *         synchronizeModifications() and then update the modifications from the server for all campaigns
-     *         according to the updated current visitor context. You can also update it manually later with :
-     *         synchronizeModifications()
-     */
-    public <T> void updateContext(String key, T value, OnSynchronizedListener onSynchronize) {
-        this.updateContextValue(key, value, onSynchronize);
-    }
-
-    private void updateContextValue(String key, Object value, OnSynchronizedListener onSynchronize) {
         if (!this.decisionManager.isPanic()) {
             if (key != null && value != null &&
                     (value instanceof String || value instanceof Number || value instanceof Boolean ||
@@ -122,28 +84,22 @@ public class Visitor {
                 this.context.put(key, value);
             } else
                 FlagshipLogManager.log(FlagshipLogManager.Tag.UPDATE_CONTEXT, Level.WARNING, FlagshipConstants.Errors.CONTEXT_PARAM_ERROR);
-            if (onSynchronize != null)
-                synchronizeModifications(onSynchronize);
+
         } else
             FlagshipLogManager.log(FlagshipLogManager.Tag.UPDATE_CONTEXT, Level.SEVERE, String.format(FlagshipConstants.Errors.PANIC_ERROR, "updateContext()"));
     }
 
     /**
-     * Synchronization ready callback.
-     */
-    public interface OnSynchronizedListener {
-        void onSynchronized();
-    }
-
-    /**
-     *  This function will call the decision api and update all the campaigns modifications from the server according to the visitor context.
-     *  @param onSynchronize synchronize callback
+     * This function will call the decision api and update all the campaigns modifications from the server according to the visitor context.
+     * @return
      */
 
-    public void synchronizeModifications(OnSynchronizedListener onSynchronize) {
-        CompletableFuture.runAsync(() -> {
+    public CompletableFuture<Void> synchronizeModifications() {
+        return CompletableFuture.runAsync(() -> {
             try {
+                long top = System.currentTimeMillis();
                 ArrayList<Campaign> campaigns = this.decisionManager.getCampaigns(this.config.getEnvId(), visitorId, context);
+                System.out.println("Get campaigns = " + (System.currentTimeMillis() - top));
                 this.modifications.clear();
                 if (!decisionManager.isPanic()) {
                     HashMap<String, Modification> modifications = this.decisionManager.getModifications(this.config.getDecisionMode(), campaigns);
@@ -155,8 +111,6 @@ public class Visitor {
             }
         }).whenCompleteAsync((Void, error) -> {
             logVisitor(FlagshipLogManager.Tag.SYNCHRONIZE);
-            if (onSynchronize != null)
-                onSynchronize.onSynchronized();
         });
     }
 
@@ -168,7 +122,7 @@ public class Visitor {
     /**
      * Retrieve a modification value by its key. If no modification match the given key, default value will be returned.
      *
-     * @param key key associated to the modification.
+     * @param key          key associated to the modification.
      * @param defaultValue default value to return.
      * @return modification value or default value.
      */
@@ -179,17 +133,15 @@ public class Visitor {
     /**
      * Retrieve a modification value by its key. If no modification match the given key or if the stored value type and default value type do not match, default value will be returned.
      *
-     * @param key key associated to the modification.
+     * @param key          key associated to the modification.
      * @param defaultValue default value to return.
-     * @param activate Set this parameter to true to automatically report on our server that the
-     *         current visitor has seen this modification. It is possible to call activateModification() later.
+     * @param activate     Set this parameter to true to automatically report on our server that the
+     *                     current visitor has seen this modification. It is possible to call activateModification() later.
      * @return modification value or default value.
      */
     @SuppressWarnings("unchecked")
     public <T> T getModification(String key, T defaultValue, boolean activate) {
         if (!decisionManager.isPanic()) {
-//            if (decisionManager.isDataExpired(date))
-//                synchronizeModifications(null);
             try {
                 if (key == null) {
                     FlagshipLogManager.log(FlagshipLogManager.Tag.GET_MODIFICATION, Level.SEVERE, String.format(FlagshipConstants.Errors.GET_MODIFICATION_KEY_ERROR, key));
@@ -215,6 +167,7 @@ public class Visitor {
 
     /**
      * Get the campaign modification information value matching the given key.
+     *
      * @param key key which identify the modification.
      * @return JSONObject containing the modification information.
      */
@@ -235,6 +188,7 @@ public class Visitor {
 
     /**
      * Report this user has seen this modification.
+     *
      * @param key key which identify the modification to activate.
      */
     public void activateModification(String key) {
@@ -251,6 +205,7 @@ public class Visitor {
 
     /**
      * Send a Hit to Flagship servers for reporting.
+     *
      * @param hit hit to track.
      */
     public void sendHit(Hit hit) {

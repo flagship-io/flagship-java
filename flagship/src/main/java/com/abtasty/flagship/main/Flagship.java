@@ -1,8 +1,8 @@
 package com.abtasty.flagship.main;
 
 import com.abtasty.flagship.BuildConfig;
-import com.abtasty.flagship.api.HttpManager;
 import com.abtasty.flagship.utils.FlagshipConstants;
+import com.abtasty.flagship.utils.FlagshipExecutorService;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 
 import java.util.HashMap;
@@ -13,9 +13,9 @@ import java.util.logging.Level;
  */
 public class Flagship {
 
-    private static Flagship instance = null;
+    private static volatile Flagship    instance = null;
 
-    private FlagshipConfig                  config = null;
+    private FlagshipConfig              config = null;
 
     public enum Mode {
         DECISION_API,
@@ -56,6 +56,12 @@ public class Flagship {
      * @param config : SDK configuration. @see FlagshipConfig
      */
     public static void start(String envId, String apiKey, FlagshipConfig config) {
+        System.out.println("RUNTIME");
+//        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+//            System.out.println("SHUT DOWN");
+//            FlagshipExecutorService.getInstance().service().shutdownNow();
+//            FlagshipExecutorService.getInstance().closeService();
+//        }));
         if (config == null)
             config = new FlagshipConfig(envId, apiKey);
         config.withEnvId(envId);
@@ -64,9 +70,6 @@ public class Flagship {
             FlagshipLogManager.log(FlagshipLogManager.Tag.INITIALIZATION, Level.SEVERE, FlagshipConstants.Errors.INITIALIZATION_PARAM_ERROR);
         instance().setConfig(config);
         if (isReady()) {
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                HttpManager.getInstance().closeExecutor();
-            }));
             FlagshipLogManager.log(FlagshipLogManager.Tag.INITIALIZATION, Level.INFO, String.format(FlagshipConstants.Info.STARTED, BuildConfig.flagship_version_name));
         }
     }

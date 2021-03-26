@@ -5,10 +5,13 @@ import com.abtasty.flagship.hits.Activate;
 import com.abtasty.flagship.hits.Hit;
 import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.FlagshipLogManager;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 public class TrackingManager implements IFlagshipEndpoints {
@@ -32,20 +35,9 @@ public class TrackingManager implements IFlagshipEndpoints {
         JSONObject data = hit.getData();
         data.put(FlagshipConstants.HitKeyMap.VISITOR_ID, visitorId);
         if (hit.checkData()) {
-            HttpManager.getInstance().sendAsyncHttpRequest(HttpManager.RequestType.POST, endpoint, headers, data.toString(), new HttpManager.IResponse() {
-                @Override
-                public void onSuccess(Response response) {
-                    logHit(hit, response);
-                }
-
-                @Override
-                public void onFailure(Response response) {
-                    logHit(hit, response);
-                }
-
-                @Override
-                public void onException(Exception e) {
-                }
+            CompletableFuture<Response> response = HttpManager.getInstance().sendAsyncHttpRequest(HttpManager.RequestType.POST, endpoint, headers, data.toString());
+            response.whenComplete((httpResponse, error) -> {
+                logHit(hit, httpResponse);
             });
         } else {
             FlagshipLogManager.log(FlagshipLogManager.Tag.TRACKING, Level.SEVERE, String.format(FlagshipConstants.Errors.HIT_INVALID_DATA_ERROR, hit.getType(), hit.toString()));
@@ -54,11 +46,12 @@ public class TrackingManager implements IFlagshipEndpoints {
 
     private void logHit(Hit h, Response response) {
         FlagshipLogManager.Tag tag = (h instanceof Activate) ? FlagshipLogManager.Tag.ACTIVATE : FlagshipLogManager.Tag.TRACKING;
-        Level level = response.isSuccess() ? Level.INFO : Level.SEVERE;
+        Level level = response.isSuccessful() ? Level.INFO : Level.SEVERE;
         StringBuilder content = new StringBuilder();
-        content.append(" [" + response.getType() + "] ")
-                .append(" " + response.getRequestUrl() + " ")
-                .append(" [" + response.getResponseCode() + "] ")
+        Request request = response.request();
+        content.append(" [").append(request.method()).append("] ")
+                .append(" ").append(request.url()).append(" ")
+                .append(" [").append(response.code()).append("] ")
                 .append("\n")
                 .append(h.getData().toString(2));
         FlagshipLogManager.log(tag, level, content.toString());
@@ -75,7 +68,7 @@ public class TrackingManager implements IFlagshipEndpoints {
                 data.put(item.getKey(), item.getValue());
             }
             body.put("data", data);
-            HttpManager.getInstance().sendAsyncHttpRequest(HttpManager.RequestType.POST, endpoint, null, body.toString(), null);
+            HttpManager.getInstance().sendAsyncHttpRequest(HttpManager.RequestType.POST, endpoint, null, body.toString());
         } catch (Exception e) {
             FlagshipLogManager.exception(e);
         }

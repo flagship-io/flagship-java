@@ -138,7 +138,7 @@ public class FlagshipIntegrationTests {
         for (Map.Entry<String, HttpURLConnection> entry : responseToMock.entrySet()) {
             entry.getValue().disconnect();
         }
-        HttpManager.getInstance().closeExecutor();
+//        HttpManager.getInstance().closeExecutor();
     }
 
     @Test

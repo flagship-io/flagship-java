@@ -2,10 +2,12 @@ package com.abtasty.flagship.decision;
 
 import com.abtasty.flagship.BuildConfig;
 import com.abtasty.flagship.api.HttpManager;
-import com.abtasty.flagship.api.Response;
 import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.model.Campaign;
 import com.abtasty.flagship.utils.FlagshipLogManager;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -38,21 +40,11 @@ public class ApiManager extends DecisionManager {
             Response response = HttpManager.getInstance().sendHttpRequest(HttpManager.RequestType.POST,
                     DECISION_API + envId + CAMPAIGNS,
                     headers,
-                    json.toString(),
-                    Flagship.getConfig().getTimeout());
-//            if (response != null) {
-//                logResponse(response);
-//                setPanic(checkPanicResponse(response.getResponseContent()));
-//                if (!isPanic()) {
-//                    ArrayList<Campaign> newCampaigns = parseCampaigns(response.getResponseContent());
-//                    if (newCampaigns != null)
-//                        campaigns.addAll(newCampaigns);
-//                } else
-//                    FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, Level.WARNING, FlagshipConstants.Errors.PANIC);
-//            }
-            if (response != null) {
-                logResponse(response);
-                ArrayList<Campaign> newCampaigns = parseCampaignsResponse(response.getResponseContent());
+                    json.toString());
+            ResponseBody body = response.body();
+            if (body != null) {
+                logResponse(response.request(), response, body.string());
+                ArrayList<Campaign> newCampaigns = parseCampaignsResponse(body.string());
                 if (newCampaigns != null)
                     campaigns.addAll(newCampaigns);
             }
@@ -62,30 +54,17 @@ public class ApiManager extends DecisionManager {
         return campaigns;
     }
 
-//    private boolean checkPanicResponse(String content) {
-//        try {
-//            JSONObject json = new JSONObject(content);
-//            return json.has("panic");
-//        } catch (Exception e) {
-//            FlagshipLogManager.log(FlagshipLogManager.Tag.PARSING, Level.SEVERE, FlagshipConstants.Errors.PARSING_CAMPAIGN_ERROR);
-//        }
-//        return false;
-//    }
-
-    private void logResponse(Response response) {
-
-        String content = "";
+    private void logResponse(Request request, Response response, String content) {
         try {
-            content = new JSONObject(response.getResponseContent()).toString(2);
-        } catch (Exception e) {
-            content = response.getResponseContent();
-        }
-        StringBuilder message = new StringBuilder();
-        message.append("[" + response.getType() + "]")
-                .append(" " + response.getRequestUrl() + " ")
-                .append("[" + response.getResponseCode() + "]")
+            content = new JSONObject(content).toString(2);
+        } catch (Exception ignored) { }
+        StringBuilder message = new StringBuilder()
+                .append("[").append(request.method()).append("]")
+                .append(" ").append(request.url()).append(" ")
+                .append("[").append(response.code()).append("]")
+                .append(" [").append(response.receivedResponseAtMillis() - response.sentRequestAtMillis()).append("ms]")
                 .append("\n")
                 .append(content);
-        FlagshipLogManager.log(FlagshipLogManager.Tag.CAMPAIGNS, response.isSuccess() ? Level.INFO : Level.SEVERE, message.toString());
+        FlagshipLogManager.log(FlagshipLogManager.Tag.CAMPAIGNS, response.isSuccessful() ? Level.INFO : Level.SEVERE, message.toString());
     }
 }

@@ -1,9 +1,10 @@
 package com.abtasty.flagship.main;
 
 import com.abtasty.flagship.BuildConfig;
+import com.abtasty.flagship.api.HttpManager;
 import com.abtasty.flagship.utils.FlagshipConstants;
-import com.abtasty.flagship.utils.FlagshipExecutorService;
 import com.abtasty.flagship.utils.FlagshipLogManager;
+import com.abtasty.flagship.utils.LogManager;
 
 import java.util.HashMap;
 import java.util.logging.Level;
@@ -56,21 +57,15 @@ public class Flagship {
      * @param config : SDK configuration. @see FlagshipConfig
      */
     public static void start(String envId, String apiKey, FlagshipConfig config) {
-        System.out.println("RUNTIME");
-//        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-//            System.out.println("SHUT DOWN");
-//            FlagshipExecutorService.getInstance().service().shutdownNow();
-//            FlagshipExecutorService.getInstance().closeService();
-//        }));
         if (config == null)
             config = new FlagshipConfig(envId, apiKey);
         config.withEnvId(envId);
         config.withApiKey(apiKey);
         if (config.getEnvId() == null || config.getApiKey() == null)
-            FlagshipLogManager.log(FlagshipLogManager.Tag.INITIALIZATION, Level.SEVERE, FlagshipConstants.Errors.INITIALIZATION_PARAM_ERROR);
+            FlagshipLogManager.log(FlagshipLogManager.Tag.INITIALIZATION, LogManager.Level.ERROR, FlagshipConstants.Errors.INITIALIZATION_PARAM_ERROR);
         instance().setConfig(config);
         if (isReady()) {
-            FlagshipLogManager.log(FlagshipLogManager.Tag.INITIALIZATION, Level.INFO, String.format(FlagshipConstants.Info.STARTED, BuildConfig.flagship_version_name));
+            FlagshipLogManager.log(FlagshipLogManager.Tag.INITIALIZATION, LogManager.Level.INFO, String.format(FlagshipConstants.Info.STARTED, BuildConfig.flagship_version_name));
         }
     }
 
@@ -84,7 +79,8 @@ public class Flagship {
                 instance.config != null &&
                 instance.config.getApiKey() != null &&
                 instance.config.getEnvId() != null &&
-                instance.config.getDecisionManager() != null;
+                instance.config.getDecisionManager() != null &&
+                HttpManager.getInstance().isReady();
     }
 
     /**

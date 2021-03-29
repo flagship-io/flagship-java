@@ -5,15 +5,14 @@ import com.abtasty.flagship.api.HttpManager;
 import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.model.Campaign;
 import com.abtasty.flagship.utils.FlagshipLogManager;
+import com.abtasty.flagship.utils.LogManager;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.logging.Level;
 
 public class ApiManager extends DecisionManager {
 
@@ -43,13 +42,16 @@ public class ApiManager extends DecisionManager {
                     json.toString());
             ResponseBody body = response.body();
             if (body != null) {
-                logResponse(response.request(), response, body.string());
-                ArrayList<Campaign> newCampaigns = parseCampaignsResponse(body.string());
+                String content = body.string();
+                body.close();
+                logResponse(response.request(), response, content);
+                ArrayList<Campaign> newCampaigns = parseCampaignsResponse(content);
                 if (newCampaigns != null)
                     campaigns.addAll(newCampaigns);
             }
         } catch (Exception e) {
-            FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, Level.SEVERE, e.getMessage());
+            e.printStackTrace();
+            FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, LogManager.Level.ERROR, e.getMessage());
         }
         return campaigns;
     }
@@ -57,7 +59,8 @@ public class ApiManager extends DecisionManager {
     private void logResponse(Request request, Response response, String content) {
         try {
             content = new JSONObject(content).toString(2);
-        } catch (Exception ignored) { }
+        } catch (Exception ignored) {
+        }
         StringBuilder message = new StringBuilder()
                 .append("[").append(request.method()).append("]")
                 .append(" ").append(request.url()).append(" ")
@@ -65,6 +68,7 @@ public class ApiManager extends DecisionManager {
                 .append(" [").append(response.receivedResponseAtMillis() - response.sentRequestAtMillis()).append("ms]")
                 .append("\n")
                 .append(content);
-        FlagshipLogManager.log(FlagshipLogManager.Tag.CAMPAIGNS, response.isSuccessful() ? Level.INFO : Level.SEVERE, message.toString());
+        FlagshipLogManager.log(FlagshipLogManager.Tag.CAMPAIGNS, response.isSuccessful() ? LogManager.Level.DEBUG :
+                LogManager.Level.ERROR, message.toString());
     }
 }

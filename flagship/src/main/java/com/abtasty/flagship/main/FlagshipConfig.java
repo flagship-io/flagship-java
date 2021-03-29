@@ -15,10 +15,11 @@ public class FlagshipConfig {
     private String              apiKey          = null;
     private Flagship.Mode       decisionMode    = Flagship.Mode.DECISION_API;
     private int                 timeout         = 2000;
-    private LogManager.LogMode  logMode         = LogManager.LogMode.ALL;
-    private LogManager          logManager      = new FlagshipLogManager(logMode);
+    private LogManager.Level    logLevel        = LogManager.Level.ALL;
+    private LogManager          logManager      = new FlagshipLogManager(logLevel);
     private TrackingManager     trackingManager = new TrackingManager();
     private DecisionManager     decisionManager = null;
+
 
     /**
      * Create a new empty FlagshipConfig configuration.
@@ -87,13 +88,15 @@ public class FlagshipConfig {
     }
 
     /**
-     * Specify a mode to filter SDK logs.
-     * @param mode
+     * Specify a log level to filter SDK logs.
+     * @param level
      * @return FlagshipConfig
      */
-    public FlagshipConfig withLogMode(LogManager.LogMode mode) {
-        if (mode != null)
-            this.logManager.setMode(mode);
+    public FlagshipConfig withLogLevel(LogManager.Level level) {
+        if (level != null) {
+            this.logLevel = level;
+            this.logManager.setLevel(this.logLevel);
+        }
         return this;
     }
 

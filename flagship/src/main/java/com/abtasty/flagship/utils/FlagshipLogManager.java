@@ -1,7 +1,6 @@
 package com.abtasty.flagship.utils;
 
 import com.abtasty.flagship.main.Flagship;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -12,20 +11,18 @@ import java.util.logging.*;
 public class FlagshipLogManager extends LogManager {
 
     public enum Tag {
-        GLOBAL("[GLOBAL]"),
-        INITIALIZATION("[INITIALIZATION]"),
-        CONFIGURATION("[CONFIGURATION]"),
-        UPDATE_CONTEXT("[UPDATE_CONTEXT]"),
-        SYNCHRONIZE("[SYNCHRONIZE]"),
-        CAMPAIGNS("[CAMPAIGNS]"),
-        PARSING("[PARSING]"),
-        GET_MODIFICATION("[GET_MODIFICATION]"),
-        GET_MODIFICATION_INFO("[GET_MODIFICATION_INFO]"),
-        TRACKING("[HIT]"),
-        ACTIVATE("[ACTIVATE]"),
-        EXCEPTION("[EXCEPTION]");
-
-
+        GLOBAL("GLOBAL"),
+        INITIALIZATION("INITIALIZATION"),
+        CONFIGURATION("CONFIGURATION"),
+        UPDATE_CONTEXT("UPDATE_CONTEXT"),
+        SYNCHRONIZE("SYNCHRONIZE"),
+        CAMPAIGNS("CAMPAIGNS"),
+        PARSING("PARSING"),
+        GET_MODIFICATION("GET_MODIFICATION"),
+        GET_MODIFICATION_INFO("GET_MODIFICATION_INFO"),
+        TRACKING("HIT"),
+        ACTIVATE("ACTIVATE"),
+        EXCEPTION("EXCEPTION");
 
         String name = "";
 
@@ -39,65 +36,25 @@ public class FlagshipLogManager extends LogManager {
     }
 
     public static class LogFormatter extends Formatter {
-
-        public static final String RESET = "\033[0m";
-        public static final String BLACK = "\033[0;30m";
-        public static final String RED = "\033[0;31m";
-        public static final String GREEN = "\033[0;32m";
-        public static final String YELLOW = "\033[0;33m";
-        public static final String BLUE = "\033[0;34m";
-        public static final String PURPLE = "\033[0;35m";
-        public static final String CYAN = "\033[0;36m";
-        public static final String WHITE = "\033[0;2m";
-
         @Override
         public String format(LogRecord record) {
-            StringBuilder builder = new StringBuilder();
-
-            Level level = record.getLevel();
-            if (level == Level.INFO) {
-                builder.append(WHITE);
-            } else if (level == Level.WARNING) {
-                builder.append(YELLOW);
-            } else if (level == Level.SEVERE) {
-                builder.append(RED);
-            } else {
-                builder.append(WHITE);
-            }
-
-            builder.append("[");
-            builder.append(calcDate(record.getMillis()));
-            builder.append("]");
-
-            builder.append(record.getMessage());
-
-            Object[] params = record.getParameters();
-            if (params != null)
-            {
-                builder.append("\t");
-                for (int i = 0; i < params.length; i++)
-                {
-                    builder.append(params[i]);
-                    if (i < params.length - 1)
-                        builder.append(", ");
-                }
-            }
-            builder.append(RESET);
-            builder.append("\n");
-            return builder.toString();
-        }
-
-        private String calcDate(long millisecs) {
-            SimpleDateFormat date_format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            Date resultDate = new Date(millisecs);
-            return date_format.format(resultDate);
+            return String.format("%s\n", record.getMessage());
         }
     }
 
-    private String          mainTag = "[Flagship]";
-    private Logger          logger = Logger.getLogger(FlagshipLogManager.class.getName());
+    private final String            mainTag = "Flagship";
+    private final Logger            logger = Logger.getLogger(Flagship.class.getName());
 
-    public FlagshipLogManager(LogManager.LogMode mode) {
+    public static final String      RESET = "\u001B[0m";
+    public static final String      RED = "\u001B[31m";
+    public static final String      GREEN = "\u001B[32m";
+    public static final String      YELLOW = "\u001B[33m";
+    public static final String      BLUE = "\u001B[34m";
+    public static final String      PURPLE = "\u001B[35m";
+    public static final String      CYAN = "\u001B[36m";
+    public static final String      WHITE = "\u001B[97m";
+
+    public FlagshipLogManager(LogManager.Level mode) {
         super(mode);
         init();
     }
@@ -109,6 +66,7 @@ public class FlagshipLogManager extends LogManager {
 
     private void init() {
         ConsoleHandler h = new ConsoleHandler();
+        h.setLevel(java.util.logging.Level.ALL);
         Formatter formatter = new LogFormatter();
         h.setFormatter(formatter);
         logger.setUseParentHandlers(false);
@@ -119,7 +77,7 @@ public class FlagshipLogManager extends LogManager {
     public static void log(Tag tag, Level level, String message) {
         if (Flagship.getConfig() != null) {
             LogManager logManager = Flagship.getConfig().getLogManager();
-            if (logManager != null && logManager.isLogApplyToLogMode(level) && tag != null && message != null)
+            if (logManager != null && tag != null && message != null)
                 logManager.newLog(level, tag.getName(), message);
         }
     }
@@ -146,14 +104,51 @@ public class FlagshipLogManager extends LogManager {
         return strException;
     }
 
+    private String currentDate() {
+        SimpleDateFormat date_format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date resultDate = new Date(System.currentTimeMillis());
+        return date_format.format(resultDate);
+    }
+
+    private String getColor(Level level) {
+        String color;
+        switch (level) {
+            case EXCEPTIONS:
+            case ERROR:
+                color = RED;
+                break;
+            case WARNING:
+                color = YELLOW;
+                break;
+            case DEBUG:
+                color = CYAN;
+                break;
+            case INFO:
+                color = GREEN;
+                break;
+            default:
+                color = WHITE;
+                break;
+        }
+        return color;
+    }
+
     @Override
     public void onLog(Level level, String tag, String message) {
-        logger.log(level, this.mainTag + "[" + level.toString() + "]" + tag + " " + message);
+        String log = String.format("%s[%s][%s][%s][%s] %s %s",
+                getColor(level),
+                currentDate(),
+                this.mainTag,
+                level.toString(),
+                tag,
+                message,
+                RESET);
+        logger.log(java.util.logging.Level.INFO, log);
     }
 
     @Override
     public void onException(Exception e) {
         String strException = exceptionToString(e);
-        onLog(Level.SEVERE, Tag.EXCEPTION.getName(), strException);
+        onLog(Level.EXCEPTIONS, Tag.EXCEPTION.getName(), strException);
     }
 }

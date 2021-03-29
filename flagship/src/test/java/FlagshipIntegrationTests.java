@@ -187,8 +187,8 @@ public class FlagshipIntegrationTests {
         CountDownLatch logLatch = new CountDownLatch(2);
         class CustomLogManager extends LogManager {
 
-            public CustomLogManager(LogManager.LogMode mode) {
-                super(mode);
+            public CustomLogManager(LogManager.Level level) {
+                super(level);
             }
 
             @Override
@@ -200,7 +200,7 @@ public class FlagshipIntegrationTests {
 
         Flagship.start("my_env_id", "my_api_key", new FlagshipConfig()
                 .withFlagshipMode(Flagship.Mode.DECISION_API)
-                .withLogManager(new CustomLogManager(LogManager.LogMode.ALL)));
+                .withLogManager(new CustomLogManager(LogManager.Level.ALL)));
 
         Visitor visitor0 = Flagship.newVisitor(null);
         assertNull(visitor0);

@@ -2,6 +2,7 @@ package com.abtasty.flagship.model;
 
 import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.FlagshipLogManager;
+import com.abtasty.flagship.utils.LogManager;
 import org.json.JSONObject;
 
 import java.io.Serializable;
@@ -54,15 +55,17 @@ public class VariationGroup implements Serializable {
             if (variationObj != null) {
                 // api
                 Variation variation = Variation.parse(campaignId, variationGroupId, variationObj);
-                variation.setSelected(true);
-                selectedVariationId = variation.getVariationId();
-                variations.put(variation.getVariationId(), variation);
+                if (variation != null) {
+                    variation.setSelected(true);
+                    selectedVariationId = variation.getVariationId();
+                    variations.put(variation.getVariationId(), variation);
+                }
             } else {
                 //bucketing
             }
             return new VariationGroup(campaignId, variationGroupId, variations, targetingGroups, selectedVariationId);
         } catch (Exception e) {
-            FlagshipLogManager.log(FlagshipLogManager.Tag.PARSING, Level.SEVERE, FlagshipConstants.Errors.PARSING_VARIATIONGROUP_ERROR);
+            FlagshipLogManager.log(FlagshipLogManager.Tag.PARSING, LogManager.Level.ERROR, FlagshipConstants.Errors.PARSING_VARIATIONGROUP_ERROR);
             return null;
         }
     }

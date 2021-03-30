@@ -6,14 +6,10 @@ import com.abtasty.flagship.hits.Hit;
 import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
-import okhttp3.Request;
-import okhttp3.Response;
 import org.json.JSONObject;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.logging.Level;
 
 public class TrackingManager implements IFlagshipEndpoints {
 
@@ -47,15 +43,10 @@ public class TrackingManager implements IFlagshipEndpoints {
 
     private void logHit(Hit h, Response response) {
         FlagshipLogManager.Tag tag = (h instanceof Activate) ? FlagshipLogManager.Tag.ACTIVATE : FlagshipLogManager.Tag.TRACKING;
-        LogManager.Level level = response.isSuccessful() ? LogManager.Level.DEBUG : LogManager.Level.ERROR;
-        StringBuilder content = new StringBuilder();
-        Request request = response.request();
-        content.append(" [").append(request.method()).append("] ")
-                .append(" ").append(request.url()).append(" ")
-                .append(" [").append(response.code()).append("] ")
-                .append("\n")
-                .append(h.getData().toString(2));
-        FlagshipLogManager.log(tag, level, content.toString());
+        LogManager.Level level = response.isSuccess() ? LogManager.Level.DEBUG : LogManager.Level.ERROR;
+        String log = String.format("[%s] %s [%d] [%dms]\n%s", response.getType(), response.getRequestUrl(),
+                response.getResponseCode(), response.getResponseTime(), h.getData().toString(2));
+        FlagshipLogManager.log(tag, level, log);
     }
 
     public void sendContextRequest(String envId, String visitorId, HashMap<String, Object> context) {

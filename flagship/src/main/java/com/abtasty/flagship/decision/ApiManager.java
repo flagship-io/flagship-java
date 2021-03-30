@@ -2,13 +2,11 @@ package com.abtasty.flagship.decision;
 
 import com.abtasty.flagship.BuildConfig;
 import com.abtasty.flagship.api.HttpManager;
+import com.abtasty.flagship.api.Response;
 import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.model.Campaign;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
 import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,16 +37,12 @@ public class ApiManager extends DecisionManager {
             Response response = HttpManager.getInstance().sendHttpRequest(HttpManager.RequestType.POST,
                     DECISION_API + envId + CAMPAIGNS,
                     headers,
-                    json.toString());
-            ResponseBody body = response.body();
-            if (body != null) {
-                String content = body.string();
-                body.close();
-                logResponse(response.request(), response, content);
-                ArrayList<Campaign> newCampaigns = parseCampaignsResponse(content);
-                if (newCampaigns != null)
-                    campaigns.addAll(newCampaigns);
-            }
+                    json.toString(),
+                    Flagship.getConfig().getTimeout());
+            logResponse(response);
+            ArrayList<Campaign> newCampaigns = parseCampaignsResponse(response.getResponseContent());
+            if (newCampaigns != null)
+                campaigns.addAll(newCampaigns);
         } catch (Exception e) {
             e.printStackTrace();
             FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, LogManager.Level.ERROR, e.getMessage());
@@ -56,19 +50,33 @@ public class ApiManager extends DecisionManager {
         return campaigns;
     }
 
-    private void logResponse(Request request, Response response, String content) {
+    //    private void logResponse(Request request, Response response, String content) {
+//        try {
+//            content = new JSONObject(content).toString(2);
+//        } catch (Exception ignored) {
+//        }
+//        StringBuilder message = new StringBuilder()
+//                .append("[").append(request.method()).append("]")
+//                .append(" ").append(request.url()).append(" ")
+//                .append("[").append(response.code()).append("]")
+//                .append(" [").append(response.receivedResponseAtMillis() - response.sentRequestAtMillis()).append("ms]")
+//                .append("\n")
+//                .append(content);
+//        FlagshipLogManager.log(FlagshipLogManager.Tag.CAMPAIGNS, response.isSuccessful() ? LogManager.Level.DEBUG :
+//                LogManager.Level.ERROR, message.toString());
+//    }
+    private void logResponse(Response response) {
+
+        String content = "";
         try {
-            content = new JSONObject(content).toString(2);
-        } catch (Exception ignored) {
+            content = new JSONObject(response.getResponseContent()).toString(2);
+        } catch (Exception e) {
+            content = response.getResponseContent();
         }
-        StringBuilder message = new StringBuilder()
-                .append("[").append(request.method()).append("]")
-                .append(" ").append(request.url()).append(" ")
-                .append("[").append(response.code()).append("]")
-                .append(" [").append(response.receivedResponseAtMillis() - response.sentRequestAtMillis()).append("ms]")
-                .append("\n")
-                .append(content);
-        FlagshipLogManager.log(FlagshipLogManager.Tag.CAMPAIGNS, response.isSuccessful() ? LogManager.Level.DEBUG :
-                LogManager.Level.ERROR, message.toString());
+        String message = String.format("[%s] %s [%d] [%dms]\n %s", response.getType(), response.getRequestUrl(),
+                response.getResponseCode(), response.getResponseTime(), content);
+        FlagshipLogManager.log(FlagshipLogManager.Tag.CAMPAIGNS, response.isSuccess() ?
+                LogManager.Level.DEBUG : LogManager.Level.ERROR, message.toString());
+
     }
 }

@@ -1,10 +1,11 @@
 package com.abtasty.flagship.api;
 
 import com.abtasty.flagship.main.Flagship;
-import okhttp3.*;
-import org.jetbrains.annotations.NotNull;
+import com.abtasty.flagship.utils.FlagshipLogManager;
 
-import java.io.IOException;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -27,7 +28,7 @@ public class HttpManager {
 
     private static volatile HttpManager instance = null;
 
-    private OkHttpClient                client;
+//    private OkHttpClient                client;
     private final ThreadPoolExecutor    threadPoolExecutor;
     private final long                  workerTimeout = 500L;
     private final TimeUnit              workerTimeoutUnit = TimeUnit.SECONDS;
@@ -45,11 +46,7 @@ public class HttpManager {
     }
 
     private HttpManager() {
-        this.client = new OkHttpClient.Builder()
-//                .readTimeout(Flagship.getConfig().getTimeout())
-//                .writeTimeout(Flagship.getConfig().getTimeout())
-                .cache(null)
-                .build();
+
         this.workers = Runtime.getRuntime().availableProcessors() * 2;
         this.threadPoolExecutor = new ThreadPoolExecutor(
                 this.workers, this.workers,
@@ -61,13 +58,12 @@ public class HttpManager {
                     return t;
                 });
         ready = true;
-
     }
 
-    public void setHttpClient(OkHttpClient client) {
-        if (client != null)
-            this.client = client;
-    }
+//    public void setHttpClient(OkHttpClient client) {
+//        if (client != null)
+//            this.client = client;
+//    }
 
     public boolean isReady() {
         return ready;
@@ -77,55 +73,138 @@ public class HttpManager {
         return threadPoolExecutor;
     }
 
-    private Request buildRequest(RequestType type,
-                                 String uri,
-                                 HashMap<String, String> headers,
-                                 String content) {
-        Request.Builder builder = new Request.Builder();
-        builder.url(uri);
-        builder = (type == RequestType.POST) ? builder.post(RequestBody.create(content, MediaType.get("application/json"))) : builder.get();
-        if (headers != null && headers.size() > 0) {
-            for (HashMap.Entry<String, String> e : headers.entrySet()) {
-                builder.addHeader(e.getKey(), e.getValue());
-            }
-        }
-        return builder.build();
+//    private Request buildRequest(RequestType type,
+//                                 String uri,
+//                                 HashMap<String, String> headers,
+//                                 String content) {
+//        Request.Builder builder = new Request.Builder();
+//        builder.url(uri);
+//        builder = (type == RequestType.POST) ? builder.post(RequestBody.create(content, MediaType.get("application/json"))) : builder.get();
+//        if (headers != null && headers.size() > 0) {
+//            for (HashMap.Entry<String, String> e : headers.entrySet()) {
+//                builder.addHeader(e.getKey(), e.getValue());
+//            }
+//        }
+//        return builder.build();
+//    }
+
+//    public Response sendHttpRequest(RequestType type,
+//                                    String uri,
+//                                    HashMap<String, String> headers,
+//                                    String content) throws IOException {
+//        Request request = buildRequest(type, uri, headers, content);
+//        return client.newCall(request).execute();
+//    }
+//
+//    public static class OKHttpCompletableFuture implements Callback {
+//
+//        private final CompletableFuture<Response> completableFuture = new CompletableFuture<>();
+//
+//        @Override
+//        public void onFailure(@NotNull Call call, @NotNull IOException e) {
+//            completableFuture.completeExceptionally(e);
+//        }
+//
+//        @Override
+//        public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+//            completableFuture.complete(response);
+//        }
+//
+//        public CompletableFuture<Response> getFuture() {
+//            return completableFuture;
+//        }
+//    }
+//
+//    public CompletableFuture<Response> sendAsyncHttpRequest(RequestType type,
+//                                                            String uri,
+//                                                            HashMap<String, String> headers,
+//                                                            String content) {
+//        OKHttpCompletableFuture completableFuture = new OKHttpCompletableFuture();
+//        Request request = buildRequest(type, uri, headers, content);
+//        client.newCall(request).enqueue(completableFuture);
+//        return completableFuture.completableFuture;
+//    }
+
+
+    public HttpURLConnection createConnection(URL url) throws IOException {
+        return (HttpURLConnection) url.openConnection();
     }
 
     public Response sendHttpRequest(RequestType type,
-                                    String uri,
-                                    HashMap<String, String> headers,
-                                    String content) throws IOException {
-        Request request = buildRequest(type, uri, headers, content);
-        return client.newCall(request).execute();
+                                           String uri,
+                                           HashMap<String, String> headers,
+                                           String content) throws IOException {
+        return sendHttpRequest(type, uri, headers, content, 0);
     }
 
-    public static class OKHttpCompletableFuture implements Callback {
-
-        private final CompletableFuture<Response> completableFuture = new CompletableFuture<>();
-
-        @Override
-        public void onFailure(@NotNull Call call, @NotNull IOException e) {
-            completableFuture.completeExceptionally(e);
+    public Response sendHttpRequest(RequestType type,
+                                           String uri,
+                                           HashMap<String, String> headers,
+                                           String content,
+                                           int timeout) throws IOException {
+        long timer = System.currentTimeMillis();
+        URL url = new URL(uri);
+        HttpURLConnection conn = createConnection(url);
+        conn.setRequestMethod(type.name);
+        conn.setRequestProperty("Content-Type", "application/json");
+        if (timeout > 0) {
+            conn.setConnectTimeout(timeout);
+            conn.setReadTimeout(timeout);
         }
-
-        @Override
-        public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-            completableFuture.complete(response);
+        if (headers != null && headers.size() > 0) {
+            for (HashMap.Entry<String, String> e : headers.entrySet()) {
+                conn.setRequestProperty(e.getKey(), e.getValue());
+            }
         }
-
-        public CompletableFuture<Response> getFuture() {
-            return completableFuture;
+        if (type == RequestType.POST && content != null) {
+            conn.setDoOutput(true);
+            DataOutputStream out = new DataOutputStream(conn.getOutputStream());
+            out.writeBytes(content);
+            out.flush();
+            out.close();
         }
+        Response response = parseResponse(conn, type, uri, headers, content);
+        response.setResponseTime(System.currentTimeMillis() - timer);
+        conn.disconnect();
+        return response;
     }
 
     public CompletableFuture<Response> sendAsyncHttpRequest(RequestType type,
-                                                            String uri,
-                                                            HashMap<String, String> headers,
-                                                            String content) {
-        OKHttpCompletableFuture completableFuture = new OKHttpCompletableFuture();
-        Request request = buildRequest(type, uri, headers, content);
-        client.newCall(request).enqueue(completableFuture);
-        return completableFuture.completableFuture;
+                                                                   String uri,
+                                                                   HashMap<String, String> headers,
+                                                                   String content) {
+
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return sendHttpRequest(type, uri, headers, content);
+            } catch (IOException e) {
+                FlagshipLogManager.exception(e);
+            }
+            return null;
+        }, threadPoolExecutor);
+    }
+
+    public Response parseResponse(HttpURLConnection conn, RequestType requestType, String requestUri,
+                                          HashMap<String, String> requestHeaders, String requestContent) throws IOException {
+        int status = conn.getResponseCode();
+        Reader streamReader = new InputStreamReader((status >= 400) ? conn.getErrorStream() : conn.getInputStream());
+        BufferedReader in = new BufferedReader(streamReader);
+        String inputLine;
+        StringBuilder content = new StringBuilder();
+        while ((inputLine = in.readLine()) != null) {
+            content.append(inputLine);
+        }
+        in.close();
+        streamReader.close();
+        HashMap<String, String> headers = new HashMap<String, String>();
+        for (String s : conn.getHeaderFields().keySet()) {
+            headers.put(s, conn.getHeaderField(s));
+        }
+        Response response = new Response(status, content.toString(), conn.getResponseMessage(), headers);
+        response.setRequestHeaders(requestHeaders);
+        response.setRequestUrl(requestUri);
+        response.setRequestContent(requestContent);
+        response.setType(requestType);
+        return response;
     }
 }

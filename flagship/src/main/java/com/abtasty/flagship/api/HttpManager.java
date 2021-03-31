@@ -6,10 +6,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 
 public class HttpManager {
@@ -29,7 +26,7 @@ public class HttpManager {
 
     private final ThreadPoolExecutor    threadPoolExecutor;
     private final long                  workerTimeout = 500L;
-    private final TimeUnit              workerTimeoutUnit = TimeUnit.SECONDS;
+    private final TimeUnit              workerTimeoutUnit = TimeUnit.MILLISECONDS;
     private int                         workers = 0;
     private boolean                     ready = false;
 
@@ -55,6 +52,7 @@ public class HttpManager {
                     t.setDaemon(true);
                     return t;
                 });
+        this.threadPoolExecutor.allowCoreThreadTimeOut(true);
         ready = true;
     }
 

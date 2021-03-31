@@ -1,5 +1,6 @@
 package com.abtasty.flagship.main;
 
+import com.abtasty.flagship.api.HttpManager;
 import com.abtasty.flagship.api.TrackingManager;
 import com.abtasty.flagship.decision.DecisionManager;
 import com.abtasty.flagship.hits.Activate;
@@ -93,8 +94,8 @@ public class Visitor {
      * This function will call the decision api and update all the campaigns modifications from the server according to the visitor context.
      * @return a CompletableFuture for this synchronization
      */
-    public CompletableFuture<Void> synchronizeModifications() {
-        return CompletableFuture.runAsync(() -> {
+    public CompletableFuture<Visitor> synchronizeModifications() {
+        return CompletableFuture.supplyAsync(() -> {
             try {
                 ArrayList<Campaign> campaigns = this.decisionManager.getCampaigns(this.config.getEnvId(), visitorId, context);
                 this.modifications.clear();
@@ -106,7 +107,8 @@ public class Visitor {
             } catch (Exception e) {
                 FlagshipLogManager.exception(e);
             }
-        }).whenCompleteAsync((Void, error) -> {
+            return this;
+        }, HttpManager.getInstance().getThreadPoolExecutor()).whenCompleteAsync((instance, error) -> {
             logVisitor(FlagshipLogManager.Tag.SYNCHRONIZE);
         });
     }

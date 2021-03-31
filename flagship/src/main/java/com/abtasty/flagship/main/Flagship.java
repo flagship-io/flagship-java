@@ -5,9 +5,7 @@ import com.abtasty.flagship.api.HttpManager;
 import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
-
 import java.util.HashMap;
-import java.util.logging.Level;
 
 /**
  * Flagship main singleton.
@@ -17,10 +15,26 @@ public class Flagship {
     private static volatile Flagship    instance = null;
 
     private FlagshipConfig              config = null;
+    private Status                      status = Status.NOT_READY;
 
     public enum Mode {
         DECISION_API,
 //        BUCKETING,
+    }
+
+    public enum Status {
+        /**
+         * Flaghsip SDK has not been started or initialized successfully.
+         */
+        NOT_READY,
+//        /**
+//         * Flagship SDK is in panic mode.
+//         */
+//         READY_PANIC_ON,
+        /**
+         * Flagship SDK is ready to use.
+         */
+        READY
     }
 
     protected static Flagship instance() {
@@ -66,15 +80,20 @@ public class Flagship {
         instance().setConfig(config);
         if (isReady()) {
             FlagshipLogManager.log(FlagshipLogManager.Tag.INITIALIZATION, LogManager.Level.INFO, String.format(FlagshipConstants.Info.STARTED, BuildConfig.flagship_version_name));
-        }
+            instance().setStatus(Status.READY);
+        } else
+            instance().setStatus(Status.NOT_READY);
     }
 
-    /**
-     * Check if the SDK is ready to use.
-     *
-     * @return boolean ready.
-     */
-    public static Boolean isReady() {
+    public static Status getStatus() {
+        return instance().status;
+    }
+
+    protected void setStatus(Status status) {
+        this.status = status;
+    }
+
+    private static Boolean isReady() {
         return instance != null &&
                 instance.config != null &&
                 instance.config.getApiKey() != null &&

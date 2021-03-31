@@ -2,7 +2,6 @@ package com.abtasty.flagship.api;
 
 import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.utils.FlagshipLogManager;
-
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -28,7 +27,6 @@ public class HttpManager {
 
     private static volatile HttpManager instance = null;
 
-//    private OkHttpClient                client;
     private final ThreadPoolExecutor    threadPoolExecutor;
     private final long                  workerTimeout = 500L;
     private final TimeUnit              workerTimeoutUnit = TimeUnit.SECONDS;
@@ -60,11 +58,6 @@ public class HttpManager {
         ready = true;
     }
 
-//    public void setHttpClient(OkHttpClient client) {
-//        if (client != null)
-//            this.client = client;
-//    }
-
     public boolean isReady() {
         return ready;
     }
@@ -72,59 +65,6 @@ public class HttpManager {
     public ThreadPoolExecutor getThreadPoolExecutor() {
         return threadPoolExecutor;
     }
-
-//    private Request buildRequest(RequestType type,
-//                                 String uri,
-//                                 HashMap<String, String> headers,
-//                                 String content) {
-//        Request.Builder builder = new Request.Builder();
-//        builder.url(uri);
-//        builder = (type == RequestType.POST) ? builder.post(RequestBody.create(content, MediaType.get("application/json"))) : builder.get();
-//        if (headers != null && headers.size() > 0) {
-//            for (HashMap.Entry<String, String> e : headers.entrySet()) {
-//                builder.addHeader(e.getKey(), e.getValue());
-//            }
-//        }
-//        return builder.build();
-//    }
-
-//    public Response sendHttpRequest(RequestType type,
-//                                    String uri,
-//                                    HashMap<String, String> headers,
-//                                    String content) throws IOException {
-//        Request request = buildRequest(type, uri, headers, content);
-//        return client.newCall(request).execute();
-//    }
-//
-//    public static class OKHttpCompletableFuture implements Callback {
-//
-//        private final CompletableFuture<Response> completableFuture = new CompletableFuture<>();
-//
-//        @Override
-//        public void onFailure(@NotNull Call call, @NotNull IOException e) {
-//            completableFuture.completeExceptionally(e);
-//        }
-//
-//        @Override
-//        public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-//            completableFuture.complete(response);
-//        }
-//
-//        public CompletableFuture<Response> getFuture() {
-//            return completableFuture;
-//        }
-//    }
-//
-//    public CompletableFuture<Response> sendAsyncHttpRequest(RequestType type,
-//                                                            String uri,
-//                                                            HashMap<String, String> headers,
-//                                                            String content) {
-//        OKHttpCompletableFuture completableFuture = new OKHttpCompletableFuture();
-//        Request request = buildRequest(type, uri, headers, content);
-//        client.newCall(request).enqueue(completableFuture);
-//        return completableFuture.completableFuture;
-//    }
-
 
     public HttpURLConnection createConnection(URL url) throws IOException {
         return (HttpURLConnection) url.openConnection();

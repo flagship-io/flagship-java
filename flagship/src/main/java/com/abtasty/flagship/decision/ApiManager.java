@@ -50,21 +50,6 @@ public class ApiManager extends DecisionManager {
         return campaigns;
     }
 
-    //    private void logResponse(Request request, Response response, String content) {
-//        try {
-//            content = new JSONObject(content).toString(2);
-//        } catch (Exception ignored) {
-//        }
-//        StringBuilder message = new StringBuilder()
-//                .append("[").append(request.method()).append("]")
-//                .append(" ").append(request.url()).append(" ")
-//                .append("[").append(response.code()).append("]")
-//                .append(" [").append(response.receivedResponseAtMillis() - response.sentRequestAtMillis()).append("ms]")
-//                .append("\n")
-//                .append(content);
-//        FlagshipLogManager.log(FlagshipLogManager.Tag.CAMPAIGNS, response.isSuccessful() ? LogManager.Level.DEBUG :
-//                LogManager.Level.ERROR, message.toString());
-//    }
     private void logResponse(Response response) {
 
         String content = "";

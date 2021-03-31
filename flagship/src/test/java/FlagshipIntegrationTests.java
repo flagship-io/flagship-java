@@ -133,14 +133,14 @@ public class FlagshipIntegrationTests {
     public void config() {
 
         Flagship.start(null, null, null);
-        assertFalse(Flagship.isReady());
+        assertEquals(Flagship.getStatus(), Flagship.Status.NOT_READY);
 
         Flagship.start("null", "null", new FlagshipConfig().withFlagshipMode(null));
-        assertTrue(Flagship.isReady());
+        assertEquals(Flagship.getStatus(), Flagship.Status.READY);
 
         Flagship.start("my_env_id", "my_api_key");
         assertNotNull(Flagship.getConfig());
-        assertTrue(Flagship.isReady());
+        assertSame(Flagship.getStatus(), Flagship.Status.READY);
         assertEquals(Flagship.getConfig().getEnvId(), "my_env_id");
         assertEquals(Flagship.getConfig().getApiKey(), "my_api_key");
 
@@ -157,7 +157,7 @@ public class FlagshipIntegrationTests {
                 .withFlagshipMode(Flagship.Mode.DECISION_API)
                 .withLogManager(new CustomLogManager()));
         assertNotNull(Flagship.getConfig());
-        assertTrue(Flagship.isReady());
+        assertEquals(Flagship.getStatus(), Flagship.Status.READY);
         assertEquals(Flagship.getConfig().getEnvId(), "my_env_id_2");
         assertEquals(Flagship.getConfig().getApiKey(), "my_api_key_2");
         assertTrue(Flagship.getConfig().getLogManager() instanceof CustomLogManager);
@@ -256,7 +256,7 @@ public class FlagshipIntegrationTests {
 
             CountDownLatch synchronizeLatch = new CountDownLatch(1);
             Flagship.start("my_env_id", "my_api_key");
-            assertTrue(Flagship.isReady());
+            assertEquals(Flagship.getStatus(), Flagship.Status.READY);
             Visitor visitor = Flagship.newVisitor("visitor_1", new HashMap<String, Object>() {{
                 put("vip", true);
                 put("age", 32);

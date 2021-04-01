@@ -18,7 +18,11 @@ jobs:
       - name: Gradle wrapper
         run: gradle wrapper
       - name: Build
-        run: bash ./gradlew clean assemble
+        run: | 
+           bash ./gradlew clean
+           bash ./gradlew generateBuildConfig
+           bash ./gradlew assemble
+           bash ./gradlew test
       - name: Send greeting
         run: |
           echo "Hello ${{ github.event.inputs.name }}"

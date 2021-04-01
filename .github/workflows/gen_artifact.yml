@@ -17,7 +17,7 @@ jobs:
         run: chmod +x gradlew
       - name: Gradle wrapper
         run: gradle wrapper
-      - name: Unit tests
+      - name: Build
         run: bash ./gradlew clean assemble
       - name: Send greeting
         run: |

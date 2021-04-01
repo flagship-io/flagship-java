@@ -16,7 +16,24 @@ task generateBuildConfig {
     javaFile.write(java)
 }
 
+task release {
+
+    dependsOn 'clean'
+    dependsOn 'generateBuildConfig'
+    dependsOn 'assemble'
+    dependsOn 'test'
+    dependsOn 'artifactoryPublish'
+
+    tasks.findByName('generateBuildConfig').mustRunAfter('clean')
+    tasks.findByName('assemble').mustRunAfter('generateBuildConfig')
+    tasks.findByName('test').mustRunAfter('assemble')
+    tasks.findByName('artifactoryPublish').mustRunAfter('test')
+}
+
 compileJava.dependsOn generateBuildConfig
+compileTestJava.dependsOn generateBuildConfig
+
+
 
 sourceSets.main.java.srcDirs += ["$buildDir/generated/sources/buildConfig"]
 

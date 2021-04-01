@@ -27,7 +27,6 @@ jobs:
         run: |
           echo "Hello ${{ github.event.inputs.name }}"
           echo ${GITHUB_REF##*/}
-          ${GITHUB_REF}
       - name: Push artifact
         uses: actions/upload-artifact@v2
         with:

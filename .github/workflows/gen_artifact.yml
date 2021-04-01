@@ -28,7 +28,7 @@ jobs:
           echo "Hello ${{ github.event.inputs.name }}"
           echo ${GITHUB_REF##*/}
       - name: Get branch
-        run: echo "::set-output name=branch_name::${GITHUB_REF}
+        run: echo "::set-output name=branch_name::${GITHUB_REF}"
         id: ref
       - name: Push artifact
         uses: actions/upload-artifact@v2

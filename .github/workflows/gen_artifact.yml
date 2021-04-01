@@ -31,5 +31,5 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: java-sdk-${GITHUB_REF}
-          path: flagship/build/lib/flagship-java-1.0.0.jar
+          path: flagship/build/libs/flagship-java-1.0.0.jar
           retention-days: 10

@@ -20,7 +20,7 @@ public class HitControllerInterceptor implements HandlerInterceptor{
 	private static final String Vis = "Visitor";
 	public static Visitor visitor;
 	private static Logger log = LoggerFactory.getLogger(HitControllerInterceptor.class);
-	CountDownLatch latch = new CountDownLatch(1);
+
 	
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
@@ -31,12 +31,12 @@ public class HitControllerInterceptor implements HandlerInterceptor{
 		final com.springboot.model.Visitor visAttribut = (com.springboot.model.Visitor) request.getSession().getAttribute(Vis);
 	
 		visitor = Flagship.newVisitor(visAttribut.getVisitor_id(), visAttribut.getContext());
-		
+		CountDownLatch latch = new CountDownLatch(1);
 		visitor.updateContext("postcode", "31200", () -> {
 		    System.out.println("Synchronized");
 		    latch.countDown();
 		});
-		
+
 		latch.await();
 		
 		//visitor.synchronizeModifications(null);

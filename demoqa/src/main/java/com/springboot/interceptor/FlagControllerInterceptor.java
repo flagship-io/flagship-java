@@ -32,11 +32,16 @@ public class FlagControllerInterceptor implements HandlerInterceptor {
 		visitor = Flagship.newVisitor(visAttribut.getVisitor_id(), visAttribut.getContext());
 		
 		CountDownLatch latch = new CountDownLatch(1);
-		
-		visitor.updateContext("postcode", "31200", () -> {
-		    System.out.println("Synchronized");
-		    latch.countDown();
+		visitor.synchronizeModifications(new Visitor.OnSynchronizedListener() {
+			@Override
+			public void onSynchronized() {
+				latch.countDown();
+			}
 		});
+//		visitor.updateContext("postcode", "31200", () -> {
+//		    System.out.println("Synchronized");
+//		    latch.countDown();
+//		});
 		
 		latch.await();
 			

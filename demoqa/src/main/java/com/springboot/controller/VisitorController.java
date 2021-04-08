@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.main.Visitor;
 
+import java.util.concurrent.CountDownLatch;
+
 @RestController
 public class VisitorController {
 
@@ -33,17 +35,23 @@ public class VisitorController {
 	}
 	
 	@RequestMapping(method=RequestMethod.PUT, value="/visitor")
-	public com.springboot.model.Visitor setVisitor(@RequestBody com.springboot.model.Visitor vis, final HttpServletRequest request) {
+	public String setVisitor(@RequestBody com.springboot.model.Visitor vis, final HttpServletRequest request) throws InterruptedException {
 		
 		currentVisitor = vis;
 		
 		request.getSession().setAttribute(Vis, currentVisitor);
 		
 		visitor = Flagship.newVisitor(currentVisitor.getVisitor_id(), currentVisitor.getContext());
-		
-		
-		//visitor.updateContext("lastPurchase", 1615384464);
-		
-		return currentVisitor;
+
+		CountDownLatch latch = new CountDownLatch(1);
+		visitor.synchronizeModifications(new Visitor.OnSynchronizedListener() {
+			@Override
+			public void onSynchronized() {
+				latch.countDown();
+			}
+		});
+		latch.await();
+//		request.getSession().setAttribute(Vis, new );
+		return visitor.toString();
 	}
 }

@@ -30,39 +30,38 @@ public class FlagController {
 		Map<String, Object> obj = new HashMap<String,Object>();
 		
 		vis = (Visitor) request.getAttribute("Visitor");
-		
 		switch(type) {
-		
+
 			case "bool":
 				flag = vis.getModification(flag_key, Boolean.parseBoolean(defaultValue), activate);
 				break;
-			
+
 			case "string":
 				flag = vis.getModification(flag_key, defaultValue, activate);
 				break;
-			
+
 			case "number":
 				flag = vis.getModification(flag_key, Double.parseDouble(defaultValue), activate);
 				break;
-			
+
 			case "array":
 				try {
-					
+
 					List<Object> arrayVal = mapper.readValue(defaultValue, new TypeReference<List<Object>>() {});
 					flag = vis.getModification(flag_key, arrayVal, activate);
 					System.out.println(arrayVal.toString());
-				
+
 				}catch(Exception e) {
 					error = e.getMessage();
 				}
 				break;
-			
+
 			case "object":
 				try {
-					
+
 					Object objVal = mapper.readValue(defaultValue, new TypeReference<Object>() {});
 					flag = vis.getModification(flag_key, objVal, activate);
-					
+
 				}catch(Exception e) {
 					error = e.getMessage();
 				}

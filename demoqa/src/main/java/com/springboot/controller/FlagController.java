@@ -25,7 +25,7 @@ public class FlagController {
 	public Object getFlag(HttpServletRequest request, @PathVariable String flag_key, @RequestParam String type, @RequestParam Boolean activate, @RequestParam String defaultValue) {
 		
 		Object flag = null;
-		var error = "";
+		String error = "";
 		ObjectMapper mapper = new ObjectMapper();
 		Map<String, Object> obj = new HashMap<String,Object>();
 		

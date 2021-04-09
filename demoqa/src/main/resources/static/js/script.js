@@ -154,10 +154,61 @@ var app = new Vue({
                     this.flagInfoOk = JSON.stringify(response.body.value);
                 },
                 (response) => {
-                    console.log("youpi");
-                    this.flagInfoOk = response.body;
+                       this.flagInfoOk = response.body;
                 }
             );
+        },
+        getUpdateContext() {
+            this.flagOk = false;
+
+            const { name, type } = this.flag;
+
+            if (!name || !type) {
+                this.flagOk = { err: "Missing flag name or type" };
+                return;
+            }
+            console.log(this.flag);
+
+            this.$http
+                .get(
+                    `/flag/${name}/updateContext`,
+                    {
+                        params:
+                        {
+                            type,
+                        }
+                    }
+                )
+                .then(
+                    (response) => {
+                        this.flagOk = response.body;
+                    },
+                    (response) => {
+                        this.flagOk = response.body;
+                    }
+                );
+        },
+        getModification() {
+                    this.flagOk = false;
+
+                    const { name } = this.flag;
+
+                    if (!name || !type) {
+                        this.flagOk = { err: "Missing flag name or type" };
+                        return;
+                    }
+                    console.log(this.flag);
+
+                    this.$http
+                        .get(`/flag/${name}/modification`)
+                        .then(
+                            (response) => {
+                                this.flagOk = response.body;
+                            },
+                            (response) => {
+                                this.flagOk = response.body;
+                            }
+                        );
         },
     },
     mounted() {

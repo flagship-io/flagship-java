@@ -19,7 +19,11 @@ var app = new Vue({
         hitTypes: ["EVENT", "TRANSACTION", "ITEM", "PAGE", "SCREEN"],
         flag: { name: "", type: "bool", defaultValue: "", activate: true },
         flagOk: false,
+        flagUpdateContextOk: false,
+        flagModificationOk: false,
         flagInfo: { name: "" },
+        flagModification: { name: "" },
+        flagUpdateContext: { name: "", type: "bool" },
         flagInfoOk: false,
     },
     methods: {
@@ -159,15 +163,15 @@ var app = new Vue({
             );
         },
         getUpdateContext() {
-            this.flagOk = false;
+            this.flagUpdateContextOk = false;
 
-            const { name, type } = this.flag;
+            const { name, type } = this.flagUpdateContext;
 
             if (!name || !type) {
-                this.flagOk = { err: "Missing flag name or type" };
+                this.flagUpdateContextOk = { err: "Missing flag name or type" };
                 return;
             }
-            console.log(this.flag);
+            console.log(this.flagUpdateContext);
 
             this.$http
                 .get(
@@ -181,32 +185,32 @@ var app = new Vue({
                 )
                 .then(
                     (response) => {
-                        this.flagOk = response.body;
+                        this.flagUpdateContextOk = response.body;
                     },
                     (response) => {
-                        this.flagOk = response.body;
+                        this.flagUpdateContextOk = response.body;
                     }
                 );
         },
         getModification() {
-                    this.flagOk = false;
+                    this.flagModificationOk = false;
 
-                    const { name } = this.flag;
+                    const { name } = this.flagModification;
 
                     if (!name || !type) {
-                        this.flagOk = { err: "Missing flag name or type" };
+                        this.flagModificationOk = { err: "Missing flag name or type" };
                         return;
                     }
-                    console.log(this.flag);
+                    console.log(this.flagModification);
 
                     this.$http
                         .get(`/flag/${name}/modification`)
                         .then(
                             (response) => {
-                                this.flagOk = response.body;
+                                this.flagModificationOk = response.body;
                             },
                             (response) => {
-                                this.flagOk = response.body;
+                                this.flagModificationOk = response.body;
                             }
                         );
         },

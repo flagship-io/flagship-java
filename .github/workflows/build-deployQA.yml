@@ -24,9 +24,9 @@ jobs:
       - name: change branch
         run: sed -i 's/%branch%/${{ steps.extract_branch.outputs.branch }}/g' ./src/main/resources/static/index.html
         working-directory: ./demoqa
-      - name: Gradle wrapper
-        run: gradle wrapper
-        working-directory: ./demoqa
+     # - name: Gradle wrapper
+     #   run: gradle wrapper
+     #   working-directory: ./demoqa
       - name: Clean
         run: ./gradlew clean
         working-directory: ./demoqa

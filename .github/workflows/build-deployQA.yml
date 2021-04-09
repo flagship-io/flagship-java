@@ -30,8 +30,6 @@ jobs:
         run: ./gradlew clean
       - name: Assemble
         run: ./gradlew assemble
-      - name: Test
-        run: ./gradlew test
 
       - uses: actions/upload-artifact@v2
         with:

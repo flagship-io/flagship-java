@@ -42,6 +42,7 @@ jobs:
           path: ./demoqa/build/libs/demoqa-0.0.1.jar
 
   deployqa:
+    needs: buildqa
     runs-on: ubuntu-latest
 
     steps:

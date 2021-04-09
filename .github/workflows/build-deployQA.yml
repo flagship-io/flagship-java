@@ -1,4 +1,4 @@
-name: Generate Artifact
+name: Build and deploy CI for QA
 
 on: workflow_dispatch
 

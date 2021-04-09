@@ -18,30 +18,28 @@ jobs:
           java-version: 1.8
       - name: go to demoqa
         run: cd ./demoqa
-      - name: debug
-        run: |
-          cd ./demoqa
-          pwd 
-          ls -la
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-
+        working-directory: ./demoqa
       - name: change branch
         run: sed -i 's/%branch%/${{ steps.extract_branch.outputs.branch }}/g' ./src/main/resources/static/index.html
-
+        working-directory: ./demoqa
       - name: Gradle wrapper
         run: gradle wrapper
+        working-directory: ./demoqa
       - name: Clean
         run: ./gradlew clean
+        working-directory: ./demoqa
       - name: Assemble
         run: ./gradlew assemble
+        working-directory: ./demoqa
       - name: test
         run: ./gradlew test
-
+        working-directory: ./demoqa
       - uses: actions/upload-artifact@v2
         with:
           name: demoqa-jar
-          path: build/libs/demoqa-0.0.1.jar
+          path: ./demoqa/build/libs/demoqa-0.0.1.jar
 
   deployqa:
     runs-on: ubuntu-latest

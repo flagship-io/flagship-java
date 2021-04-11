@@ -247,6 +247,18 @@
               </select>
             </div>
           </div>
+
+          <div class="col-sm-3">
+            <div class="form-group">
+              <label>Value</label>
+              <input
+                      type="text"
+                      class="form-control"
+                      placeholder="Default"
+                      v-model="flagUpdateContext.value"
+              />
+            </div>
+          </div>
         </div>
         <div class="alert alert-warning mt-3 mb-3" v-if="flagUpdateContextOk && flagUpdateContextOk.err">
           {{flagUpdateContextOk.err}}
@@ -322,7 +334,7 @@
           class="alert alert-success mt-3 mb-3"
           v-if="flagInfoOk && !flagInfoOk.error"
         >
-          {{JSON.stringify(flagInfoOk)}}
+          {{flagInfoOk}}
         </div>
       </form>
     </div>

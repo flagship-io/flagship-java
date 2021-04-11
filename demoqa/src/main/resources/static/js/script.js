@@ -23,7 +23,7 @@ var app = new Vue({
         flagModificationOk: false,
         flagInfo: { name: "" },
         flagModification: { name: "" },
-        flagUpdateContext: { name: "", type: "bool" },
+        flagUpdateContext: { name: "", type: "bool", value: "" },
         flagInfoOk: false,
     },
     methods: {
@@ -155,7 +155,7 @@ var app = new Vue({
             ).then(
                 (response) => {
                     console.log(response.body.value);
-                    this.flagInfoOk = JSON.stringify(response.body.value);
+                    this.flagInfoOk = response.body.value;
                 },
                 (response) => {
                        this.flagInfoOk = response.body;
@@ -165,7 +165,7 @@ var app = new Vue({
         getUpdateContext() {
             this.flagUpdateContextOk = false;
 
-            const { name, type } = this.flagUpdateContext;
+            const { name, type, value } = this.flagUpdateContext;
 
             if (!name || !type) {
                 this.flagUpdateContextOk = { err: "Missing flag name or type" };
@@ -180,6 +180,7 @@ var app = new Vue({
                         params:
                         {
                             type,
+                            value
                         }
                     }
                 )
@@ -197,7 +198,7 @@ var app = new Vue({
 
                     const { name } = this.flagModification;
 
-                    if (!name || !type) {
+                    if (!name ) {
                         this.flagModificationOk = { err: "Missing flag name or type" };
                         return;
                     }

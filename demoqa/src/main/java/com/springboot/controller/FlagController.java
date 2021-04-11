@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.json.JSONObject;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -19,7 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @RestController
 public class FlagController {
 	
-	public Visitor vis;
+	public Visitor visitor;
 
 	@RequestMapping(method=RequestMethod.GET, value="/flag/{flag_key}" )
 	public Object getFlag(HttpServletRequest request, @PathVariable String flag_key, @RequestParam String type, @RequestParam Boolean activate, @RequestParam String defaultValue) {
@@ -29,26 +30,26 @@ public class FlagController {
 		ObjectMapper mapper = new ObjectMapper();
 		Map<String, Object> obj = new HashMap<String,Object>();
 		
-		vis = (Visitor) request.getAttribute("Visitor");
+		visitor = (Visitor) request.getAttribute("Visitor");
 		switch(type) {
 
 			case "bool":
-				flag = vis.getModification(flag_key, Boolean.parseBoolean(defaultValue), activate);
+				flag = visitor.getModification(flag_key, Boolean.parseBoolean(defaultValue), activate);
 				break;
 
 			case "string":
-				flag = vis.getModification(flag_key, defaultValue, activate);
+				flag = visitor.getModification(flag_key, defaultValue, activate);
 				break;
 
 			case "number":
-				flag = vis.getModification(flag_key, Double.parseDouble(defaultValue), activate);
+				flag = visitor.getModification(flag_key, Double.parseDouble(defaultValue), activate);
 				break;
 
 			case "array":
 				try {
 
 					List<Object> arrayVal = mapper.readValue(defaultValue, new TypeReference<List<Object>>() {});
-					flag = vis.getModification(flag_key, arrayVal, activate);
+					flag = visitor.getModification(flag_key, arrayVal, activate);
 					System.out.println(arrayVal.toString());
 
 				}catch(Exception e) {
@@ -60,7 +61,7 @@ public class FlagController {
 				try {
 
 					Object objVal = mapper.readValue(defaultValue, new TypeReference<Object>() {});
-					flag = vis.getModification(flag_key, objVal, activate);
+					flag = visitor.getModification(flag_key, objVal, activate);
 
 				}catch(Exception e) {
 					error = e.getMessage();
@@ -83,14 +84,52 @@ public class FlagController {
 
 	@RequestMapping(method=RequestMethod.GET, value="/flag/{flag_key}/info")
 	public Object getFlagInfo(HttpServletRequest request, @PathVariable String flag_key){
-		
-		Object flagInfo = null;
+
+		JSONObject flagInfo = null;
 		Map<String, Object> objInfo = new HashMap<String, Object>();
-		flagInfo = vis.getModificationInfo(flag_key);
+		Map obj = new HashMap<String, Object>();
+		flagInfo = visitor.getModificationInfo(flag_key);
+		obj = flagInfo.toMap();
+		System.out.println(flagInfo.getClass().getName());
 		System.out.println(flagInfo);
-		objInfo.put("value", flagInfo.toString());
-		
+		System.out.println("MAPP::: "+obj.toString());
+		objInfo.put("value", obj);
+
 		return objInfo;
 		
+	}
+
+	@RequestMapping(method=RequestMethod.GET, value="/flag/{flag_key}/modification")
+	public void getFlagModification(HttpServletRequest request, @PathVariable String flag_key){
+		visitor.activateModification(flag_key);
+	}
+
+	@RequestMapping(method=RequestMethod.GET, value="/flag/{flag_key}/updateContext" )
+	public void getFlagUpdateContext(HttpServletRequest request, @PathVariable String flag_key, @RequestParam String type, @RequestParam String value) {
+
+		String error = "";
+
+		visitor = (Visitor) request.getAttribute("Visitor");
+
+		switch(type) {
+
+			case "bool":
+				visitor.updateContext(flag_key, Boolean.parseBoolean(value));
+				break;
+
+			case "string":
+				visitor.updateContext(flag_key, value);
+				break;
+
+			case "number":
+				visitor.updateContext(flag_key, Double.parseDouble(value));
+				break;
+			default:
+				error = "Type"+ type + "not handled";
+		}
+
+		if(error != "") {
+			error = "there is an error";
+		}
 	}
 }

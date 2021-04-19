@@ -19,36 +19,27 @@ import com.springboot.model.Environment;
 @RestController
 public class EnvironmentController {
 	
-	private static final String Env = "Environment";
-	private static Environment currentEnv = new Environment("","", 0, 0);
+	private static final String EnvironmentConstant = "Environment";
 	
 	@RequestMapping(method=RequestMethod.GET, value="/env")
 	public ResponseEntity<Environment> getEnvironment(final HttpSession session) {
 		  
-        final Environment envAttribut = (Environment) session.getAttribute(Env);
+        final Environment environmentAttribute = (Environment) session.getAttribute(EnvironmentConstant);
         
-        if(envAttribut != null) {
-        	System.out.println(envAttribut.toString());
-        }
-        
-        return new ResponseEntity<Environment>(currentEnv, HttpStatus.OK);
+        return new ResponseEntity<Environment>(environmentAttribute, HttpStatus.OK);
 	}
 	
 	@RequestMapping(method=RequestMethod.PUT, value="/env")
-	public Environment setEnvironment(@RequestBody Environment env, final HttpServletRequest request) {
+	public Environment setEnvironment(@RequestBody Environment environmentModel, final HttpServletRequest request) {
 		
-		currentEnv = env;
+		request.getSession().setAttribute(EnvironmentConstant, environmentModel);
 		
-		request.getSession().setAttribute(Env, currentEnv);
-		
-		//Flagship.start(currentEnv.getEnvironment_id(), currentEnv.getApi_key());
-		
-		Flagship.start(currentEnv.getEnvironment_id(), currentEnv.getApi_key(), new FlagshipConfig()
+		Flagship.start(environmentModel.getEnvironment_id(), environmentModel.getApi_key(), new FlagshipConfig()
 	              .withFlagshipMode(Flagship.Mode.DECISION_API)
 	              .withLogMode(LogManager.LogMode.ALL)
-	              .withTimeout(currentEnv.getTimeout()));
+	              .withTimeout(environmentModel.getTimeout()));
 		
-		return currentEnv;
+		return environmentModel;
 		
 	}
 }

@@ -87,13 +87,10 @@ public class FlagController {
 
 		JSONObject flagInfo = null;
 		Map<String, Object> objInfo = new HashMap<String, Object>();
-		Map obj = new HashMap<String, Object>();
+		Map flagInfoContent = new HashMap<String, Object>();
 		flagInfo = visitor.getModificationInfo(flag_key);
-		obj = flagInfo.toMap();
-		System.out.println(flagInfo.getClass().getName());
-		System.out.println(flagInfo);
-		System.out.println("MAPP::: "+obj.toString());
-		objInfo.put("value", obj);
+		flagInfoContent = flagInfo.toMap();
+		objInfo.put("value", flagInfoContent);
 
 		return objInfo;
 		
@@ -128,8 +125,8 @@ public class FlagController {
 				error = "Type"+ type + "not handled";
 		}
 
-		if(error != "") {
-			error = "there is an error";
-		}
+//		if(error != "") {
+//			error = "there is an error";
+//		}
 	}
 }

@@ -28,7 +28,7 @@ public class HitController {
 		Item item;
 		Transaction transaction;
 		
-		Visitor vis = (Visitor) request.getAttribute("HitVisitor");
+		Visitor visitor = (Visitor) request.getAttribute("HitVisitor");
 		
 		switch(env.get("t").toString()) {
 		
@@ -52,7 +52,7 @@ public class HitController {
 				}
 				
 				System.out.println("screen " + screen);
-				vis.sendHit(screen);
+				visitor.sendHit(screen);
 				break;
 			
 			case "PAGE":
@@ -75,7 +75,7 @@ public class HitController {
 				}
 					
 				System.out.println("page " + page);
-				vis.sendHit(page);
+				visitor.sendHit(page);
 				break;
 				
 			case "EVENT":
@@ -106,7 +106,7 @@ public class HitController {
 				}
 				
 				System.out.println("event " + event);
-				vis.sendHit(event);
+				visitor.sendHit(event);
 				break;
 			
 			case "ITEM":
@@ -142,7 +142,7 @@ public class HitController {
 				}
 				
 				System.out.println("item " + item);
-				vis.sendHit(item);
+				visitor.sendHit(item);
 				break;
 				
 			case "TRANSACTION":
@@ -197,7 +197,7 @@ public class HitController {
 				}
 				
 				System.out.println("transaction " + transaction);
-				vis.sendHit(transaction);
+				visitor.sendHit(transaction);
 				break;
 				
 		}

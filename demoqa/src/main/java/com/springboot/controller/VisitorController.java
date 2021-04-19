@@ -18,30 +18,23 @@ import java.util.concurrent.CountDownLatch;
 @RestController
 public class VisitorController {
 
-	private static final String Vis = "Visitor";
-	private static com.springboot.model.Visitor currentVisitor = new com.springboot.model.Visitor("", null);
+	private static final String VisitorConstant = "Visitor";
 	public static Visitor visitor;
 	
 	@RequestMapping(method=RequestMethod.GET, value="/visitor")
-	public ResponseEntity<com.springboot.model.Visitor> getEnvironement(final HttpSession session) {
+	public ResponseEntity<com.springboot.model.Visitor> getEnvironment(final HttpSession session) {
 		
-        final com.springboot.model.Visitor visAttribut = (com.springboot.model.Visitor) session.getAttribute(Vis);
+        final com.springboot.model.Visitor visitorAttribute = (com.springboot.model.Visitor) session.getAttribute(VisitorConstant);
         
-        if(visAttribut != null) {
-        	System.out.println(visAttribut.toString());
-        }
-        
-        return new ResponseEntity<com.springboot.model.Visitor>(currentVisitor, HttpStatus.OK);
+        return new ResponseEntity<com.springboot.model.Visitor>(visitorAttribute, HttpStatus.OK);
 	}
 	
 	@RequestMapping(method=RequestMethod.PUT, value="/visitor")
-	public String setVisitor(@RequestBody com.springboot.model.Visitor vis, final HttpServletRequest request) throws InterruptedException {
+	public String setVisitor(@RequestBody com.springboot.model.Visitor visitorModel, final HttpServletRequest request) throws InterruptedException {
+
+		request.getSession().setAttribute(VisitorConstant, visitorModel);
 		
-		currentVisitor = vis;
-		
-		request.getSession().setAttribute(Vis, currentVisitor);
-		
-		visitor = Flagship.newVisitor(currentVisitor.getVisitor_id(), currentVisitor.getContext());
+		visitor = Flagship.newVisitor(visitorModel.getVisitor_id(), visitorModel.getContext());
 
 		CountDownLatch latch = new CountDownLatch(1);
 		visitor.synchronizeModifications(new Visitor.OnSynchronizedListener() {
@@ -51,7 +44,7 @@ public class VisitorController {
 			}
 		});
 		latch.await();
-//		request.getSession().setAttribute(Vis, new );
+
 		return visitor.toString();
 	}
 }

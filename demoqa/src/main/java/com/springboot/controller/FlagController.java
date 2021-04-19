@@ -125,8 +125,5 @@ public class FlagController {
 				error = "Type"+ type + "not handled";
 		}
 
-//		if(error != "") {
-//			error = "there is an error";
-//		}
 	}
 }

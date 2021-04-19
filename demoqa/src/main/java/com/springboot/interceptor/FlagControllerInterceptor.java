@@ -38,14 +38,8 @@ public class FlagControllerInterceptor implements HandlerInterceptor {
 				latch.countDown();
 			}
 		});
-//		visitor.updateContext("postcode", "31200", () -> {
-//		    System.out.println("Synchronized");
-//		    latch.countDown();
-//		});
-		
+
 		latch.await();
-			
-		//visitor.synchronizeModifications(null);
 		
 		request.setAttribute("Visitor", visitor);
 		 

@@ -214,9 +214,34 @@ var app = new Vue({
                             }
                         );
         },
+        getLogs() {
+            this.$http
+                .get(`/logs`)
+                .then(
+                    (response) => {
+                        this.data = response.bodyText;
+                    },
+                    (response) => {
+                        this.data = response.bodyText;
+                    }
+                );
+        },
+        clearLogs() {
+            this.$http
+                .get(`/clear`)
+                .then(
+                    (response) => {
+                        this.data = response.bodyText;
+                    },
+                    (response) => {
+                        this.data = response.bodyText;
+                    }
+                );
+        }
     },
     mounted() {
         this.getEnv();
         this.getVisitor();
+        this.getLogs();
     },
 });

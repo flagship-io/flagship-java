@@ -3,7 +3,7 @@ package com.springboot.controller;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import com.springboot.service.LogHelper;
+//import com.springboot.service.LogHelper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,17 +35,17 @@ public class EnvironmentController {
 
         request.getSession().setAttribute(EnvironmentConstant, environmentModel);
 
-        LogHelper.clearLogFile();
+        //LogHelper.clearLogFile();
         Flagship.start(environmentModel.getEnvironment_id(), environmentModel.getApi_key(), new FlagshipConfig()
                 .withFlagshipMode(Flagship.Mode.DECISION_API)
                 .withLogLevel(LogManager.Level.ALL)
-                .withTimeout(environmentModel.getTimeout())
-                .withLogManager(new LogManager() {
-					@Override
-					public void onLog(Level level, String tag, String message) {
-						LogHelper.appendToLogFile(level, tag, message);
-					}
-				}));
+                .withTimeout(environmentModel.getTimeout()));
+                //.withLogManager(new LogManager() {
+				//	@Override
+				//	public void onLog(Level level, String tag, String message) {
+				//		//LogHelper.appendToLogFile(level, tag, message);
+				//	}
+				//}));
 
         return environmentModel;
 

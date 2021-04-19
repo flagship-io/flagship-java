@@ -19,7 +19,7 @@ public class Flagship {
 
     public enum Mode {
         DECISION_API,
-//        BUCKETING,
+        BUCKETING,
     }
 
     public enum Status {

@@ -28,6 +28,7 @@ public final class FlagshipConstants {
         public static String HIT_INVALID_DATA_ERROR = "'%s' hit invalid format error. \n %s";
         public static String PANIC = "Panic mode is on.";
         public static String PANIC_ERROR = "'%s' deactivated while panic mode is on.";
+        public static String CONFIGURATION_POLLING_ERROR = "Setting a polling interval is only available for Bucketing Mode.";
     }
 
     public static class HitKeyMap {

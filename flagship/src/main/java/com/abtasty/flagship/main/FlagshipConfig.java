@@ -2,9 +2,13 @@ package com.abtasty.flagship.main;
 
 import com.abtasty.flagship.api.TrackingManager;
 import com.abtasty.flagship.decision.ApiManager;
+import com.abtasty.flagship.decision.BucketingManager;
 import com.abtasty.flagship.decision.DecisionManager;
+import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.LogManager;
 import com.abtasty.flagship.utils.FlagshipLogManager;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * Flagship SDK configuration class to provide at initialization.
@@ -41,7 +45,7 @@ public class FlagshipConfig {
     }
 
     private void init() {
-        this.decisionManager = (this.decisionMode == Flagship.Mode.DECISION_API) ? new ApiManager() : null;
+        this.decisionManager = (this.decisionMode == Flagship.Mode.DECISION_API) ? new ApiManager() : new BucketingManager();
     }
 
     /**
@@ -108,6 +112,21 @@ public class FlagshipConfig {
     public FlagshipConfig withTimeout(int timeout) {
         if (timeout > 0)
             this.timeout = timeout;
+        return this;
+    }
+
+    /**
+     * Define time interval between two bucketing updates. Default is 60 seconds.
+     * @param value time value.
+     * @param unit time unit.
+     * @return FlagshipConfig
+     */
+    public FlagshipConfig withBucketingPollingIntervals(long value, TimeUnit unit) {
+        if (value > 0 && unit != null && decisionMode == Flagship.Mode.BUCKETING && decisionManager instanceof BucketingManager) {
+
+        } else if (logManager != null) {
+            logManager.onLog(LogManager.Level.WARNING, FlagshipLogManager.Tag.CONFIGURATION.getName(), FlagshipConstants.Errors.CONFIGURATION_POLLING_ERROR);
+        }
         return this;
     }
 

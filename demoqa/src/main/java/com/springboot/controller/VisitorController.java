@@ -37,11 +37,9 @@ public class VisitorController {
 		visitor = Flagship.newVisitor(visitorModel.getVisitor_id(), visitorModel.getContext());
 
 		CountDownLatch latch = new CountDownLatch(1);
-		visitor.synchronizeModifications(new Visitor.OnSynchronizedListener() {
-			@Override
-			public void onSynchronized() {
-				latch.countDown();
-			}
+
+		visitor.synchronizeModifications().whenComplete((instance, error)->{
+			latch.countDown();
 		});
 		latch.await();
 

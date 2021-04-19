@@ -32,11 +32,9 @@ public class FlagControllerInterceptor implements HandlerInterceptor {
 		visitor = Flagship.newVisitor(visAttribut.getVisitor_id(), visAttribut.getContext());
 		
 		CountDownLatch latch = new CountDownLatch(1);
-		visitor.synchronizeModifications(new Visitor.OnSynchronizedListener() {
-			@Override
-			public void onSynchronized() {
-				latch.countDown();
-			}
+
+		visitor.synchronizeModifications().whenComplete((instance, error)->{
+			latch.countDown();
 		});
 
 		latch.await();
@@ -59,7 +57,7 @@ public class FlagControllerInterceptor implements HandlerInterceptor {
 	@Override
 	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
 			throws Exception {
-		// TODO Auto-generated method stub
+
 		log.info("FlagInterceptor - afterCompleting");
 		HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
 	}

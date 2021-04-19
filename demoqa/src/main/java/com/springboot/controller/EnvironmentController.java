@@ -36,7 +36,7 @@ public class EnvironmentController {
 		
 		Flagship.start(environmentModel.getEnvironment_id(), environmentModel.getApi_key(), new FlagshipConfig()
 	              .withFlagshipMode(Flagship.Mode.DECISION_API)
-	              .withLogMode(LogManager.LogMode.ALL)
+	              .withLogLevel(LogManager.Level.ALL)
 	              .withTimeout(environmentModel.getTimeout()));
 		
 		return environmentModel;

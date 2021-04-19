@@ -32,15 +32,14 @@ public class HitControllerInterceptor implements HandlerInterceptor{
 	
 		visitor = Flagship.newVisitor(visAttribut.getVisitor_id(), visAttribut.getContext());
 		CountDownLatch latch = new CountDownLatch(1);
-		visitor.updateContext("postcode", "31200", () -> {
-		    System.out.println("Synchronized");
-		    latch.countDown();
+
+		visitor.synchronizeModifications().whenComplete((instance, error)->{
+			latch.countDown();
+			System.out.println("Synchronized");
 		});
 
 		latch.await();
-		
-		//visitor.synchronizeModifications(null);
-		
+
 		request.setAttribute("HitVisitor", visitor);
 		 
 		 log.info("HitInterceptor - prehandler ENDS");
@@ -51,15 +50,15 @@ public class HitControllerInterceptor implements HandlerInterceptor{
 	@Override
 	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
 			ModelAndView modelAndView) throws Exception {
+
 		log.info("HitInterceptor - posthandler");
-	
 		HandlerInterceptor.super.postHandle(request, response, handler, modelAndView);
 	}
 	
 	@Override
 	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
 			throws Exception {
-		// TODO Auto-generated method stub
+
 		log.info("HitInterceptor - afterCompleting");
 		HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
 	}

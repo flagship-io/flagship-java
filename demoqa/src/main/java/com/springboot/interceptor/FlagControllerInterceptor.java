@@ -27,9 +27,9 @@ public class FlagControllerInterceptor implements HandlerInterceptor {
 		
 		log.info("FlagInterceptor - prehandler BEGIN");
 		
-		final com.springboot.model.Visitor visAttribut = (com.springboot.model.Visitor) request.getSession().getAttribute(Vis);
+		final com.springboot.model.Visitor visitorAttribut = (com.springboot.model.Visitor) request.getSession().getAttribute(Vis);
 	
-		visitor = Flagship.newVisitor(visAttribut.getVisitor_id(), visAttribut.getContext());
+		visitor = Flagship.newVisitor(visitorAttribut.getVisitor_id(), visitorAttribut.getContext());
 		
 		CountDownLatch latch = new CountDownLatch(1);
 
@@ -38,7 +38,7 @@ public class FlagControllerInterceptor implements HandlerInterceptor {
 		});
 
 		latch.await();
-		
+
 		request.setAttribute("Visitor", visitor);
 		 
 		 log.info("FlagInterceptor - prehandler ENDS");

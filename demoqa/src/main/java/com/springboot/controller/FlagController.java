@@ -3,6 +3,7 @@ package com.springboot.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -96,7 +97,7 @@ public class FlagController {
 		
 	}
 
-	@RequestMapping(method=RequestMethod.GET, value="/flag/{flag_key}/modification")
+	@RequestMapping(method=RequestMethod.GET, value="/flag/{flag_key}/activate")
 	public void getFlagModification(HttpServletRequest request, @PathVariable String flag_key){
 		visitor.activateModification(flag_key);
 	}
@@ -112,14 +113,32 @@ public class FlagController {
 
 			case "bool":
 				visitor.updateContext(flag_key, Boolean.parseBoolean(value));
+
+				visitor.synchronizeModifications().whenComplete((instance, err)->{
+					System.out.println("Synchronized");
+				});
+
+				System.out.println(flag_key + type + value);
 				break;
 
 			case "string":
 				visitor.updateContext(flag_key, value);
+
+				visitor.synchronizeModifications().whenComplete((instance, err)->{
+					System.out.println("Synchronized");
+				});
+
+				System.out.println(flag_key + type + value);
 				break;
 
 			case "number":
 				visitor.updateContext(flag_key, Double.parseDouble(value));
+
+				visitor.synchronizeModifications().whenComplete((instance, err)->{
+					System.out.println("Synchronized");
+				});
+
+				System.out.println(flag_key + type + value);
 				break;
 			default:
 				error = "Type"+ type + "not handled";

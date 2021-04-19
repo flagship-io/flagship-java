@@ -154,7 +154,6 @@ var app = new Vue({
                 `/flag/${name}/info`
             ).then(
                 (response) => {
-                    console.log(response.body.value);
                     this.flagInfoOk = response.body.value;
                 },
                 (response) => {
@@ -205,7 +204,7 @@ var app = new Vue({
                     console.log(this.flagModification);
 
                     this.$http
-                        .get(`/flag/${name}/modification`)
+                        .get(`/flag/${name}/activate`)
                         .then(
                             (response) => {
                                 this.flagModificationOk = response.body;

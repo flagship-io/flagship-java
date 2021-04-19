@@ -33,24 +33,28 @@ public abstract class Hit<T> {
 
     public abstract boolean checkData();
 
+    @SuppressWarnings("unchecked")
     public T withIp(String ip) {
         if (ip != null)
             this.data.put(FlagshipConstants.HitKeyMap.IP, ip);
         return (T) this;
     }
 
+    @SuppressWarnings("unchecked")
     public T withResolution(int width, int height) {
         if (width > 0 && height > 0)
             this.data.put(FlagshipConstants.HitKeyMap.DEVICE_RESOLUTION, String.format("%dx%d", width, height));
         return (T) this;
     }
 
+    @SuppressWarnings("unchecked")
     public T withSessionNumber(int number) {
         if (number > 0)
             this.data.put(FlagshipConstants.HitKeyMap.SESSION_NUMBER, number);
         return (T) this;
     }
 
+    @SuppressWarnings("unchecked")
     public T withLocale(String locale) {
         if (locale != null)
             this.data.put(FlagshipConstants.HitKeyMap.DEVICE_LOCALE, locale);

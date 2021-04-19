@@ -1,18 +1,16 @@
 package com.abtasty.flagship.decision;
 
 import com.abtasty.flagship.BuildConfig;
-import com.abtasty.flagship.api.HttpHelper;
+import com.abtasty.flagship.api.HttpManager;
 import com.abtasty.flagship.api.Response;
 import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.model.Campaign;
-import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.FlagshipLogManager;
+import com.abtasty.flagship.utils.LogManager;
 import org.json.JSONObject;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.logging.Level;
+import java.util.concurrent.ConcurrentMap;
 
 public class ApiManager extends DecisionManager {
 
@@ -20,7 +18,7 @@ public class ApiManager extends DecisionManager {
     }
 
     @Override
-    public ArrayList<Campaign> getCampaigns(String envId, String visitorId, HashMap<String, Object> context) {
+    public ArrayList<Campaign> getCampaigns(String envId, String visitorId, ConcurrentMap<String, Object> context) {
 
         HashMap<String, String> headers = new HashMap<String, String>();
         headers.put("x-api-key", Flagship.getConfig().getApiKey());
@@ -34,37 +32,22 @@ public class ApiManager extends DecisionManager {
         json.put("visitorId", visitorId);
         json.put("trigger_hit", false);
         json.put("context", jsonContext);
-        ArrayList<Campaign> campaigns  = new ArrayList<Campaign>();
+        ArrayList<Campaign> campaigns = new ArrayList<Campaign>();
         try {
-            Response response = HttpHelper.sendHttpRequest(HttpHelper.RequestType.POST,
+            Response response = HttpManager.getInstance().sendHttpRequest(HttpManager.RequestType.POST,
                     DECISION_API + envId + CAMPAIGNS,
                     headers,
                     json.toString(),
                     Flagship.getConfig().getTimeout());
-            if (response != null) {
-                logResponse(response);
-                setPanic(checkPanicResponse(response.getResponseContent()));
-                if (!isPanic()) {
-                    ArrayList<Campaign> newCampaigns = parseCampaigns(response.getResponseContent());
-                    if (newCampaigns != null)
-                        campaigns.addAll(newCampaigns);
-                } else
-                    FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, Level.WARNING, FlagshipConstants.Errors.PANIC);
-            }
-        } catch (IOException e) {
-            FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, Level.SEVERE, e.getMessage());
+            logResponse(response);
+            ArrayList<Campaign> newCampaigns = parseCampaignsResponse(response.getResponseContent());
+            if (newCampaigns != null)
+                campaigns.addAll(newCampaigns);
+        } catch (Exception e) {
+            e.printStackTrace();
+            FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, LogManager.Level.ERROR, e.getMessage());
         }
         return campaigns;
-    }
-
-    private boolean checkPanicResponse(String content) {
-        try {
-            JSONObject json = new JSONObject(content);
-            return json.has("panic");
-        } catch (Exception e) {
-            FlagshipLogManager.log(FlagshipLogManager.Tag.PARSING, Level.SEVERE, FlagshipConstants.Errors.PARSING_CAMPAIGN_ERROR);
-        }
-        return false;
     }
 
     private void logResponse(Response response) {
@@ -75,12 +58,10 @@ public class ApiManager extends DecisionManager {
         } catch (Exception e) {
             content = response.getResponseContent();
         }
-        StringBuilder message = new StringBuilder();
-        message.append("[" + response.getType() + "]")
-                .append(" " + response.getRequestUrl() + " ")
-                .append("[" + response.getResponseCode() + "]")
-                .append("\n")
-                .append(content);
-        FlagshipLogManager.log(FlagshipLogManager.Tag.CAMPAIGNS, response.isSuccess() ? Level.INFO : Level.SEVERE, message.toString());
+        String message = String.format("[%s] %s [%d] [%dms]\n %s", response.getType(), response.getRequestUrl(),
+                response.getResponseCode(), response.getResponseTime(), content);
+        FlagshipLogManager.log(FlagshipLogManager.Tag.CAMPAIGNS, response.isSuccess() ?
+                LogManager.Level.DEBUG : LogManager.Level.ERROR, message.toString());
+
     }
 }

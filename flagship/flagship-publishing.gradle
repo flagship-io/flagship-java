@@ -4,14 +4,6 @@ apply plugin: "com.jfrog.artifactory"
 //./gradlew release
 artifactoryPublish.skip = true
 
-task release {
-
-    dependsOn 'clean'
-    dependsOn 'assemble'
-    dependsOn 'test'
-    dependsOn 'artifactoryPublish'
-}
-
 artifactory {
     contextUrl = 'https://abtasty.jfrog.io/artifactory/'
     publish {

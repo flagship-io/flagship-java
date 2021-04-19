@@ -3,7 +3,7 @@ package com.abtasty.flagship.utils;
 public final class FlagshipConstants {
 
     public static class Info {
-        public static String STARTED = "Flagship SDK (version: %s) started.";
+        public static String STARTED = "Flagship SDK (version: %s) READY";
     }
 
     public static class Errors {

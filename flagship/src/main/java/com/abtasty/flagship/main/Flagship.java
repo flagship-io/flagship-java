@@ -1,35 +1,47 @@
 package com.abtasty.flagship.main;
 
 import com.abtasty.flagship.BuildConfig;
+import com.abtasty.flagship.api.HttpManager;
 import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.FlagshipLogManager;
-
+import com.abtasty.flagship.utils.LogManager;
 import java.util.HashMap;
-import java.util.logging.Level;
 
 /**
  * Flagship main singleton.
  */
 public class Flagship {
 
-    private static Flagship instance = null;
+    private static volatile Flagship    instance = null;
 
-    private FlagshipConfig  config = null;
+    private FlagshipConfig              config = null;
+    private Status                      status = Status.NOT_READY;
 
     public enum Mode {
         DECISION_API,
 //        BUCKETING,
     }
 
+    public enum Status {
+        /**
+         * Flaghsip SDK has not been started or initialized successfully.
+         */
+        NOT_READY,
+//        /**
+//         * Flagship SDK is in panic mode.
+//         */
+//         READY_PANIC_ON,
+        /**
+         * Flagship SDK is ready to use.
+         */
+        READY
+    }
+
     protected static Flagship instance() {
         if (instance == null) {
             synchronized (Flagship.class) {
-                Flagship inst = instance;
-                if (inst == null) {
-                    synchronized (Flagship.class) {
-                        instance = new Flagship();
-                    }
-                }
+                if (instance == null)
+                    instance = new Flagship();
             }
         }
         return instance;
@@ -44,7 +56,7 @@ public class Flagship {
     /**
      * Start the flagship SDK, with the default configuration.
      *
-     * @param envId : Environment id provided by Flagship.
+     * @param envId  : Environment id provided by Flagship.
      * @param apiKey : Secure api key provided by Flagship.
      */
     public static void start(String envId, String apiKey) {
@@ -54,7 +66,7 @@ public class Flagship {
     /**
      * Start the flagship SDK, with a custom configuration implementation.
      *
-     * @param envId : Environment id provided by Flagship.
+     * @param envId  : Environment id provided by Flagship.
      * @param apiKey : Secure api key provided by Flagship.
      * @param config : SDK configuration. @see FlagshipConfig
      */
@@ -64,26 +76,35 @@ public class Flagship {
         config.withEnvId(envId);
         config.withApiKey(apiKey);
         if (config.getEnvId() == null || config.getApiKey() == null)
-            FlagshipLogManager.log(FlagshipLogManager.Tag.INITIALIZATION, Level.SEVERE, FlagshipConstants.Errors.INITIALIZATION_PARAM_ERROR);
+            FlagshipLogManager.log(FlagshipLogManager.Tag.INITIALIZATION, LogManager.Level.ERROR, FlagshipConstants.Errors.INITIALIZATION_PARAM_ERROR);
         instance().setConfig(config);
-        if (isReady())
-            FlagshipLogManager.log(FlagshipLogManager.Tag.INITIALIZATION, Level.INFO, String.format(FlagshipConstants.Info.STARTED, BuildConfig.flagship_version_name));
+        if (isReady()) {
+            FlagshipLogManager.log(FlagshipLogManager.Tag.INITIALIZATION, LogManager.Level.INFO, String.format(FlagshipConstants.Info.STARTED, BuildConfig.flagship_version_name));
+            instance().setStatus(Status.READY);
+        } else
+            instance().setStatus(Status.NOT_READY);
     }
 
-    /**
-     *  Check if the SDK is ready to use.
-     * @return boolean ready.
-     */
-    public static Boolean isReady() {
+    public static Status getStatus() {
+        return instance().status;
+    }
+
+    protected void setStatus(Status status) {
+        this.status = status;
+    }
+
+    private static Boolean isReady() {
         return instance != null &&
                 instance.config != null &&
                 instance.config.getApiKey() != null &&
                 instance.config.getEnvId() != null &&
-                instance.config.getDecisionManager() != null;
+                instance.config.getDecisionManager() != null &&
+                HttpManager.getInstance().isReady();
     }
 
     /**
      * Return the current used configuration.
+     *
      * @return FlagshipConfig
      */
     public static FlagshipConfig getConfig() {
@@ -92,6 +113,7 @@ public class Flagship {
 
     /**
      * Create a new visitor without context.
+     *
      * @param visitorId : Unique visitor identifier.
      * @return Visitor
      */
@@ -101,8 +123,9 @@ public class Flagship {
 
     /**
      * Create a new visitor with a context.
+     *
      * @param visitorId : Unique visitor identifier.
-     * @param context : visitor context.
+     * @param context   : visitor context.
      * @return Visitor
      */
     public static Visitor newVisitor(String visitorId, HashMap<String, Object> context) {

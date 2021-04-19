@@ -11,7 +11,6 @@
 .mtj.tmp/
 
 # Package Files #
-*.jar
 *.war
 *.nar
 *.ear
@@ -29,15 +28,15 @@ out/
 build/classes
 build/generated
 build/tmp
+demo/build/
 demo/build/classes
 demo/build/generated
 demo/build/tmp
-flagship/build/classes
+flagship/build/classes/
 flagship/build/generated
-flagship/build/libs
-flagship/build/tmp
+flagship/build/tmp/
 build/moduleInfo.json
 flagship/build/moduleInfo.json
 flagship/build/publications
-flagship/build/reports
-flagship/build/test-results
+flagship/build/reports/
+flagship/build/test-results/

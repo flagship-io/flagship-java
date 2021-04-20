@@ -208,10 +208,10 @@ var app = new Vue({
                         .get(`/flag/${name}/activate`)
                         .then(
                             (response) => {
-                                this.flagModificationOk = response.body;
+                                this.flagModificationOk = response.body.activateValue;
                             },
                             (response) => {
-                                this.flagModificationOk = response.body;
+                                this.flagModificationOk = response.body.activateValue;
                             }
                         );
         },

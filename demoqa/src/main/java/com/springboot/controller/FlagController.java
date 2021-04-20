@@ -90,19 +90,35 @@ public class FlagController {
 		Map<String, Object> objInfo = new HashMap<String, Object>();
 		Map flagInfoContent = new HashMap<String, Object>();
 		flagInfo = visitor.getModificationInfo(flag_key);
-		flagInfoContent = flagInfo.toMap();
-		objInfo.put("value", flagInfoContent);
+
+		if(flagInfo == null){
+			objInfo.put("value", "Key doesn't exist");
+		}
+		else{
+			flagInfoContent = flagInfo.toMap();
+			objInfo.put("value", flagInfoContent);
+		}
 
 		return objInfo;
 		
 	}
 
 	@RequestMapping(method=RequestMethod.GET, value="/flag/{flag_key}/activate")
-	public void getFlagModification(HttpServletRequest request, @PathVariable String flag_key){
-		visitor.activateModification(flag_key);
-		visitor.synchronizeModifications().whenComplete((instance, err)->{
-			System.out.println("Synchronized");
-		});
+	public Object getFlagModification(HttpServletRequest request, @PathVariable String flag_key){
+		JSONObject flagInfo = null;
+		Map<String, Object> objInfo = new HashMap<String, Object>();
+		flagInfo = visitor.getModificationInfo(flag_key);
+		if(flagInfo != null){
+			visitor.activateModification(flag_key);
+			visitor.synchronizeModifications().whenComplete((instance, err)->{
+				System.out.println("Synchronized");
+			});
+			objInfo.put("activateValue", "Valide");
+		}
+		else{
+			objInfo.put("activateValue", "InValide");
+		}
+		return objInfo;
 	}
 
 	@RequestMapping(method=RequestMethod.GET, value="/flag/{flag_key}/updateContext" )
@@ -121,7 +137,6 @@ public class FlagController {
 					System.out.println("Synchronized");
 				});
 
-				System.out.println(flag_key + type + value);
 				break;
 
 			case "string":
@@ -131,7 +146,6 @@ public class FlagController {
 					System.out.println("Synchronized");
 				});
 
-				System.out.println(flag_key + type + value);
 				break;
 
 			case "number":
@@ -141,8 +155,8 @@ public class FlagController {
 					System.out.println("Synchronized");
 				});
 
-				System.out.println(flag_key + type + value);
 				break;
+
 			default:
 				error = "Type"+ type + "not handled";
 		}

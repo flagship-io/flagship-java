@@ -20,13 +20,13 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <a class="navbar-brand" href="#">Flagship Java SDK Web demo</a>
     <button
-            class="navbar-toggler"
-            type="button"
-            data-toggle="collapse"
-            data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
     >
         <span class="navbar-toggler-icon"></span>
     </button>
@@ -47,17 +47,17 @@
 </nav>
 
 <div class="container mt-5 mb-5" id="app">
-    <h2 class="mt-5">SDK logs</h2>
-    <form v-on:submit.prevent="clearLogs()">
-        <button type="submit" class="btn btn-primary">clear</button>
-    </form>
-  <br />
-    <form v-on:submit.prevent="getLogs()">
-        <button type="submit" class="btn btn-primary">refresh</button>
-        <br/><br/>
-        <textarea
-                class="form-control">{{data}}</textarea>
-    </form>
+    <div style="position: relative;">
+        <h2 class="mt-5">SDK logs</h2>
+        <form v-on:submit.prevent="clearLogs()">
+            <button type="submit" class="btn btn-primary" style="position: absolute; right: 0px;">clear</button>
+        </form>
+        <form v-on:submit.prevent="getLogs()">
+            <button type="submit" class="btn btn-primary">refresh</button>
+            <br/><br/>
+            <textarea class="form-control" style="height: 564px;">{{data}}</textarea>
+        </form>
+    </div>
 </div>
 
 

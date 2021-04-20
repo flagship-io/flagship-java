@@ -163,6 +163,7 @@ var app = new Vue({
         },
         getUpdateContext() {
             this.flagUpdateContextOk = false;
+            this.data = null;
 
             const { name, type, value } = this.flagUpdateContext;
 
@@ -185,10 +186,10 @@ var app = new Vue({
                 )
                 .then(
                     (response) => {
-                        this.flagUpdateContextOk = response.body;
+                        this.data = response.body
                     },
                     (response) => {
-                        this.flagUpdateContextOk = response.body;
+                        this.data = response.body
                     }
                 );
         },

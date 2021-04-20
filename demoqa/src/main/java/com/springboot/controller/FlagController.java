@@ -100,10 +100,13 @@ public class FlagController {
 	@RequestMapping(method=RequestMethod.GET, value="/flag/{flag_key}/activate")
 	public void getFlagModification(HttpServletRequest request, @PathVariable String flag_key){
 		visitor.activateModification(flag_key);
+		visitor.synchronizeModifications().whenComplete((instance, err)->{
+			System.out.println("Synchronized");
+		});
 	}
 
 	@RequestMapping(method=RequestMethod.GET, value="/flag/{flag_key}/updateContext" )
-	public void getFlagUpdateContext(HttpServletRequest request, @PathVariable String flag_key, @RequestParam String type, @RequestParam String value) {
+	public String getFlagUpdateContext(HttpServletRequest request, @PathVariable String flag_key, @RequestParam String type, @RequestParam String value) {
 
 		String error = "";
 
@@ -143,6 +146,8 @@ public class FlagController {
 			default:
 				error = "Type"+ type + "not handled";
 		}
+
+		return visitor.toString();
 
 	}
 }

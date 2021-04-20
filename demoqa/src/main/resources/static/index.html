@@ -144,13 +144,16 @@
         </div>
 
         <button type="submit" class="btn btn-primary">Submit</button>
-        <div v-if="data">
-          Visitor Context :
+        <div v-if="data && data.visitor">
+          <br />
+          <h2 class="mt-5">Visitor content:</h2>
         </div>
-        <pre class="mt-3" v-if="data">{{JSON.stringify(data, null, 4)}}</pre>
+        <pre class="mt-3" v-if="data && data.visitor">{{JSON.stringify(data.visitor, null, 4)}}</pre>
       </form>
 
       <h2 class="mt-5">Stand alone update context</h2>
+      <small class="form-text text-muted">(Will also call synchronize)</small>
+      <br />
       <form v-on:submit.prevent="getUpdateContext()">
         <div class="row" style="align-items: center">
           <div class="col-sm-3">
@@ -208,6 +211,7 @@
       </form>
 
       <h2 class="mt-5">Then, get a Flag Value</h2>
+      <br />
       <form v-on:submit.prevent="getFlag()">
         <div class="row" style="align-items: center">
           <div class="col-sm-3">
@@ -277,6 +281,7 @@
       </form>
 
       <h2 class="mt-5">Stand alone activate modification</h2>
+      <br />
       <form v-on:submit.prevent="getModification()">
         <div class="row" style="align-items: center">
           <div class="col-sm-3">
@@ -309,6 +314,7 @@
       </form>
 
       <h2 class="mt-5">Get modification information</h2>
+      <br />
       <form v-on:submit.prevent="getFlagInfo()">
         <div class="row" style="align-items: center">
           <div class="col-sm-3">

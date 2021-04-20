@@ -80,7 +80,8 @@ var app = new Vue({
                 .then(
                     (response) => {
                         // get body data
-                        this.data = response.body;
+                        this.data = {}
+                        this.data.visitor = response.body;
                         this.visitorOk = true;
                     },
                     (response) => {
@@ -186,10 +187,12 @@ var app = new Vue({
                 )
                 .then(
                     (response) => {
-                        this.data = response.body
+                        this.data = {}
+                        this.data.visitor = response.body
                     },
                     (response) => {
-                        this.data = response.body
+                        this.data = {}
+                        this.data.visitor = response.body
                     }
                 );
         },
@@ -220,10 +223,12 @@ var app = new Vue({
                 .get(`/logs`)
                 .then(
                     (response) => {
-                        this.data = response.bodyText;
+                        this.data = {}
+                        this.data.logs = response.bodyText;
                     },
                     (response) => {
-                        this.data = response.bodyText;
+                        this.data = {}
+                        this.data.logs = response.bodyText;
                     }
                 );
         },
@@ -232,10 +237,12 @@ var app = new Vue({
                 .get(`/clear`)
                 .then(
                     (response) => {
-                        this.data = response.bodyText;
+                        this.data = {}
+                        this.data.logs = response.bodyText;
                     },
                     (response) => {
-                        this.data = response.bodyText;
+                        this.data = {}
+                        this.data.logs = response.bodyText;
                     }
                 );
         }

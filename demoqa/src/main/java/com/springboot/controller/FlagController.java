@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -113,54 +114,37 @@ public class FlagController {
 			visitor.synchronizeModifications().whenComplete((instance, err)->{
 				System.out.println("Synchronized");
 			});
-			objInfo.put("activateValue", "Valide");
+			objInfo.put("activateValue", "Activation sent.");
 		}
 		else{
-			objInfo.put("activateValue", "InValide");
+			objInfo.put("activateValue", "Key not found, no activation sent.");
 		}
 		return objInfo;
 	}
 
 	@RequestMapping(method=RequestMethod.GET, value="/flag/{flag_key}/updateContext" )
-	public String getFlagUpdateContext(HttpServletRequest request, @PathVariable String flag_key, @RequestParam String type, @RequestParam String value) {
+	public String getFlagUpdateContext(HttpServletRequest request, @PathVariable String flag_key, @RequestParam String type, @RequestParam String value) throws ExecutionException, InterruptedException {
 
 		String error = "";
-
 		visitor = (Visitor) request.getAttribute("Visitor");
 
 		switch(type) {
 
 			case "bool":
 				visitor.updateContext(flag_key, Boolean.parseBoolean(value));
-
-				visitor.synchronizeModifications().whenComplete((instance, err)->{
-					System.out.println("Synchronized");
-				});
-
 				break;
 
 			case "string":
 				visitor.updateContext(flag_key, value);
-
-				visitor.synchronizeModifications().whenComplete((instance, err)->{
-					System.out.println("Synchronized");
-				});
-
 				break;
 
 			case "number":
 				visitor.updateContext(flag_key, Double.parseDouble(value));
-
-				visitor.synchronizeModifications().whenComplete((instance, err)->{
-					System.out.println("Synchronized");
-				});
-
 				break;
-
 			default:
 				error = "Type"+ type + "not handled";
 		}
-
+		visitor.synchronizeModifications().get();
 		return visitor.toString();
 
 	}

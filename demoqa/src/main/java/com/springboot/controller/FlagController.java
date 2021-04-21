@@ -110,12 +110,12 @@ public class FlagController {
 
         JSONObject flagInfo = null;
         Map<String, Object> objInfo = new HashMap<String, Object>();
+        visitor.synchronizeModifications().get();
         flagInfo = visitor.getModificationInfo(flag_key);
 
         if (flagInfo != null) {
 
             visitor.activateModification(flag_key);
-            visitor.synchronizeModifications().get();
             objInfo.put("activateValue", "Activation sent.");
 
         } else {

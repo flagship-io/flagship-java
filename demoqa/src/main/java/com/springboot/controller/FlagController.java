@@ -8,6 +8,7 @@ import java.util.concurrent.ExecutionException;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.springboot.interceptor.FlagControllerInterceptor;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,13 +39,20 @@ public class FlagController {
             case "bool":
                 flag = visitor.getModification(flag_key, Boolean.parseBoolean(defaultValue), activate);
                 break;
-
             case "string":
                 flag = visitor.getModification(flag_key, defaultValue, activate);
                 break;
-
-            case "number":
+            case "double":
                 flag = visitor.getModification(flag_key, Double.parseDouble(defaultValue), activate);
+                break;
+            case "long":
+                flag = visitor.getModification(flag_key, Long.parseLong(defaultValue), activate);
+                break;
+            case "int":
+                flag = visitor.getModification(flag_key, Integer.parseInt(defaultValue), activate);
+                break;
+            case "float":
+                flag = visitor.getModification(flag_key, Float.parseFloat(defaultValue), activate);
                 break;
 
             case "array":
@@ -92,6 +100,7 @@ public class FlagController {
         JSONObject flagInfo = null;
         Map<String, Object> objInfo = new HashMap<String, Object>();
         Map flagInfoContent = new HashMap<String, Object>();
+        visitor = (Visitor) request.getAttribute("Visitor");
         flagInfo = visitor.getModificationInfo(flag_key);
 
         if (flagInfo == null) {
@@ -110,7 +119,8 @@ public class FlagController {
 
         JSONObject flagInfo = null;
         Map<String, Object> objInfo = new HashMap<String, Object>();
-        visitor.synchronizeModifications().get();
+        visitor = (Visitor) request.getAttribute("Visitor");
+//        visitor.synchronizeModifications().get();
         flagInfo = visitor.getModificationInfo(flag_key);
 
         if (flagInfo != null) {
@@ -137,18 +147,29 @@ public class FlagController {
             case "bool":
                 visitor.updateContext(flag_key, Boolean.parseBoolean(value));
                 break;
-
             case "string":
                 visitor.updateContext(flag_key, value);
                 break;
-
-            case "number":
+            case "double":
                 visitor.updateContext(flag_key, Double.parseDouble(value));
+                break;
+            case "long":
+                visitor.updateContext(flag_key, Long.parseLong(value));
+                break;
+            case "int":
+                visitor.updateContext(flag_key, Integer.parseInt(value));
+                break;
+            case "float":
+                visitor.updateContext(flag_key, Float.parseFloat(value));
                 break;
 
         }
         visitor.synchronizeModifications().get();
-        return visitor.toString();
 
+        com.springboot.model.Visitor visitorAttribute = (com.springboot.model.Visitor) request.getSession().getAttribute(FlagControllerInterceptor.Vis);
+        visitorAttribute.setContext(new HashMap<>(visitor.getContext()));
+        request.getSession().setAttribute(FlagControllerInterceptor.Vis, visitorAttribute);
+
+        return visitor.toString();
     }
 }

@@ -17,7 +17,7 @@ import com.abtasty.flagship.main.Visitor;
 @Component
 public class FlagControllerInterceptor implements HandlerInterceptor {
 
-    private static final String Vis = "Visitor";
+    public static final String Vis = "Visitor";
     public static Visitor visitor;
     private static Logger log = LoggerFactory.getLogger(FlagControllerInterceptor.class);
 
@@ -27,9 +27,9 @@ public class FlagControllerInterceptor implements HandlerInterceptor {
 
         log.info("FlagInterceptor - prehandler BEGIN");
 
-        final com.springboot.model.Visitor visitorAttribut = (com.springboot.model.Visitor) request.getSession().getAttribute(Vis);
+        final com.springboot.model.Visitor visitorAttribute = (com.springboot.model.Visitor) request.getSession().getAttribute(Vis);
 
-        visitor = Flagship.newVisitor(visitorAttribut.getVisitor_id(), visitorAttribut.getContext());
+        visitor = Flagship.newVisitor(visitorAttribute.getVisitor_id(), visitorAttribute.getContext());
 
         visitor.synchronizeModifications().get();
 

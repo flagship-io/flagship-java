@@ -15,51 +15,45 @@ import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.main.Visitor;
 
 @Component
-public class HitControllerInterceptor implements HandlerInterceptor{
+public class HitControllerInterceptor implements HandlerInterceptor {
 
-	private static final String Vis = "Visitor";
-	public static Visitor visitor;
-	private static Logger log = LoggerFactory.getLogger(HitControllerInterceptor.class);
+    private static final String Vis = "Visitor";
+    public static Visitor visitor;
+    private static Logger log = LoggerFactory.getLogger(HitControllerInterceptor.class);
 
-	
-	@Override
-	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
-			throws Exception {
-		
-		log.info("HitInterceptor - prehandler BEGIN");
-		
-		final com.springboot.model.Visitor visitorAttribut = (com.springboot.model.Visitor) request.getSession().getAttribute(Vis);
-	
-		visitor = Flagship.newVisitor(visitorAttribut.getVisitor_id(), visitorAttribut.getContext());
-		CountDownLatch latch = new CountDownLatch(1);
 
-		visitor.synchronizeModifications().whenComplete((instance, error)->{
-			latch.countDown();
-			System.out.println("Synchronized");
-		});
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+            throws Exception {
 
-		latch.await();
+        log.info("HitInterceptor - prehandler BEGIN");
 
-		request.setAttribute("HitVisitor", visitor);
-		 
-		 log.info("HitInterceptor - prehandler ENDS");
-		 
-		return true;
-	}
-	
-	@Override
-	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
-			ModelAndView modelAndView) throws Exception {
+        final com.springboot.model.Visitor visitorAttribut = (com.springboot.model.Visitor) request.getSession().getAttribute(Vis);
 
-		log.info("HitInterceptor - posthandler");
-		HandlerInterceptor.super.postHandle(request, response, handler, modelAndView);
-	}
-	
-	@Override
-	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
-			throws Exception {
+        visitor = Flagship.newVisitor(visitorAttribut.getVisitor_id(), visitorAttribut.getContext());
 
-		log.info("HitInterceptor - afterCompleting");
-		HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
-	}
+        visitor.synchronizeModifications().get();
+
+        request.setAttribute("HitVisitor", visitor);
+
+        log.info("HitInterceptor - prehandler ENDS");
+
+        return true;
+    }
+
+    @Override
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
+                           ModelAndView modelAndView) throws Exception {
+
+        log.info("HitInterceptor - posthandler");
+        HandlerInterceptor.super.postHandle(request, response, handler, modelAndView);
+    }
+
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
+            throws Exception {
+
+        log.info("HitInterceptor - afterCompleting");
+        HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
+    }
 }

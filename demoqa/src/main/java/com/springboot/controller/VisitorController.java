@@ -14,35 +14,31 @@ import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.main.Visitor;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 
 @RestController
 public class VisitorController {
 
-	private static final String VisitorConstant = "Visitor";
-	public static Visitor visitor;
-	
-	@RequestMapping(method=RequestMethod.GET, value="/visitor")
-	public ResponseEntity<com.springboot.model.Visitor> getEnvironment(final HttpSession session) {
-		
+    private static final String VisitorConstant = "Visitor";
+    public static Visitor visitor;
+
+    @RequestMapping(method = RequestMethod.GET, value = "/visitor")
+    public ResponseEntity<com.springboot.model.Visitor> getEnvironment(final HttpSession session) {
+
         final com.springboot.model.Visitor visitorAttribute = (com.springboot.model.Visitor) session.getAttribute(VisitorConstant);
-        
+
         return new ResponseEntity<com.springboot.model.Visitor>(visitorAttribute, HttpStatus.OK);
-	}
-	
-	@RequestMapping(method=RequestMethod.PUT, value="/visitor")
-	public String setVisitor(@RequestBody com.springboot.model.Visitor visitorModel, final HttpServletRequest request) throws InterruptedException {
+    }
 
-		request.getSession().setAttribute(VisitorConstant, visitorModel);
-		
-		visitor = Flagship.newVisitor(visitorModel.getVisitor_id(), visitorModel.getContext());
+    @RequestMapping(method = RequestMethod.PUT, value = "/visitor")
+    public String setVisitor(@RequestBody com.springboot.model.Visitor visitorModel, final HttpServletRequest request) throws InterruptedException, ExecutionException {
 
-		CountDownLatch latch = new CountDownLatch(1);
+        request.getSession().setAttribute(VisitorConstant, visitorModel);
 
-		visitor.synchronizeModifications().whenComplete((instance, error)->{
-			latch.countDown();
-		});
-		latch.await();
+        visitor = Flagship.newVisitor(visitorModel.getVisitor_id(), visitorModel.getContext());
 
-		return visitor.toString();
-	}
+        visitor.synchronizeModifications().get();
+
+        return visitor.toString();
+    }
 }

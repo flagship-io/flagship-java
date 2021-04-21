@@ -42,11 +42,11 @@ public class EnvironmentController {
                 .withLogLevel(LogManager.Level.ALL)
                 .withTimeout(environmentModel.getTimeout())
                 .withLogManager(new LogManager() {
-					@Override
-					public void onLog(Level level, String tag, String message) {
-						LogHelper.appendToLogFile(level, tag, message);
-					}
-				}));
+                    @Override
+                    public void onLog(Level level, String tag, String message) {
+                        LogHelper.appendToLogFile(level, tag, message);
+                    }
+                }));
 
         return environmentModel;
 

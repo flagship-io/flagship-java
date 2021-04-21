@@ -1,350 +1,350 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <!-- Required meta tags -->
-    <meta charset="utf-8" />
+    <meta charset="utf-8"/>
     <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+            name="viewport"
+            content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
     <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
-      crossorigin="anonymous"
+            rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+            integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+            crossorigin="anonymous"
     />
     <title>event</title>
-  </head>
-  <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <a class="navbar-brand" href="#">Flagship Java SDK Web demo</a>
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-toggle="collapse"
-        data-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#">Flagship Java SDK Web demo</a>
+    <button
+            class="navbar-toggler"
+            type="button"
+            data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+    >
         <span class="navbar-toggler-icon"></span>
-      </button>
+    </button>
 
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-          <li class="nav-item">
-            <a class="nav-link" href="index.html">Home</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="events.html">Events</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="logs.html">Logs</a>
-          </li>
+            <li class="nav-item">
+                <a class="nav-link" href="index.html">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="events.html">Events</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="logs.html">Logs</a>
+            </li>
         </ul>
-      </div>
-    </nav>
+    </div>
+</nav>
 
-    <div class="container mt-5" id="app">
-      <h2 class="mt-5">
+<div class="container mt-5" id="app">
+    <h2 class="mt-5">
         Send Hit
-      </h2>
-      <form v-on:submit.prevent="sendHit()">
+    </h2>
+    <form v-on:submit.prevent="sendHit()">
         <div class="form-group">
-          <label>Hit type</label>
-          <select class="form-control" v-model="hit.t" @change="changeType">
-            <option v-for="t in hitTypes" :key="t" :value="t">
-              {{t}}
-            </option>
-          </select>
+            <label>Hit type</label>
+            <select class="form-control" v-model="hit.t" @change="changeType">
+                <option v-for="t in hitTypes" :key="t" :value="t">
+                    {{t}}
+                </option>
+            </select>
         </div>
 
         <div v-if="hit.t == 'EVENT'" class="form-group">
-          <label>Event Category</label>
-          <select class="form-control" v-model="hit.ec" required>
-            <option value="at">
-              ACTION_TRACKING
-            </option>
-            <option value="ue">
-              USER_ENGAGEMENT
-            </option>
-          </select>
-        </div>
-        
-        <div v-if="hit.t == 'EVENT'" class="form-group">
-          <label>Event Action</label>
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Event Action"
-            v-model="hit.ea"
-            required
-          />
+            <label>Event Category</label>
+            <select class="form-control" v-model="hit.ec" required>
+                <option value="at">
+                    ACTION_TRACKING
+                </option>
+                <option value="ue">
+                    USER_ENGAGEMENT
+                </option>
+            </select>
         </div>
 
         <div v-if="hit.t == 'EVENT'" class="form-group">
-          <label>Event Value</label>
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Event Value"
-            v-model.number="hit.ev"
-          />
+            <label>Event Action</label>
+            <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Event Action"
+                    v-model="hit.ea"
+                    required
+            />
         </div>
 
         <div v-if="hit.t == 'EVENT'" class="form-group">
-          <label>Event Label</label>
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Event Label"
-            v-model="hit.el"
-          />
+            <label>Event Value</label>
+            <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Event Value"
+                    v-model.number="hit.ev"
+            />
+        </div>
+
+        <div v-if="hit.t == 'EVENT'" class="form-group">
+            <label>Event Label</label>
+            <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Event Label"
+                    v-model="hit.el"
+            />
         </div>
 
         <div v-if="['TRANSACTION', 'ITEM'].includes(hit.t)" class="form-group">
-          <label>Transaction ID</label>
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Transaction ID"
-            v-model="hit.tid"
-            required
-          />
+            <label>Transaction ID</label>
+            <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Transaction ID"
+                    v-model="hit.tid"
+                    required
+            />
         </div>
 
         <div v-if="['TRANSACTION'].includes(hit.t)" class="form-group">
-          <label>Transaction Affiliation</label>
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Transaction Affiliation"
-            v-model="hit.ta"
-            required
-          />
+            <label>Transaction Affiliation</label>
+            <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Transaction Affiliation"
+                    v-model="hit.ta"
+                    required
+            />
         </div>
 
         <div v-if="['TRANSACTION'].includes(hit.t)" class="form-group">
-          <label>Transaction Revenue</label>
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Transaction Revenue"
-            v-model.number="hit.tr"
-          />
+            <label>Transaction Revenue</label>
+            <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Transaction Revenue"
+                    v-model.number="hit.tr"
+            />
         </div>
 
         <div v-if="['TRANSACTION'].includes(hit.t)" class="form-group">
-          <label>Shipping Cost</label>
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Shipping Cost"
-            v-model.number="hit.ts"
-          />
+            <label>Shipping Cost</label>
+            <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Shipping Cost"
+                    v-model.number="hit.ts"
+            />
         </div>
 
         <div v-if="['TRANSACTION'].includes(hit.t)" class="form-group">
-          <label>Shipping Method</label>
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Shipping Method"
-            v-model.number="hit.sm"
-          />
+            <label>Shipping Method</label>
+            <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Shipping Method"
+                    v-model.number="hit.sm"
+            />
         </div>
 
         <div v-if="['TRANSACTION'].includes(hit.t)" class="form-group">
-          <label>Transaction Taxes</label>
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Transaction Taxes"
-            v-model.number="hit.tt"
-          />
+            <label>Transaction Taxes</label>
+            <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Transaction Taxes"
+                    v-model.number="hit.tt"
+            />
         </div>
 
         <div v-if="['TRANSACTION'].includes(hit.t)" class="form-group">
-          <label>Transaction Currency</label>
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Transaction Currency"
-            v-model.number="hit.tc"
-          />
+            <label>Transaction Currency</label>
+            <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Transaction Currency"
+                    v-model.number="hit.tc"
+            />
         </div>
 
         <div v-if="['TRANSACTION'].includes(hit.t)" class="form-group">
-          <label>Payment Method</label>
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Payment Method"
-            v-model.number="hit.pm"
-          />
+            <label>Payment Method</label>
+            <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Payment Method"
+                    v-model.number="hit.pm"
+            />
         </div>
 
         <div v-if="['TRANSACTION'].includes(hit.t)" class="form-group">
-          <label>Item Count</label>
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Item Count"
-            v-model.number="hit.icn"
-          />
+            <label>Item Count</label>
+            <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Item Count"
+                    v-model.number="hit.icn"
+            />
         </div>
 
         <div v-if="['TRANSACTION'].includes(hit.t)" class="form-group">
-          <label>Coupon Code</label>
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Coupon Code"
-            v-model.number="hit.tcc"
-          />
+            <label>Coupon Code</label>
+            <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Coupon Code"
+                    v-model.number="hit.tcc"
+            />
         </div>
 
         <div v-if="['SCREEN', 'PAGE'].includes(hit.t)" class="form-group">
-          <label>Location</label>
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Location"
-            v-model="hit.dl"
-            required
-          />
+            <label>Location</label>
+            <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Location"
+                    v-model="hit.dl"
+                    required
+            />
         </div>
 
         <div v-if="['ITEM'].includes(hit.t)" class="form-group">
-          <label>Item Name</label>
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Item Name"
-            v-model="hit.in"
-            required
-          />
+            <label>Item Name</label>
+            <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Item Name"
+                    v-model="hit.in"
+                    required
+            />
         </div>
 
         <div v-if="['ITEM'].includes(hit.t)" class="form-group">
-          <label>Item Code</label>
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Item Code"
-            v-model="hit.ic"
-            required
-          />
+            <label>Item Code</label>
+            <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Item Code"
+                    v-model="hit.ic"
+                    required
+            />
         </div>
 
         <div v-if="['ITEM'].includes(hit.t)" class="form-group">
-          <label>Item Category</label>
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Item Category"
-            v-model.number="hit.iv"
-          />
+            <label>Item Category</label>
+            <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Item Category"
+                    v-model.number="hit.iv"
+            />
         </div>
 
         <div v-if="['ITEM'].includes(hit.t)" class="form-group">
-          <label>Item Price</label>
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Item Price"
-            v-model.number="hit.ip"
-          />
+            <label>Item Price</label>
+            <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Item Price"
+                    v-model.number="hit.ip"
+            />
         </div>
 
 
         <div v-if="['ITEM'].includes(hit.t)" class="form-group">
-          <label>Item Quantity</label>
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Item Quantity"
-            v-model.number="hit.iq"
-          />
+            <label>Item Quantity</label>
+            <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Item Quantity"
+                    v-model.number="hit.iq"
+            />
         </div>
 
         <div v-if="['TRANSACTION', 'ITEM', 'EVENT', 'SCREEN', 'PAGE'].includes(hit.t)" class="form-group">
-          <label>Resolution Width</label>
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Resolution Width"
-            v-model="hit.re_wi"
-          />
+            <label>Resolution Width</label>
+            <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Resolution Width"
+                    v-model="hit.re_wi"
+            />
         </div>
 
         <div v-if="['TRANSACTION', 'ITEM', 'EVENT', 'SCREEN', 'PAGE'].includes(hit.t)" class="form-group">
-          <label>Resolution Height</label>
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Resolution Height"
-            v-model="hit.re_he"
-          />
+            <label>Resolution Height</label>
+            <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Resolution Height"
+                    v-model="hit.re_he"
+            />
         </div>
 
         <div v-if="['TRANSACTION', 'ITEM', 'EVENT', 'SCREEN', 'PAGE'].includes(hit.t)" class="form-group">
-          <label>Local</label>
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Local"
-            v-model="hit.ul"
-          />
+            <label>Local</label>
+            <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Local"
+                    v-model="hit.ul"
+            />
         </div>
 
         <div v-if="['TRANSACTION', 'ITEM', 'EVENT', 'SCREEN', 'PAGE'].includes(hit.t)" class="form-group">
-          <label>Ip</label>
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Ip"
-            v-model="hit.uip"
-          />
+            <label>Ip</label>
+            <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Ip"
+                    v-model="hit.uip"
+            />
         </div>
 
         <div v-if="['TRANSACTION', 'ITEM', 'EVENT', 'SCREEN', 'PAGE'].includes(hit.t)" class="form-group">
-          <label>Session number</label>
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Session number"
-            v-model="hit.sn"
-          />
+            <label>Session number</label>
+            <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Session number"
+                    v-model="hit.sn"
+            />
         </div>
 
         <div class="alert alert-danger" v-if="eventError">
-          {{eventError.error}}
+            {{eventError.error}}
         </div>
         <div class="alert alert-success" v-if="eventOk">
-          Hit sent OK !
+            Hit sent OK !
         </div>
 
         <button type="submit" class="btn btn-info">Send event</button>
-      </form>
-    </div>
-    <script
-      src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
-      integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
-      integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
-      integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
-      crossorigin="anonymous"
-    ></script>
-    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
-    <script src="js/script.js"></script>
-  </body>
+    </form>
+</div>
+<script
+        src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+        crossorigin="anonymous"
+></script>
+<script
+        src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"
+></script>
+<script
+        src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"
+></script>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
+<script src="js/script.js"></script>
+</body>
 </html>

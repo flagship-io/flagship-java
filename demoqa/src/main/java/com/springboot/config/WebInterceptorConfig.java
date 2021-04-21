@@ -10,17 +10,17 @@ import com.springboot.interceptor.HitControllerInterceptor;
 
 @Component
 public class WebInterceptorConfig implements WebMvcConfigurer {
-	
-	@Autowired
-	FlagControllerInterceptor flagInter;
-	
-	@Autowired
-	HitControllerInterceptor hitInter;
 
-	@Override
-	public void addInterceptors(InterceptorRegistry registry) {
-		registry.addInterceptor(flagInter).addPathPatterns("/flag/{flag_key}");
-		registry.addInterceptor(flagInter).addPathPatterns("/flag/{flag_key}/*");
-		registry.addInterceptor(hitInter).addPathPatterns("/hit");
-	}
+    @Autowired
+    FlagControllerInterceptor flagInter;
+
+    @Autowired
+    HitControllerInterceptor hitInter;
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(flagInter).addPathPatterns("/flag/{flag_key}");
+        registry.addInterceptor(flagInter).addPathPatterns("/flag/{flag_key}/*");
+        registry.addInterceptor(hitInter).addPathPatterns("/hit");
+    }
 }

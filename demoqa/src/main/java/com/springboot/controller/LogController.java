@@ -11,20 +11,20 @@ import javax.servlet.http.HttpSession;
 
 @RestController
 public class LogController {
-	
-	@RequestMapping(method=RequestMethod.GET, value="/logs")
-	public ResponseEntity<String> getLogs(final HttpSession session) {
 
-		String content = LogHelper.getLogFileContent();
+    @RequestMapping(method = RequestMethod.GET, value = "/logs")
+    public ResponseEntity<String> getLogs(final HttpSession session) {
+
+        String content = LogHelper.getLogFileContent();
         return new ResponseEntity<String>(content, HttpStatus.OK);
-	}
+    }
 
-	@RequestMapping(method=RequestMethod.GET, value="/clear")
-	public ResponseEntity<String> clearLogs(final HttpSession session) {
+    @RequestMapping(method = RequestMethod.GET, value = "/clear")
+    public ResponseEntity<String> clearLogs(final HttpSession session) {
 
-		LogHelper.clearLogFile();
+        LogHelper.clearLogFile();
 
-		String content = LogHelper.getLogFileContent();
-		return new ResponseEntity<String>(content, HttpStatus.OK);
-	}
+        String content = LogHelper.getLogFileContent();
+        return new ResponseEntity<String>(content, HttpStatus.OK);
+    }
 }

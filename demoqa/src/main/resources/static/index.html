@@ -1,97 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <!-- Required meta tags -->
-    <base href="/" />
-    <meta charset="utf-8" />
+    <base href="/"/>
+    <meta charset="utf-8"/>
     <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+            name="viewport"
+            content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
     <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
-      crossorigin="anonymous"
+            rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+            integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+            crossorigin="anonymous"
     />
     <title>home</title>
-  </head>
-  <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <a class="navbar-brand" href="#">Flagship Java SDK Web demo</a>
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-toggle="collapse"
-        data-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#">Flagship Java SDK Web demo</a>
+    <button
+            class="navbar-toggler"
+            type="button"
+            data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+    >
         <span class="navbar-toggler-icon"></span>
-      </button>
+    </button>
 
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-          <li class="nav-item">
-            <a class="nav-link" href="index.html">Home</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="events.html">Events</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="logs.html">Logs</a>
-          </li>
+            <li class="nav-item">
+                <a class="nav-link" href="index.html">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="events.html">Events</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="logs.html">Logs</a>
+            </li>
         </ul>
-      </div>
-    </nav>
+    </div>
+</nav>
 
-    <div class="container mt-5 mb-5" id="app">
-      <h6>%branch%</h6>
-      <h2>First, set your Flagship Environment ID & API Key</h2>
+<div class="container mt-5 mb-5" id="app">
+    <h6>%branch%</h6>
+    <h2>First, set your Flagship Environment ID & API Key</h2>
 
-      <form v-on:submit.prevent="setEnv()">
+    <form v-on:submit.prevent="setEnv()">
         <div class="form-group">
-          <label>Environment ID</label>
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Environment ID"
-            v-model="envId"
-          />
-          <small id="emailHelp" class="form-text text-muted"
+            <label>Environment ID</label>
+            <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Environment ID"
+                    v-model="envId"
+            />
+            <small id="emailHelp" class="form-text text-muted"
             >Set your Flagship Environment ID first.</small
-          >
+            >
         </div>
         <div class="form-group">
-          <label>API Key</label>
-          <input
-            type="text"
-            class="form-control"
-            placeholder="API Key"
-            v-model="apiKey"
-          />
-          <small class="form-text text-muted">Set your API Key.</small>
+            <label>API Key</label>
+            <input
+                    type="text"
+                    class="form-control"
+                    placeholder="API Key"
+                    v-model="apiKey"
+            />
+            <small class="form-text text-muted">Set your API Key.</small>
         </div>
         <div class="form-group">
-          <label>Timeout (milliseconds)</label>
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Timeout"
-            v-model.number="timeout"
-          />
-          <small class="form-text text-muted">Set your timeout.</small>
+            <label>Timeout (milliseconds)</label>
+            <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Timeout"
+                    v-model.number="timeout"
+            />
+            <small class="form-text text-muted">Set your timeout.</small>
         </div>
         <div class="form-group">
-          <label>Polling interval (milliseconds)</label>
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Polling interval"
-            v-model.number="pollingInterval"
-          />
-          <small class="form-text text-muted">Set your polling interval.</small>
+            <label>Polling interval (milliseconds)</label>
+            <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Polling interval"
+                    v-model.number="pollingInterval"
+            />
+            <small class="form-text text-muted">Set your polling interval.</small>
         </div>
         <!--
         <div class="form-check mb-3">
@@ -102,267 +102,267 @@
 
         <div class="alert alert-danger" v-if="envError">{{envError.error}}</div>
         <div class="alert alert-success" v-if="envOk">
-          Flagship client successfully initialized
+            Flagship client successfully initialized
         </div>
 
         <button type="submit" class="btn btn-success">Submit</button>
-      </form>
+    </form>
 
-      <h2 class="mt-5">Then, set your Visitor ID and context</h2>
-      <form v-on:submit.prevent="setVisitor()">
+    <h2 class="mt-5">Then, set your Visitor ID and context</h2>
+    <form v-on:submit.prevent="setVisitor()">
         <div class="form-group">
-          <label>Visitor ID</label>
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Visitor ID"
-            v-model="visitorId"
-          />
-          <small id="emailHelp" class="form-text text-muted"
+            <label>Visitor ID</label>
+            <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Visitor ID"
+                    v-model="visitorId"
+            />
+            <small id="emailHelp" class="form-text text-muted"
             >Set your Flagship Visitor ID.</small
-          >
+            >
         </div>
 
         <div class="form-group">
-          <label>Visitor Context (JSON)</label>
-          <textarea
-            class="form-control"
-            placeholder="Visitor Context"
-            v-model="context"
-            required
-          ></textarea>
-          <small id="emailHelp" class="form-text text-muted"
+            <label>Visitor Context (JSON)</label>
+            <textarea
+                    class="form-control"
+                    placeholder="Visitor Context"
+                    v-model="context"
+                    required
+            ></textarea>
+            <small id="emailHelp" class="form-text text-muted"
             >Set your Flagship Visitor Context.</small
-          >
+            >
         </div>
 
         <div class="alert alert-danger" v-if="visitorError">
-          {{visitorError.error}}
+            {{visitorError.error}}
         </div>
         <div class="alert alert-success" v-if="visitorOk">
-          Visitor ID and context set successfully
+            Visitor ID and context set successfully
         </div>
 
         <button type="submit" class="btn btn-primary">Submit</button>
         <div v-if="data && data.visitor">
-          <br />
-          <h2 class="mt-5">Visitor content:</h2>
+            <br/>
+            <h2 class="mt-5">Visitor content:</h2>
         </div>
         <pre class="mt-3" v-if="data && data.visitor">{{JSON.stringify(data.visitor, null, 4)}}</pre>
-      </form>
+    </form>
 
-      <h2 class="mt-5">Stand alone update context</h2>
-      <small class="form-text text-muted">(Will also call synchronize)</small>
-      <br />
-      <form v-on:submit.prevent="getUpdateContext()">
+    <h2 class="mt-5">Stand alone update context</h2>
+    <small class="form-text text-muted">(Will also call synchronize)</small>
+    <br/>
+    <form v-on:submit.prevent="getUpdateContext()">
         <div class="row" style="align-items: center">
-          <div class="col-sm-3">
-            <div class="form-group">
-              <label>Flag key</label>
-              <input
-                type="text"
-                class="form-control"
-                placeholder="Key"
-                v-model="flagUpdateContext.name"
-              />
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <label>Flag key</label>
+                    <input
+                            type="text"
+                            class="form-control"
+                            placeholder="Key"
+                            v-model="flagUpdateContext.name"
+                    />
+                </div>
             </div>
-          </div>
 
-          <div class="col-sm-3">
-            <div class="form-group">
-              <label>Flag type</label>
-              <select
-                type="text"
-                class="form-control"
-                placeholder="Type"
-                v-model="flagUpdateContext.type"
-              >
-                <option value="bool">bool</option>
-                <option value="number">number</option>
-                <option value="string">string</option>
-              </select>
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <label>Flag type</label>
+                    <select
+                            type="text"
+                            class="form-control"
+                            placeholder="Type"
+                            v-model="flagUpdateContext.type"
+                    >
+                        <option value="bool">bool</option>
+                        <option value="number">number</option>
+                        <option value="string">string</option>
+                    </select>
+                </div>
             </div>
-          </div>
 
-          <div class="col-sm-3">
-            <div class="form-group">
-              <label>Value</label>
-              <input
-                type="text"
-                class="form-control"
-                placeholder="Default"
-                v-model="flagUpdateContext.value"
-              />
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <label>Value</label>
+                    <input
+                            type="text"
+                            class="form-control"
+                            placeholder="Default"
+                            v-model="flagUpdateContext.value"
+                    />
+                </div>
             </div>
-          </div>
         </div>
         <div class="alert alert-warning mt-3 mb-3" v-if="flagUpdateContextOk && flagUpdateContextOk.err">
-          {{flagUpdateContextOk.err}}
+            {{flagUpdateContextOk.err}}
         </div>
 
         <button type="submit" class="btn btn-primary">Submit</button>
 
         <div
-          class="alert alert-success mt-3 mb-3"
-          v-if="flagUpdateContextOk && typeof(flagUpdateContextOk.value) !== 'undefined'"
+                class="alert alert-success mt-3 mb-3"
+                v-if="flagUpdateContextOk && typeof(flagUpdateContextOk.value) !== 'undefined'"
         >
-          {{contextOk.value}}
+            {{contextOk.value}}
         </div>
-      </form>
+    </form>
 
-      <h2 class="mt-5">Then, get a Flag Value</h2>
-      <br />
-      <form v-on:submit.prevent="getFlag()">
+    <h2 class="mt-5">Then, get a Flag Value</h2>
+    <br/>
+    <form v-on:submit.prevent="getFlag()">
         <div class="row" style="align-items: center">
-          <div class="col-sm-3">
-            <div class="form-group">
-              <label>Flag key</label>
-              <input
-                type="text"
-                class="form-control"
-                placeholder="Key"
-                v-model="flag.name"
-              />
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <label>Flag key</label>
+                    <input
+                            type="text"
+                            class="form-control"
+                            placeholder="Key"
+                            v-model="flag.name"
+                    />
+                </div>
             </div>
-          </div>
 
-          <div class="col-sm-3">
-            <div class="form-group">
-              <label>Flag type</label>
-              <select
-                type="text"
-                class="form-control"
-                placeholder="Type"
-                v-model="flag.type"
-              >
-                <option value="bool">bool</option>
-                <option value="number">number</option>
-                <option value="string">string</option>
-                <option value="object">object</option>
-                <option value="array">array</option>
-              </select>
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <label>Flag type</label>
+                    <select
+                            type="text"
+                            class="form-control"
+                            placeholder="Type"
+                            v-model="flag.type"
+                    >
+                        <option value="bool">bool</option>
+                        <option value="number">number</option>
+                        <option value="string">string</option>
+                        <option value="object">object</option>
+                        <option value="array">array</option>
+                    </select>
+                </div>
             </div>
-          </div>
 
-          <div class="col-sm-3">
-            <div class="form-group">
-              <label>Default value</label>
-              <input
-                type="text"
-                class="form-control"
-                placeholder="Default"
-                v-model="flag.defaultValue"
-              />
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <label>Default value</label>
+                    <input
+                            type="text"
+                            class="form-control"
+                            placeholder="Default"
+                            v-model="flag.defaultValue"
+                    />
+                </div>
             </div>
-          </div>
         </div>
 
         <div class="form-check mb-3">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            v-model="flag.activate"
-          />
-          <label class="form-check-label"> Activate </label>
+            <input
+                    class="form-check-input"
+                    type="checkbox"
+                    v-model="flag.activate"
+            />
+            <label class="form-check-label"> Activate </label>
         </div>
 
         <div class="alert alert-warning mt-3 mb-3" v-if="flagOk && flagOk.err">
-          {{flagOk.err}}
+            {{flagOk.err}}
         </div>
 
         <button type="submit" class="btn btn-primary">Submit</button>
 
         <div
-          class="alert alert-success mt-3 mb-3"
-          v-if="flagOk && typeof(flagOk.value) !== 'undefined'"
+                class="alert alert-success mt-3 mb-3"
+                v-if="flagOk && typeof(flagOk.value) !== 'undefined'"
         >
-          {{flagOk.value}}
+            {{flagOk.value}}
         </div>
-      </form>
+    </form>
 
-      <h2 class="mt-5">Stand alone activate modification</h2>
-      <br />
-      <form v-on:submit.prevent="getModification()">
+    <h2 class="mt-5">Stand alone activate modification</h2>
+    <br/>
+    <form v-on:submit.prevent="getModification()">
         <div class="row" style="align-items: center">
-          <div class="col-sm-3">
-            <div class="form-group">
-              <label>Flag key</label>
-              <input
-                type="text"
-                class="form-control"
-                placeholder="Key"
-                v-model="flagModification.name"
-              />
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <label>Flag key</label>
+                    <input
+                            type="text"
+                            class="form-control"
+                            placeholder="Key"
+                            v-model="flagModification.name"
+                    />
+                </div>
             </div>
-          </div>
         </div>
         <div
-          class="alert alert-warning mt-3 mb-3"
-          v-if="flagModificationOk && flagModificationOk.error"
+                class="alert alert-warning mt-3 mb-3"
+                v-if="flagModificationOk && flagModificationOk.error"
         >
-          {{flagModificationOk.error}}
+            {{flagModificationOk.error}}
         </div>
 
         <button type="submit" class="btn btn-primary">Submit</button>
 
         <div
-          class="alert alert-success mt-3 mb-3"
-          v-if="flagModificationOk && !flagModificationOk.error"
+                class="alert alert-success mt-3 mb-3"
+                v-if="flagModificationOk && !flagModificationOk.error"
         >
-          {{flagModificationOk}}
+            {{flagModificationOk}}
         </div>
-      </form>
+    </form>
 
-      <h2 class="mt-5">Get modification information</h2>
-      <br />
-      <form v-on:submit.prevent="getFlagInfo()">
+    <h2 class="mt-5">Get modification information</h2>
+    <br/>
+    <form v-on:submit.prevent="getFlagInfo()">
         <div class="row" style="align-items: center">
-          <div class="col-sm-3">
-            <div class="form-group">
-              <label>Flag key</label>
-              <input
-                type="text"
-                class="form-control"
-                placeholder="Key"
-                v-model="flagInfo.name"
-              />
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <label>Flag key</label>
+                    <input
+                            type="text"
+                            class="form-control"
+                            placeholder="Key"
+                            v-model="flagInfo.name"
+                    />
+                </div>
             </div>
-          </div>
         </div>
         <div
-          class="alert alert-warning mt-3 mb-3"
-          v-if="flagInfoOk && flagInfoOk.error"
+                class="alert alert-warning mt-3 mb-3"
+                v-if="flagInfoOk && flagInfoOk.error"
         >
-          {{flagInfoOk.error}}
+            {{flagInfoOk.error}}
         </div>
 
         <button type="submit" class="btn btn-primary">Submit</button>
 
         <div
-          class="alert alert-success mt-3 mb-3"
-          v-if="flagInfoOk && !flagInfoOk.error"
+                class="alert alert-success mt-3 mb-3"
+                v-if="flagInfoOk && !flagInfoOk.error"
         >
-          {{flagInfoOk}}
+            {{flagInfoOk}}
         </div>
-      </form>
-    </div>
-    <script
-      src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
-      integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
-      integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
-      integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
-      crossorigin="anonymous"
-    ></script>
-    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
-    <script src="js/script.js"></script>
-  </body>
+    </form>
+</div>
+<script
+        src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+        crossorigin="anonymous"
+></script>
+<script
+        src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"
+></script>
+<script
+        src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"
+></script>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
+<script src="js/script.js"></script>
+</body>
 </html>

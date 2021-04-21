@@ -21,131 +21,134 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 public class FlagController {
-	
-	public Visitor visitor;
 
-	@RequestMapping(method=RequestMethod.GET, value="/flag/{flag_key}" )
-	public Object getFlag(HttpServletRequest request, @PathVariable String flag_key, @RequestParam String type, @RequestParam Boolean activate, @RequestParam String defaultValue) {
-		
-		Object flag = null;
-		String error = "";
-		ObjectMapper mapper = new ObjectMapper();
-		Map<String, Object> obj = new HashMap<String,Object>();
-		
-		visitor = (Visitor) request.getAttribute("Visitor");
-		switch(type) {
+    public Visitor visitor;
 
-			case "bool":
-				flag = visitor.getModification(flag_key, Boolean.parseBoolean(defaultValue), activate);
-				break;
+    @RequestMapping(method = RequestMethod.GET, value = "/flag/{flag_key}")
+    public Object getFlag(HttpServletRequest request, @PathVariable String flag_key, @RequestParam String type, @RequestParam Boolean activate, @RequestParam String defaultValue) {
 
-			case "string":
-				flag = visitor.getModification(flag_key, defaultValue, activate);
-				break;
+        Object flag = null;
+        String error = "";
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Object> obj = new HashMap<String, Object>();
 
-			case "number":
-				flag = visitor.getModification(flag_key, Double.parseDouble(defaultValue), activate);
-				break;
+        visitor = (Visitor) request.getAttribute("Visitor");
+        switch (type) {
 
-			case "array":
-				try {
+            case "bool":
+                flag = visitor.getModification(flag_key, Boolean.parseBoolean(defaultValue), activate);
+                break;
 
-					List<Object> arrayVal = mapper.readValue(defaultValue, new TypeReference<List<Object>>() {});
-					flag = visitor.getModification(flag_key, arrayVal, activate);
-					System.out.println(arrayVal.toString());
+            case "string":
+                flag = visitor.getModification(flag_key, defaultValue, activate);
+                break;
 
-				}catch(Exception e) {
-					error = e.getMessage();
-				}
-				break;
+            case "number":
+                flag = visitor.getModification(flag_key, Double.parseDouble(defaultValue), activate);
+                break;
 
-			case "object":
-				try {
+            case "array":
+                try {
 
-					Object objVal = mapper.readValue(defaultValue, new TypeReference<Object>() {});
-					flag = visitor.getModification(flag_key, objVal, activate);
+                    List<Object> arrayVal = mapper.readValue(defaultValue, new TypeReference<List<Object>>() {
+                    });
+                    flag = visitor.getModification(flag_key, arrayVal, activate);
+                    System.out.println(arrayVal.toString());
 
-				}catch(Exception e) {
-					error = e.getMessage();
-				}
-				break;
-			default:
-				error = "Type"+ type + "not handled";
-		}
-		
-		if(error != "") {
-			error = "there is an error";
-		}
-		
-		obj.put("value", flag);
-		obj.put("error", error);
-		System.out.println(obj);
-		return obj;
-		
-	}
+                } catch (Exception e) {
+                    error = e.getMessage();
+                }
+                break;
 
-	@RequestMapping(method=RequestMethod.GET, value="/flag/{flag_key}/info")
-	public Object getFlagInfo(HttpServletRequest request, @PathVariable String flag_key){
+            case "object":
+                try {
 
-		JSONObject flagInfo = null;
-		Map<String, Object> objInfo = new HashMap<String, Object>();
-		Map flagInfoContent = new HashMap<String, Object>();
-		flagInfo = visitor.getModificationInfo(flag_key);
+                    Object objVal = mapper.readValue(defaultValue, new TypeReference<Object>() {
+                    });
+                    flag = visitor.getModification(flag_key, objVal, activate);
 
-		if(flagInfo == null){
-			objInfo.put("value", "Key doesn't exist");
-		}
-		else{
-			flagInfoContent = flagInfo.toMap();
-			objInfo.put("value", flagInfoContent);
-		}
+                } catch (Exception e) {
+                    error = e.getMessage();
+                }
+                break;
+            default:
+                error = "Type" + type + "not handled";
+        }
 
-		return objInfo;
-		
-	}
+        if (error != "") {
+            error = "there is an error";
+        }
 
-	@RequestMapping(method=RequestMethod.GET, value="/flag/{flag_key}/activate")
-	public Object getFlagModification(HttpServletRequest request, @PathVariable String flag_key){
-		JSONObject flagInfo = null;
-		Map<String, Object> objInfo = new HashMap<String, Object>();
-		flagInfo = visitor.getModificationInfo(flag_key);
-		if(flagInfo != null){
-			visitor.activateModification(flag_key);
-			visitor.synchronizeModifications().whenComplete((instance, err)->{
-				System.out.println("Synchronized");
-			});
-			objInfo.put("activateValue", "Activation sent.");
-		}
-		else{
-			objInfo.put("activateValue", "Key not found, no activation sent.");
-		}
-		return objInfo;
-	}
+        obj.put("value", flag);
+        obj.put("error", error);
+        System.out.println(obj);
+        return obj;
 
-	@RequestMapping(method=RequestMethod.GET, value="/flag/{flag_key}/updateContext" )
-	public String getFlagUpdateContext(HttpServletRequest request, @PathVariable String flag_key, @RequestParam String type, @RequestParam String value) throws ExecutionException, InterruptedException {
+    }
 
-		String error = "";
-		visitor = (Visitor) request.getAttribute("Visitor");
+    @RequestMapping(method = RequestMethod.GET, value = "/flag/{flag_key}/info")
+    public Object getFlagInfo(HttpServletRequest request, @PathVariable String flag_key) {
 
-		switch(type) {
+        JSONObject flagInfo = null;
+        Map<String, Object> objInfo = new HashMap<String, Object>();
+        Map flagInfoContent = new HashMap<String, Object>();
+        flagInfo = visitor.getModificationInfo(flag_key);
 
-			case "bool":
-				visitor.updateContext(flag_key, Boolean.parseBoolean(value));
-				break;
+        if (flagInfo == null) {
+            objInfo.put("value", "Key doesn't exist");
+        } else {
+            flagInfoContent = flagInfo.toMap();
+            objInfo.put("value", flagInfoContent);
+        }
 
-			case "string":
-				visitor.updateContext(flag_key, value);
-				break;
+        return objInfo;
 
-			case "number":
-				visitor.updateContext(flag_key, Double.parseDouble(value));
-				break;
-			default:
-				error = "Type"+ type + "not handled";
-		}
-		visitor.synchronizeModifications().get();
-		return visitor.toString();
+    }
 
-	}
+    @RequestMapping(method = RequestMethod.GET, value = "/flag/{flag_key}/activate")
+    public Object getFlagModification(HttpServletRequest request, @PathVariable String flag_key) throws ExecutionException, InterruptedException {
+
+        JSONObject flagInfo = null;
+        Map<String, Object> objInfo = new HashMap<String, Object>();
+        flagInfo = visitor.getModificationInfo(flag_key);
+
+        if (flagInfo != null) {
+
+            visitor.activateModification(flag_key);
+            visitor.synchronizeModifications().get();
+            objInfo.put("activateValue", "Activation sent.");
+
+        } else {
+
+            objInfo.put("activateValue", "Key not found, no activation sent.");
+
+        }
+
+        return objInfo;
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/flag/{flag_key}/updateContext")
+    public String getFlagUpdateContext(HttpServletRequest request, @PathVariable String flag_key, @RequestParam String type, @RequestParam String value) throws ExecutionException, InterruptedException {
+
+        visitor = (Visitor) request.getAttribute("Visitor");
+
+        switch (type) {
+
+            case "bool":
+                visitor.updateContext(flag_key, Boolean.parseBoolean(value));
+                break;
+
+            case "string":
+                visitor.updateContext(flag_key, value);
+                break;
+
+            case "number":
+                visitor.updateContext(flag_key, Double.parseDouble(value));
+                break;
+
+        }
+        visitor.synchronizeModifications().get();
+        return visitor.toString();
+
+    }
 }

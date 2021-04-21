@@ -1,5 +1,4 @@
-
 rootProject.name = 'flagship-java'
 include 'flagship'
 include 'demo'
-
+include 'demoqa'

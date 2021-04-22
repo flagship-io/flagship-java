@@ -4,6 +4,7 @@ public final class FlagshipConstants {
 
     public static class Info {
         public static String STARTED = "Flagship SDK (version: %s) READY";
+        public static String BUCKETING_INTERVAL = "Polling event.";
     }
 
     public static class Errors {
@@ -15,7 +16,7 @@ public final class FlagshipConstants {
                 "following types : String, Number, Boolean, JsonObject, JsonArray.";
         public static String PARSING_ERROR = "an error occured whil parsing ";
         public static String PARSING_CAMPAIGN_ERROR = PARSING_ERROR + " campaign.";
-        public static String PARSING_VARIATIONGROUP_ERROR = PARSING_ERROR + " variation group.";
+        public static String PARSING_VARIATION_GROUP_ERROR = PARSING_ERROR + " variation group.";
         public static String PARSING_VARIATION_ERROR = PARSING_ERROR + " variation.";
         public static String PARSING_MODIFICATION_ERROR = PARSING_ERROR + " modification.";
         public static String PARSING_TARGETING_ERROR = PARSING_ERROR + " targeting.";

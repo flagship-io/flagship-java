@@ -23,6 +23,8 @@ public class FlagshipConfig {
     private LogManager          logManager      = new FlagshipLogManager(logLevel);
     private TrackingManager     trackingManager = new TrackingManager();
     private DecisionManager     decisionManager = null;
+    private long                pollingTime     = 60;
+    private TimeUnit            pollingUnit     = TimeUnit.SECONDS;
 
 
     /**
@@ -117,15 +119,14 @@ public class FlagshipConfig {
 
     /**
      * Define time interval between two bucketing updates. Default is 60 seconds.
-     * @param value time value.
-     * @param unit time unit.
+     * @param time time value.
+     * @param timeUnit time unit.
      * @return FlagshipConfig
      */
-    public FlagshipConfig withBucketingPollingIntervals(long value, TimeUnit unit) {
-        if (value > 0 && unit != null && decisionMode == Flagship.Mode.BUCKETING && decisionManager instanceof BucketingManager) {
-
-        } else if (logManager != null) {
-            logManager.onLog(LogManager.Level.WARNING, FlagshipLogManager.Tag.CONFIGURATION.getName(), FlagshipConstants.Errors.CONFIGURATION_POLLING_ERROR);
+    public FlagshipConfig withBucketingPollingIntervals(long time, TimeUnit timeUnit) {
+        if (time >= 0 && timeUnit != null) {
+            this.pollingTime = time;
+            this.pollingUnit = timeUnit;
         }
         return this;
     }
@@ -156,6 +157,14 @@ public class FlagshipConfig {
 
     protected DecisionManager getDecisionManager() {
         return decisionManager;
+    }
+
+    public long getPollingTime() {
+        return pollingTime;
+    }
+
+    public TimeUnit getPollingUnit() {
+        return pollingUnit;
     }
 
     @Override

@@ -63,7 +63,7 @@ public class VariationGroup implements Serializable {
             }
             return new VariationGroup(campaignId, variationGroupId, variations, targetingGroups, selectedVariationId);
         } catch (Exception e) {
-            FlagshipLogManager.log(FlagshipLogManager.Tag.PARSING, LogManager.Level.ERROR, FlagshipConstants.Errors.PARSING_VARIATIONGROUP_ERROR);
+            FlagshipLogManager.log(FlagshipLogManager.Tag.PARSING, LogManager.Level.ERROR, FlagshipConstants.Errors.PARSING_VARIATION_GROUP_ERROR);
             return null;
         }
     }

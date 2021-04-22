@@ -3,7 +3,6 @@ package com.abtasty.flagship.decision;
 import com.abtasty.flagship.BuildConfig;
 import com.abtasty.flagship.api.HttpManager;
 import com.abtasty.flagship.api.Response;
-import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.model.Campaign;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
@@ -14,14 +13,11 @@ import java.util.concurrent.ConcurrentMap;
 
 public class ApiManager extends DecisionManager {
 
-    public ApiManager() {
-    }
-
     @Override
     public ArrayList<Campaign> getCampaigns(String envId, String visitorId, ConcurrentMap<String, Object> context) {
 
         HashMap<String, String> headers = new HashMap<String, String>();
-        headers.put("x-api-key", Flagship.getConfig().getApiKey());
+        headers.put("x-api-key", config.getApiKey());
         headers.put("x-sdk-client", "java");
         headers.put("x-sdk-version", BuildConfig.flagship_version_name);
         JSONObject json = new JSONObject();
@@ -38,7 +34,7 @@ public class ApiManager extends DecisionManager {
                     DECISION_API + envId + CAMPAIGNS,
                     headers,
                     json.toString(),
-                    Flagship.getConfig().getTimeout());
+                    config.getTimeout());
             logResponse(response);
             ArrayList<Campaign> newCampaigns = parseCampaignsResponse(response.getResponseContent());
             if (newCampaigns != null)
@@ -48,20 +44,5 @@ public class ApiManager extends DecisionManager {
             FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, LogManager.Level.ERROR, e.getMessage());
         }
         return campaigns;
-    }
-
-    private void logResponse(Response response) {
-
-        String content = "";
-        try {
-            content = new JSONObject(response.getResponseContent()).toString(2);
-        } catch (Exception e) {
-            content = response.getResponseContent();
-        }
-        String message = String.format("[%s] %s [%d] [%dms]\n %s", response.getType(), response.getRequestUrl(),
-                response.getResponseCode(), response.getResponseTime(), content);
-        FlagshipLogManager.log(FlagshipLogManager.Tag.CAMPAIGNS, response.isSuccess() ?
-                LogManager.Level.DEBUG : LogManager.Level.ERROR, message.toString());
-
     }
 }

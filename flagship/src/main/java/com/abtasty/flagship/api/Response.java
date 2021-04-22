@@ -24,7 +24,7 @@ public class Response {
     }
 
     public Boolean isSuccess() {
-        return (this.responseCode < 300);
+        return (this.responseCode < 400);
     }
 
     public String getRequestUrl() {

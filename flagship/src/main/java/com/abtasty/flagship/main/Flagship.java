@@ -27,10 +27,6 @@ public class Flagship {
          * Flaghsip SDK has not been started or initialized successfully.
          */
         NOT_READY,
-//        /**
-//         * Flagship SDK is in panic mode.
-//         */
-//         READY_PANIC_ON,
         /**
          * Flagship SDK is ready to use.
          */
@@ -79,6 +75,7 @@ public class Flagship {
             FlagshipLogManager.log(FlagshipLogManager.Tag.INITIALIZATION, LogManager.Level.ERROR, FlagshipConstants.Errors.INITIALIZATION_PARAM_ERROR);
         instance().setConfig(config);
         if (isReady()) {
+            config.getDecisionManager().start();
             FlagshipLogManager.log(FlagshipLogManager.Tag.INITIALIZATION, LogManager.Level.INFO, String.format(FlagshipConstants.Info.STARTED, BuildConfig.flagship_version_name));
             instance().setStatus(Status.READY);
         } else

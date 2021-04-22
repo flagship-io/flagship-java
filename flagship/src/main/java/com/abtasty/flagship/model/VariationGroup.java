@@ -4,18 +4,16 @@ import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
 import org.json.JSONObject;
-
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.logging.Level;
 
 public class VariationGroup implements Serializable {
 
-    private String                      campaignId;
-    private String                      variationGroupId;
-    private HashMap<String, Variation>  variations = new HashMap<>();
-    private TargetingGroups             targetingGroups;
-    private String                      selectedVariationId;
+    private final String                        campaignId;
+    private final String                        variationGroupId;
+    private final HashMap<String, Variation>    variations;
+    private final TargetingGroups               targetingGroups;
+    private final String                        selectedVariationId;
 
     public VariationGroup(String campaignId, String variationGroupId, HashMap<String, Variation> variations, TargetingGroups targetingGroups, String selectedVariationId) {
         this.campaignId = campaignId;
@@ -50,7 +48,7 @@ public class VariationGroup implements Serializable {
             String variationGroupId = variationGroupsObj.getString(bucketing ? "id" : "variationGroupId");
             String selectedVariationId = null;
             TargetingGroups targetingGroups = null;
-            HashMap<String, Variation> variations = new HashMap();
+            HashMap<String, Variation> variations = new HashMap<String, Variation>();
             JSONObject variationObj = variationGroupsObj.getJSONObject("variation");
             if (variationObj != null) {
                 // api

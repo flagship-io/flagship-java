@@ -148,7 +148,7 @@ public class Visitor {
                     FlagshipLogManager.log(FlagshipLogManager.Tag.GET_MODIFICATION, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_MISSING_ERROR, key));
                 } else {
                     Modification modification = this.modifications.get(key);
-                    T castValue = ((T) modification.getValue());
+                    T castValue = (T) ((modification.getValue() != null) ? modification.getValue() : defaultValue);
                     if (defaultValue == null || castValue == null || castValue.getClass().equals(defaultValue.getClass())) {
                         if (activate)
                             activateModification(modification);
@@ -229,7 +229,8 @@ public class Visitor {
         }
         JSONObject modificationJson = new JSONObject();
         this.modifications.forEach((flag, modification) -> {
-            modificationJson.put(flag, modification.getValue());
+            Object value = modification.getValue();
+            modificationJson.put(flag, (value == null) ? JSONObject.NULL : value);
         });
         json.put("context", contextJson);
         json.put("modifications", modificationJson);

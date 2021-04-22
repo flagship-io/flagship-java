@@ -12,12 +12,12 @@ import java.util.logging.Level;
 
 public class Modifications implements Serializable {
 
-    private String                          campaignId;
-    private String                          variationGroupId;
-    private String                          variationId;
-    private boolean                         isReference;
-    private String                          type;
-    private HashMap<String, Modification>   values;
+    private final String                          campaignId;
+    private final String                          variationGroupId;
+    private final String                          variationId;
+    private final boolean                         isReference;
+    private final String                          type;
+    private final HashMap<String, Modification>   values;
 
     public Modifications(String campaignId, String variationGroupId, String variationId, boolean isReference, String type, HashMap<String, Modification> values) {
         this.campaignId = campaignId;

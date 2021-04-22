@@ -10,13 +10,13 @@ import java.util.logging.Level;
 
 public class Variation implements Serializable {
 
-    private String          campaignId;
-    private String          variationGroupId;
-    private String          variationId;
-    private boolean         isReference;
-    private Modifications   modifications;
-    private int             allocation = 100;
-    private boolean         isSelected = false;
+    private final String            campaignId;
+    private final String            variationGroupId;
+    private final String            variationId;
+    private final boolean           isReference;
+    private final Modifications     modifications;
+    private int                     allocation = 100;
+    private boolean                 isSelected = false;
 
 
 

@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutionException;
 import javax.servlet.http.HttpServletRequest;
 
 import com.springboot.interceptor.FlagControllerInterceptor;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,7 +31,6 @@ public class FlagController {
 
         Object flag = null;
         String error = "";
-        ObjectMapper mapper = new ObjectMapper();
         Map<String, Object> obj = new HashMap<String, Object>();
 
         visitor = (Visitor) request.getAttribute("Visitor");
@@ -55,26 +55,19 @@ public class FlagController {
                 flag = visitor.getModification(flag_key, Float.parseFloat(defaultValue), activate);
                 break;
 
-            case "array":
+            case "JSONArray":
                 try {
-
-                    List<Object> arrayVal = mapper.readValue(defaultValue, new TypeReference<List<Object>>() {
-                    });
-                    flag = visitor.getModification(flag_key, arrayVal, activate);
-                    System.out.println(arrayVal.toString());
-
+                    JSONArray array = new JSONArray(defaultValue.toString());
+                    flag = visitor.getModification(flag_key, array, activate);
                 } catch (Exception e) {
                     error = e.getMessage();
                 }
                 break;
 
-            case "object":
+            case "JSONObject":
                 try {
-
-                    Object objVal = mapper.readValue(defaultValue, new TypeReference<Object>() {
-                    });
-                    flag = visitor.getModification(flag_key, objVal, activate);
-
+                    JSONObject object = new JSONObject(defaultValue.toString());
+                    flag = visitor.getModification(flag_key, object, activate);
                 } catch (Exception e) {
                     error = e.getMessage();
                 }
@@ -83,11 +76,7 @@ public class FlagController {
                 error = "Type" + type + "not handled";
         }
 
-        if (error != "") {
-            error = "there is an error";
-        }
-
-        obj.put("value", flag);
+        obj.put("value", flag != null ? flag.toString() : null);
         obj.put("error", error);
         System.out.println(obj);
         return obj;

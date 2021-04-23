@@ -16,7 +16,8 @@ public class BucketingManager extends DecisionManager {
 
     private boolean                         pollingDaemon = true;
     private Thread                          pollingThread = null;
-    private ConcurrentLinkedQueue<Campaign> campaigns = new ConcurrentLinkedQueue<>();
+//    private ConcurrentLinkedQueue<Campaign> campaigns = new ConcurrentLinkedQueue<>();
+    private ArrayList<Campaign>             campaigns = new ArrayList<Campaign>();
     private String                          last_modified;
 
     @Override
@@ -37,7 +38,7 @@ public class BucketingManager extends DecisionManager {
         this.pollingThread.start();
     }
 
-    private void onPollingEvent() {
+    private void sendBucketingRequest() {
         try {
             HashMap<String, String> headers = new HashMap<String, String>();
             if (last_modified != null)
@@ -46,7 +47,7 @@ public class BucketingManager extends DecisionManager {
                     String.format(BUCKETING, config.getEnvId()), headers, null, config.getTimeout());
             logResponse(response);
             last_modified = response.getResponseHeader("Last-Modified");
-//            ArrayList<Campaign> newCampaigns = parseCampaignsResponse(response.getResponseContent());
+            ArrayList<Campaign> newCampaigns = parseCampaignsResponse(response.getResponseContent());
 //            if (newCampaigns != null)
 //                campaigns = new ConcurrentLinkedQueue<>(newCampaigns);
         } catch (Exception e) {
@@ -63,7 +64,7 @@ public class BucketingManager extends DecisionManager {
             while (pollingDaemon) {
                 FlagshipLogManager.log(FlagshipLogManager.Tag.BUCKETING, LogManager.Level.DEBUG, FlagshipConstants.Info.BUCKETING_INTERVAL);
                 try {
-                    onPollingEvent();
+                    sendBucketingRequest();
                     Thread.sleep(TimeUnit.MILLISECONDS.convert(config.getPollingTime(), config.getPollingUnit()));
                 } catch (InterruptedException e) {
                     e.printStackTrace();

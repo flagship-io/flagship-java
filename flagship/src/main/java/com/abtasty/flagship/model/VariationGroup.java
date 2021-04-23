@@ -3,6 +3,8 @@ package com.abtasty.flagship.model;
 import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
+import com.abtasty.flagship.utils.MurmurHash;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -49,9 +51,9 @@ public class VariationGroup implements Serializable {
             String selectedVariationId = null;
             TargetingGroups targetingGroups = null;
             HashMap<String, Variation> variations = new HashMap<String, Variation>();
-            JSONObject variationObj = variationGroupsObj.getJSONObject("variation");
-            if (variationObj != null) {
+            if (!bucketing) {
                 // api
+                JSONObject variationObj = variationGroupsObj.getJSONObject("variation");
                 Variation variation = Variation.parse(campaignId, variationGroupId, variationObj);
                 if (variation != null) {
                     variation.setSelected(true);
@@ -60,6 +62,39 @@ public class VariationGroup implements Serializable {
                 }
             } else {
                 //bucketing
+                //selectedVariation = loadFromCache()
+                JSONArray variationArr = variationGroupsObj.optJSONArray("variations");
+                if (variationArr != null) {
+                    int p = 0;
+//                    long murmur = MurmurHash.getAllocationFromMurmur(variationGroupId, "");
+                    for (int i = 0; i < variationArr.length(); i++) {
+                        JSONObject variationObj = variationArr.getJSONObject(i);
+                        if (variationObj.has("allocation")) {
+                            Variation variation = Variation.parse(campaignId, variationGroupId, variationObj);
+                            if (variation != null) {
+//                                if (selectedVariationId == null) {
+//                                    p += variation.getAllocation();
+//                                    if (murmur < p) {
+//                                        selectedVariationId = variation.getVariationId();
+//                                        variation.setSelected(true);
+//                                        FlagshipLogManager.log(FlagshipLogManager.Tag.ALLOCATION, LogManager.Level.DEBUG,
+//                                                String.format(FlagshipConstants.Info.NEW_ALLOCATION, variation.getVariationId(),
+//                                                        murmur));
+//                                        //Save in cache
+//                                    }
+//                                }
+                                variations.put(variation.getVariationId(), variation);
+                            }
+                        }
+                    }
+                    JSONObject targetingObj = variationGroupsObj.optJSONObject("targeting");
+                    if (targetingObj != null) {
+                        JSONArray targetingArr = targetingObj.optJSONArray("targetingGroups");
+                        if (targetingArr != null) {
+                            targetingGroups = TargetingGroups.parse(targetingArr);
+                        }
+                    }
+                }
             }
             return new VariationGroup(campaignId, variationGroupId, variations, targetingGroups, selectedVariationId);
         } catch (Exception e) {

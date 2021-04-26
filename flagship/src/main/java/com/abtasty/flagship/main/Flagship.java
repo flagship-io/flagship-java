@@ -27,10 +27,6 @@ public class Flagship {
          * Flaghsip SDK has not been started or initialized successfully.
          */
         NOT_READY,
-//        /**
-//         * Flagship SDK is in panic mode.
-//         */
-//         READY_PANIC_ON,
         /**
          * Flagship SDK is ready to use.
          */

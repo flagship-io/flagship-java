@@ -1,0 +1,49 @@
+plugins {
+    id 'java'
+}
+
+apply from: 'flagship-publishing.gradle'
+
+task generateBuildConfig {
+    def outputDir = file("$buildDir/generated/sources/buildConfig/com/abtasty/flagship")
+    outputDir.exists() || outputDir.mkdirs()
+    def java =
+            "package com.abtasty.flagship;\n\n" +
+            "public class BuildConfig {\n" +
+                    "\tpublic static String flagship_version_name = \"" + flagship_version_name + "\";\n" +
+            "}"
+    def javaFile = new File(outputDir, 'BuildConfig.java')
+    javaFile.write(java)
+}
+
+compileJava.dependsOn generateBuildConfig
+compileTestJava.dependsOn generateBuildConfig
+
+
+
+sourceSets.main.java.srcDirs += ["$buildDir/generated/sources/buildConfig"]
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.json:json:20201115'
+    implementation 'junit:junit:4.12'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+
+    testImplementation group: 'org.powermock', name: 'powermock-api-mockito2', version: '2.0.9'
+    testImplementation group: 'org.powermock', name: 'powermock-module-junit4', version: '2.0.9'
+}
+
+jar {
+    archivesBaseName = artifact_id + "-" + flagship_version_name
+    configurations.runtimeClasspath.collect  { it.isDirectory() ? it : zipTree(it) }
+}
+
+
+test {
+    useJUnitPlatform()
+}

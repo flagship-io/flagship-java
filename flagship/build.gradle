@@ -52,14 +52,14 @@ dependencies {
     testImplementation group: 'org.powermock', name: 'powermock-module-junit4', version: '2.0.9'
 }
 
-jar {
-    archivesBaseName = artifact_id
-    archiveVersion = flagship_version_name
-    manifest {
-        attributes 'Main-Class': 'com.abtasty.demo.DemoFlagship'
-    }
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-}
+//jar {
+//    archivesBaseName = artifact_id
+//    archiveVersion = flagship_version_name
+//    manifest {
+//        attributes 'Main-Class': 'com.abtasty.demo.DemoFlagship'
+//    }
+//    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+//}
 
 
 test {

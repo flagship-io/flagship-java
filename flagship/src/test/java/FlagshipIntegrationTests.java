@@ -131,7 +131,7 @@ public class FlagshipIntegrationTests {
 
     @Test
     public void config() {
-
+        assert false;
         Flagship.start(null, null, null);
         assertEquals(Flagship.getStatus(), Flagship.Status.NOT_READY);
 

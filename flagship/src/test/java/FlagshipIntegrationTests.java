@@ -1,24 +1,24 @@
 import com.abtasty.flagship.BuildConfig;
-import com.abtasty.flagship.api.HttpHelper;
+import com.abtasty.flagship.api.HttpManager;
 import com.abtasty.flagship.api.Response;
 import com.abtasty.flagship.hits.*;
 import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.main.FlagshipConfig;
 import com.abtasty.flagship.main.Visitor;
-import com.abtasty.flagship.utils.LogManager;
 import com.abtasty.flagship.utils.FlagshipLogManager;
+import com.abtasty.flagship.utils.LogManager;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
+import org.powermock.reflect.Whitebox;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.net.HttpURLConnection;
@@ -26,19 +26,17 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.powermock.api.mockito.PowerMockito.doAnswer;
-import static org.powermock.api.mockito.PowerMockito.spy;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({URL.class, HttpHelper.class})
+@PrepareForTest({URL.class, HttpManager.class})
 public class FlagshipIntegrationTests {
 
     private HashMap<String, OnRequestValidation>            requestToVerify = new HashMap<>();
@@ -46,42 +44,42 @@ public class FlagshipIntegrationTests {
     private Boolean                                         requestsVerified = true;
     private Boolean                                         missingRequestVerification = false;
 
-
     public FlagshipIntegrationTests() {
 
         try {
-            spy(HttpHelper.class);
+            HttpManager mock = PowerMockito.spy(HttpManager.getInstance());
+            Whitebox.setInternalState(HttpManager.class, "instance", mock);
             doAnswer(new Answer<Object>() {
                 @Override
                 public Object answer(InvocationOnMock invocation) throws Throwable {
                     URL url = invocation.getArgument(0);
                     if (responseToMock.containsKey(url.toString())) {
-                       return responseToMock.get(url.toString());
+                        return responseToMock.get(url.toString());
                     } else
                         return invocation.callRealMethod();
                 }
-            }).when(HttpHelper.class, "createConnection", any());
+            }).when(mock, "createConnection", any());
 
             doAnswer(new Answer<Object>() {
                 @Override
                 public Object answer(InvocationOnMock invocation) throws Throwable {
                     Response response = (Response) invocation.callRealMethod();
-                    if (requestToVerify.containsKey(response.requestUrl)) {
+                    if (requestToVerify.containsKey(response.getRequestUrl())) {
                         try {
                             requestToVerify.get(response.getRequestUrl()).onRequestValidation(response);
                         } catch (Error | Exception e) {
                             requestsVerified = false;
-                            System.err.println("Error verifying : " + response.requestUrl);
+                            System.err.println("Error verifying : " + response.getRequestUrl());
                             e.printStackTrace();
                         }
-                        requestToVerify.remove(response.requestUrl);
+                        requestToVerify.remove(response.getRequestUrl());
                     } else {
                         missingRequestVerification = true;
-                        System.err.println("Error url not verified : " + response.requestUrl);
+                        System.err.println("Error url not verified : " + response.getRequestUrl());
                     }
                     return response;
                 }
-            }).when(HttpHelper.class, "parseResponse", any(), any(), any(), any(), any());
+            }).when(mock, "parseResponse", any(), any(), any(), any(), any());
         } catch (Exception e) {
             e.printStackTrace();
             fail();
@@ -135,14 +133,14 @@ public class FlagshipIntegrationTests {
     public void config() {
 
         Flagship.start(null, null, null);
-        assertFalse(Flagship.isReady());
+        assertEquals(Flagship.getStatus(), Flagship.Status.NOT_READY);
 
         Flagship.start("null", "null", new FlagshipConfig().withFlagshipMode(null));
-        assertTrue(Flagship.isReady());
+        assertEquals(Flagship.getStatus(), Flagship.Status.READY);
 
         Flagship.start("my_env_id", "my_api_key");
         assertNotNull(Flagship.getConfig());
-        assertTrue(Flagship.isReady());
+        assertSame(Flagship.getStatus(), Flagship.Status.READY);
         assertEquals(Flagship.getConfig().getEnvId(), "my_env_id");
         assertEquals(Flagship.getConfig().getApiKey(), "my_api_key");
 
@@ -151,7 +149,7 @@ public class FlagshipIntegrationTests {
 
             @Override
             public void onLog(Level level, String tag, String message) {
-                if (message.contains("Flagship SDK") && tag == FlagshipLogManager.Tag.INITIALIZATION.getName() && level == Level.INFO)
+                if (message.contains("Flagship SDK") && tag.equals(FlagshipLogManager.Tag.INITIALIZATION.getName()) && level == Level.INFO)
                     logLatch.countDown();
             }
         }
@@ -159,7 +157,7 @@ public class FlagshipIntegrationTests {
                 .withFlagshipMode(Flagship.Mode.DECISION_API)
                 .withLogManager(new CustomLogManager()));
         assertNotNull(Flagship.getConfig());
-        assertTrue(Flagship.isReady());
+        assertEquals(Flagship.getStatus(), Flagship.Status.READY);
         assertEquals(Flagship.getConfig().getEnvId(), "my_env_id_2");
         assertEquals(Flagship.getConfig().getApiKey(), "my_api_key_2");
         assertTrue(Flagship.getConfig().getLogManager() instanceof CustomLogManager);
@@ -177,8 +175,8 @@ public class FlagshipIntegrationTests {
         CountDownLatch logLatch = new CountDownLatch(2);
         class CustomLogManager extends LogManager {
 
-            public CustomLogManager(LogManager.LogMode mode) {
-                super(mode);
+            public CustomLogManager(LogManager.Level level) {
+                super(level);
             }
 
             @Override
@@ -190,7 +188,7 @@ public class FlagshipIntegrationTests {
 
         Flagship.start("my_env_id", "my_api_key", new FlagshipConfig()
                 .withFlagshipMode(Flagship.Mode.DECISION_API)
-                .withLogManager(new CustomLogManager(LogManager.LogMode.ALL)));
+                .withLogManager(new CustomLogManager(LogManager.Level.ALL)));
 
         Visitor visitor0 = Flagship.newVisitor(null);
         assertNull(visitor0);
@@ -214,7 +212,7 @@ public class FlagshipIntegrationTests {
         visitor1.updateContext("wrong2", new Response(0, "", "", null));
         visitor1.updateContext("key1", "value1");
         visitor1.updateContext("key2", 2);
-        HashMap<String, Object> context = visitor1.getContext();
+        ConcurrentMap<String, Object> context = visitor1.getContext();
         assertEquals(context.size(), 9);
         assertEquals(context.get("boolean"), true);
         assertEquals(context.get("int"), 32);
@@ -237,6 +235,7 @@ public class FlagshipIntegrationTests {
         }
     }
 
+    @PrepareForTest(HttpManager.class)
     @Test
     public void synchronize() {
 
@@ -248,7 +247,7 @@ public class FlagshipIntegrationTests {
                 assertEquals(request.getRequestHeaders().get("x-api-key"), "my_api_key");
                 assertEquals(request.getRequestHeaders().get("x-sdk-version"), BuildConfig.flagship_version_name);
                 assertEquals(request.getRequestHeaders().get("x-sdk-client"), "java");
-                JSONObject content = new JSONObject(request.requestContent);
+                JSONObject content = new JSONObject(request.getRequestContent());
                 assertTrue(content.has("context"));
                 assertTrue(content.getJSONObject("context").getBoolean("vip"));
                 assertEquals(content.getJSONObject("context").getInt("age"), 32);
@@ -257,13 +256,13 @@ public class FlagshipIntegrationTests {
 
             CountDownLatch synchronizeLatch = new CountDownLatch(1);
             Flagship.start("my_env_id", "my_api_key");
-            assertTrue(Flagship.isReady());
+            assertEquals(Flagship.getStatus(), Flagship.Status.READY);
             Visitor visitor = Flagship.newVisitor("visitor_1", new HashMap<String, Object>() {{
                 put("vip", true);
                 put("age", 32);
             }});
             assert visitor != null;
-            visitor.synchronizeModifications(() -> {
+            visitor.synchronizeModifications().whenComplete((Void, error) -> {
                 assertEquals(visitor.getModification("isref", "default"), "not a all");
                 assertEquals(visitor.getModification("release", 0), 100);
                 synchronizeLatch.countDown();
@@ -297,7 +296,9 @@ public class FlagshipIntegrationTests {
         try {
             CountDownLatch synchronizeLatch = new CountDownLatch(1);
             assert visitor != null;
-            visitor.synchronizeModifications(synchronizeLatch::countDown);
+            visitor.synchronizeModifications().whenComplete((Void, error) -> {
+                synchronizeLatch.countDown();
+            });
             if (!synchronizeLatch.await(1, TimeUnit.SECONDS))
                 fail();
         } catch (Exception e) {
@@ -310,7 +311,7 @@ public class FlagshipIntegrationTests {
         CountDownLatch nbHit1 = new CountDownLatch(1);
 
         verifyRequest("https://decision.flagship.io/v2/activate", (request) -> {
-            JSONObject content = new JSONObject(request.requestContent);
+            JSONObject content = new JSONObject(request.getRequestContent());
             assertEquals(content.getString("vid"), "visitor_1");
             assertEquals(content.getString("cid"), "my_env_id");
             if (content.getString("vaid").contains("xxxxxx3m649g0h9nkuk0") &&
@@ -325,7 +326,7 @@ public class FlagshipIntegrationTests {
 
         CountDownLatch nbHit2 = new CountDownLatch(1);
         verifyRequest("https://decision.flagship.io/v2/activate", (request) -> {
-            JSONObject content = new JSONObject(request.requestContent);
+            JSONObject content = new JSONObject(request.getRequestContent());
             assertEquals(content.getString("vid"), "visitor_1");
             assertEquals(content.getString("cid"), "my_env_id");
             if (content.getString("vaid").contains("xxxxxx65k9h02cuc1ae0") &&
@@ -565,16 +566,13 @@ public class FlagshipIntegrationTests {
             put("age", 32);
             put("daysSinceLastLaunch", 2);
         }});
-
-        visitor.synchronizeModifications(() -> {
-
+        visitor.synchronizeModifications().whenComplete((Void, error) -> {
             visitor.updateContext("hello", "world");
             assertFalse(visitor.getContext().containsKey("hello"));
             assertEquals(visitor.getModification("wrong", "wrong", true), "wrong");
             visitor.sendHit(new Screen("Integration Test"));
             campaignCall0.countDown();
         });
-
         try {
             Thread.sleep(200);
         } catch (InterruptedException e) {
@@ -588,7 +586,7 @@ public class FlagshipIntegrationTests {
         verifyRequest("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", (request) -> {
             campaignCall.getAndAdd(1);
         });
-        visitor.synchronizeModifications(null);
+        visitor.synchronizeModifications();
         Thread.sleep(200);
         assertEquals(campaignCall.get(), 1);
     }
@@ -608,9 +606,10 @@ public class FlagshipIntegrationTests {
             put("age", 32);
             put("daysSinceLastLaunch", 2);
         }});
-        visitor.synchronizeModifications(() -> {
+        visitor.synchronizeModifications().whenComplete((Void, error) -> {
             latch.countDown();
         });
+
         try {
             if (!latch.await(1000, TimeUnit.MILLISECONDS))
                 fail();
@@ -642,7 +641,7 @@ public class FlagshipIntegrationTests {
             put("age", 32);
             put("daysSinceLastLaunch", 2);
         }});
-        visitor.synchronizeModifications(() -> {
+        visitor.synchronizeModifications().whenComplete((Void, error) -> {
             latch.countDown();
         });
         try {

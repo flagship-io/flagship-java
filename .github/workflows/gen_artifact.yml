@@ -4,7 +4,7 @@ name: Generate Artifact
 on: workflow_dispatch
 
 jobs:
- 
+
   build:
     runs-on: ubuntu-latest
     steps:
@@ -18,14 +18,17 @@ jobs:
       - name: Gradle wrapper
         run: gradle wrapper
       - name: Build
-        run: bash ./gradlew clean assemble
-      - name: Send greeting
         run: |
-          echo "Hello ${{ github.event.inputs.name }}"
-          echo ${GITHUB_REF##*/}
-          ${GITHUB_REF}
+          bash ./gradlew clean
+          bash ./gradlew generateBuildConfig
+          bash ./gradlew assemble
+          bash ./gradlew test
+      - name: Get branch
+        run: echo "::set-output name=branch_name::${GITHUB_REF##*/}"
+        id: ref
       - name: Push artifact
         uses: actions/upload-artifact@v2
         with:
-          name: java-sdk-${GITHUB_REF}
-          path: flagship/build/lib/*.jar
+          name: java-sdk-${{ steps.ref.outputs.branch_name }}
+          path: flagship/build/libs/
+          retention-days: 10

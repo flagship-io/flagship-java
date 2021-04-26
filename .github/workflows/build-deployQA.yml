@@ -17,28 +17,32 @@ jobs:
         with:
           java-version: 1.8
       - name: go to demoqa
-        run: cd /demoqa
+        run: cd ./demoqa
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-
+        working-directory: ./demoqa
       - name: change branch
         run: sed -i 's/%branch%/${{ steps.extract_branch.outputs.branch }}/g' ./src/main/resources/static/index.html
-
-      - name: Gradle wrapper
-        run: gradle wrapper
+        working-directory: ./demoqa
+      # - name: Gradle wrapper
+      #   run: gradle wrapper
+      #   working-directory: ./demoqa
       - name: Clean
         run: ./gradlew clean
+        working-directory: ./demoqa
       - name: Assemble
         run: ./gradlew assemble
+        working-directory: ./demoqa
       - name: test
         run: ./gradlew test
-
+        working-directory: ./demoqa
       - uses: actions/upload-artifact@v2
         with:
           name: demoqa-jar
-          path: build/libs/demoqa-0.0.1.jar
+          path: ./demoqa/build/libs/demoqa-0.0.1.jar
 
   deployqa:
+    needs: buildqa
     runs-on: ubuntu-latest
 
     steps:
@@ -52,6 +56,7 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: demoqa-jar
+          path: ./demoqa
 
       - name: Login to Registry
         uses: docker/login-action@v1
@@ -60,8 +65,11 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.DOCKER_QA }}
 
+        #hashtag pour les gars
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v2.3.0
         with:
           push: true
-          tags: ghcr.io/${{ github.repository }}:${{ steps.extract_branch.outputs.branch }}
+          tags: ghcr.io/${{ github.repository }}:QA
+          context: ./demoqa

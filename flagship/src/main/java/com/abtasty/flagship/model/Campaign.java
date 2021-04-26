@@ -3,6 +3,7 @@ package com.abtasty.flagship.model;
 import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.FlagshipLogManager;
+import com.abtasty.flagship.utils.LogManager;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -12,10 +13,10 @@ import java.util.logging.Level;
 
 public class Campaign implements Serializable {
 
-    private String          id;
-    private LinkedHashMap   variationGroups = new LinkedHashMap<String, VariationGroup>();
+    private final String                                    id;
+    private final LinkedHashMap<String, VariationGroup>     variationGroups;
 
-    public Campaign(String id, LinkedHashMap variationGroups) {
+    public Campaign(String id, LinkedHashMap<String, VariationGroup> variationGroups) {
         this.id = id;
         this.variationGroups = variationGroups;
     }
@@ -24,7 +25,7 @@ public class Campaign implements Serializable {
         return id;
     }
 
-    public LinkedHashMap getVariationGroups() {
+    public LinkedHashMap<String, VariationGroup> getVariationGroups() {
         return variationGroups;
     }
 
@@ -32,7 +33,7 @@ public class Campaign implements Serializable {
         HashMap<String, Modification> modifications = new HashMap<>();
         this.variationGroups.forEach((key, variationGroup) -> {
             if (mode == Flagship.Mode.DECISION_API) {
-                ((VariationGroup)variationGroup).getVariations().forEach((variationId, variation) -> {
+                variationGroup.getVariations().forEach((variationId, variation) -> {
                     modifications.putAll(variation.getModifications().getValues());
                 });
             } else {
@@ -42,19 +43,17 @@ public class Campaign implements Serializable {
         return modifications;
     }
 
-    public static ArrayList<Campaign> parse(String json) {
+    public static ArrayList<Campaign> parse(JSONArray campaignsArray) {
         try {
-            JSONObject main = new JSONObject(json);
             ArrayList<Campaign> campaigns = new ArrayList<>();
-            JSONArray campaignArray = main.getJSONArray("campaigns");
-            campaignArray.forEach(campaignObject -> {
+            campaignsArray.forEach(campaignObject -> {
                 Campaign campaign = Campaign.parse((JSONObject) campaignObject);
                 if (campaign != null)
                     campaigns.add(campaign);
             });
             return campaigns;
         } catch (Exception e){
-            FlagshipLogManager.log(FlagshipLogManager.Tag.PARSING, Level.SEVERE, FlagshipConstants.Errors.PARSING_CAMPAIGN_ERROR);
+            FlagshipLogManager.log(FlagshipLogManager.Tag.PARSING, LogManager.Level.ERROR, FlagshipConstants.Errors.PARSING_CAMPAIGN_ERROR);
             return null;
         }
     }
@@ -63,10 +62,10 @@ public class Campaign implements Serializable {
         try {
             String id = campaignObject.getString("id");
             LinkedHashMap<String, VariationGroup> variationGroups = new LinkedHashMap<>();
-            JSONArray variationGroupdArr = campaignObject.optJSONArray("variationGroups");
-            if (variationGroupdArr != null) {
+            JSONArray variationGroupArray = campaignObject.optJSONArray("variationGroups");
+            if (variationGroupArray != null) {
                 //bucketing
-                variationGroupdArr.forEach(variationGroupsObj -> {
+                variationGroupArray.forEach(variationGroupsObj -> {
                     VariationGroup variationGroup = VariationGroup.parse(id, (JSONObject) variationGroupsObj, true);
                     if (variationGroup != null)
                         variationGroups.put(variationGroup.getVariationGroupId(), variationGroup);
@@ -80,7 +79,7 @@ public class Campaign implements Serializable {
             return new Campaign(id, variationGroups);
         }
         catch (Exception e){
-            FlagshipLogManager.log(FlagshipLogManager.Tag.PARSING, Level.SEVERE, FlagshipConstants.Errors.PARSING_CAMPAIGN_ERROR);
+            FlagshipLogManager.log(FlagshipLogManager.Tag.PARSING, LogManager.Level.ERROR, FlagshipConstants.Errors.PARSING_CAMPAIGN_ERROR);
             return null;
         }
     }

@@ -2,6 +2,7 @@ package com.abtasty.flagship.model;
 
 import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.FlagshipLogManager;
+import com.abtasty.flagship.utils.LogManager;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.Serializable;
@@ -11,12 +12,12 @@ import java.util.logging.Level;
 
 public class Modifications implements Serializable {
 
-    private String                          campaignId;
-    private String                          variationGroupId;
-    private String                          variationId;
-    private boolean                         isReference;
-    private String                          type;
-    private HashMap<String, Modification>   values;
+    private final String                          campaignId;
+    private final String                          variationGroupId;
+    private final String                          variationId;
+    private final boolean                         isReference;
+    private final String                          type;
+    private final HashMap<String, Modification>   values;
 
     public Modifications(String campaignId, String variationGroupId, String variationId, boolean isReference, String type, HashMap<String, Modification> values) {
         this.campaignId = campaignId;
@@ -61,11 +62,11 @@ public class Modifications implements Serializable {
                 if (value instanceof Boolean || value instanceof Number || value instanceof String || value instanceof JSONObject || value instanceof JSONArray || value == null)
                     values.put(key, new Modification(key, campaignId, variationGroupId, variationId, isReference, value));
                 else
-                    FlagshipLogManager.log(FlagshipLogManager.Tag.PARSING, Level.SEVERE, FlagshipConstants.Errors.PARSING_MODIFICATION_ERROR);
+                    FlagshipLogManager.log(FlagshipLogManager.Tag.PARSING, LogManager.Level.ERROR, FlagshipConstants.Errors.PARSING_MODIFICATION_ERROR);
             });
             return new Modifications(campaignId, variationGroupId, variationId, isReference, type, values);
         } catch (Exception e) {
-            FlagshipLogManager.log(FlagshipLogManager.Tag.PARSING, Level.SEVERE, FlagshipConstants.Errors.PARSING_MODIFICATION_ERROR);
+            FlagshipLogManager.log(FlagshipLogManager.Tag.PARSING, LogManager.Level.ERROR, FlagshipConstants.Errors.PARSING_MODIFICATION_ERROR);
             return null;
         }
     }

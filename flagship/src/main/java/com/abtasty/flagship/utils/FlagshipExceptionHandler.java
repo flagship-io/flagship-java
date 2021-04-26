@@ -8,13 +8,11 @@
 //
 //public class FlagshipExceptionHandler implements Thread.UncaughtExceptionHandler {
 //
-//    private String flagshipPackage = "com.abtasty.flagship";
-//    private FlagshipConfig config = null;
+//    private final static String             flagshipPackage = "com.abtasty.flagship";
 //    private Thread.UncaughtExceptionHandler previousHandler = null;
 //
-//    public FlagshipExceptionHandler(FlagshipConfig config, Thread.UncaughtExceptionHandler previousHandler) {
-//        this.previousHandler = previousHandler;
-//        this.config = config;
+//    public FlagshipExceptionHandler() {
+//        this.previousHandler = Thread.getDefaultUncaughtExceptionHandler();
 //        Thread.setDefaultUncaughtExceptionHandler(this);
 //    }
 //
@@ -22,23 +20,11 @@
 //    public void uncaughtException(Thread t, Throwable e) {
 //        StackTraceElement[] elements = e.getStackTrace();
 //        if (elements.length > 0) {
-//            if (elements[0].getClassName().contains(flagshipPackage)) {
-//                StringWriter writer = new StringWriter();
-//                PrintWriter printer = new PrintWriter(writer);
-//                e.printStackTrace(printer);
-//                if (config != null && config.getLogManager() != null)
-//                    config.getLogManager().onException(LogManager.Tag.GLOBAL, LogLevel.EXCEPTION, writer.toString());
-//                try {
-//                    printer.close();
-//                    writer.close();
-//                } catch (IOException ioException) {
-//                    ioException.printStackTrace();
-//                }
-//            }
-//            else {
+//            if (elements[0].getClassName().contains(flagshipPackage) && e instanceof Exception)
+//                FlagshipLogManager.exception((Exception) e);
+//            else if (previousHandler != null)
 //                this.previousHandler.uncaughtException(t, e);
-//            }
-//        } else
+//        } else if (previousHandler != null)
 //            this.previousHandler.uncaughtException(t, e);
 //    }
 //}

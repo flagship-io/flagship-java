@@ -5,11 +5,11 @@ import com.abtasty.flagship.hits.Activate;
 import com.abtasty.flagship.hits.Hit;
 import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.FlagshipLogManager;
+import com.abtasty.flagship.utils.LogManager;
 import org.json.JSONObject;
-
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
+import java.util.concurrent.CompletableFuture;
 
 public class TrackingManager implements IFlagshipEndpoints {
 
@@ -32,36 +32,21 @@ public class TrackingManager implements IFlagshipEndpoints {
         JSONObject data = hit.getData();
         data.put(FlagshipConstants.HitKeyMap.VISITOR_ID, visitorId);
         if (hit.checkData()) {
-            HttpHelper.sendAsyncHttpRequest(HttpHelper.RequestType.POST, endpoint, headers, data.toString(), new HttpHelper.IResponse() {
-                @Override
-                public void onSuccess(Response response) {
-                    logHit(hit, response);
-                }
-
-                @Override
-                public void onFailure(Response response) {
-                    logHit(hit, response);
-                }
-
-                @Override
-                public void onException(Exception e) {
-                }
+            CompletableFuture<Response> response = HttpManager.getInstance().sendAsyncHttpRequest(HttpManager.RequestType.POST, endpoint, headers, data.toString());
+            response.whenComplete((httpResponse, error) -> {
+                logHit(hit, httpResponse);
             });
         } else {
-            FlagshipLogManager.log(FlagshipLogManager.Tag.TRACKING, Level.SEVERE, String.format(FlagshipConstants.Errors.HIT_INVALID_DATA_ERROR, hit.getType(), hit.toString()));
+            FlagshipLogManager.log(FlagshipLogManager.Tag.TRACKING, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.HIT_INVALID_DATA_ERROR, hit.getType(), hit.toString()));
         }
     }
 
     private void logHit(Hit h, Response response) {
         FlagshipLogManager.Tag tag = (h instanceof Activate) ? FlagshipLogManager.Tag.ACTIVATE : FlagshipLogManager.Tag.TRACKING;
-        Level level = response.isSuccess() ? Level.INFO : Level.SEVERE;
-        StringBuilder content = new StringBuilder();
-        content.append(" [" + response.getType() + "] ")
-                .append(" " + response.getRequestUrl() + " ")
-                .append(" [" + response.getResponseCode() + "] ")
-                .append("\n")
-                .append(h.getData().toString(2));
-        FlagshipLogManager.log(tag, level, content.toString());
+        LogManager.Level level = response.isSuccess() ? LogManager.Level.DEBUG : LogManager.Level.ERROR;
+        String log = String.format("[%s] %s [%d] [%dms]\n%s", response.getType(), response.getRequestUrl(),
+                response.getResponseCode(), response.getResponseTime(), h.getData().toString(2));
+        FlagshipLogManager.log(tag, level, log);
     }
 
     public void sendContextRequest(String envId, String visitorId, HashMap<String, Object> context) {
@@ -75,9 +60,9 @@ public class TrackingManager implements IFlagshipEndpoints {
                 data.put(item.getKey(), item.getValue());
             }
             body.put("data", data);
-            HttpHelper.sendAsyncHttpRequest(HttpHelper.RequestType.POST, endpoint, null, body.toString(), null);
+            HttpManager.getInstance().sendAsyncHttpRequest(HttpManager.RequestType.POST, endpoint, null, body.toString());
         } catch (Exception e) {
-            e.printStackTrace();
+            FlagshipLogManager.exception(e);
         }
     }
 }

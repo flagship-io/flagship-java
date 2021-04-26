@@ -4,15 +4,17 @@ import java.util.HashMap;
 
 public class Response {
 
-    public HttpHelper.RequestType type = HttpHelper.RequestType.GET;
-    public String requestUrl = "";
-    public String requestContent = "";
-    public HashMap<String, String> requestHeaders = new HashMap();
+    private HttpManager.RequestType     type = HttpManager.RequestType.GET;
+    private String                      requestUrl = "";
+    private String                      requestContent = "";
+    private HashMap<String, String>     requestHeaders = new HashMap<String, String>();
 
-    public int responseCode = -1;
-    public String responseContent = "";
-    public String responseMessage = "";
-    public HashMap<String, String> responseHeaders = new HashMap();
+    private int                         responseCode = -1;
+    private String                      responseContent = "";
+    private String                      responseMessage = "";
+    private HashMap<String, String>     responseHeaders = new HashMap<String, String>();
+    private long                        responseTime = 0;
+
 
     public Response(int code, String content, String message, HashMap<String, String> headers) {
         this.responseCode = code;
@@ -81,16 +83,24 @@ public class Response {
         this.responseHeaders = responseHeaders;
     }
 
-    public String getResponseheader(String field) {
+    public String getResponseHeader(String field) {
         return this.responseHeaders.get(field);
     }
 
-    public HttpHelper.RequestType getType() {
+    public HttpManager.RequestType getType() {
         return type;
     }
 
-    public void setType(HttpHelper.RequestType type) {
+    public void setType(HttpManager.RequestType type) {
         this.type = type;
+    }
+
+    public long getResponseTime() {
+        return responseTime;
+    }
+
+    public void setResponseTime(long responseTime) {
+        this.responseTime = responseTime;
     }
 
     @Override

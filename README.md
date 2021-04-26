@@ -8,7 +8,7 @@
 
 <h3 align="center">Bring your features to life</h3>
 
-[![CI UnitTest & Build](https://github.com/raf-abtasty/flagship-java/actions/workflows/ci-test-build.yml/badge.svg?branch=main)](https://github.com/raf-abtasty/flagship-java/actions/workflows/ci-test-build.yml)
+[![CI UnitTest & Build](https://github.com/flagship-io/flagship-java/actions/workflows/ci-test-build.yml/badge.svg?branch=main)](https://github.com/flagship-io/flagship-java/actions/workflows/ci-test-build.yml)
 [![java](https://img.shields.io/badge/Java-1.8-blue.svg)]()
 [![Apache2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
@@ -30,4 +30,4 @@
 
 ## Licence
 
-[Apache License.](https://github.com/raf-abtasty/flagship-java/blob/main/LICENSE)
+[Apache License.](https://github.com/flagship-io/flagship-java/blob/main/LICENSE)

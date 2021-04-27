@@ -16,20 +16,6 @@ task generateBuildConfig {
     javaFile.write(java)
 }
 
-task release {
-
-    dependsOn 'clean'
-    dependsOn 'generateBuildConfig'
-    dependsOn 'assemble'
-    dependsOn 'test'
-    dependsOn 'artifactoryPublish'
-
-    tasks.findByName('generateBuildConfig').mustRunAfter('clean')
-    tasks.findByName('assemble').mustRunAfter('generateBuildConfig')
-    tasks.findByName('test').mustRunAfter('assemble')
-    tasks.findByName('artifactoryPublish').mustRunAfter('test')
-}
-
 compileJava.dependsOn generateBuildConfig
 compileTestJava.dependsOn generateBuildConfig
 
@@ -53,12 +39,8 @@ dependencies {
 }
 
 jar {
-    archivesBaseName = artifact_id
-    archiveVersion = flagship_version_name
-    manifest {
-        attributes 'Main-Class': 'com.abtasty.demo.DemoFlagship'
-    }
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    archivesBaseName = artifact_id + "-" + flagship_version_name
+    configurations.runtimeClasspath.collect  { it.isDirectory() ? it : zipTree(it) }
 }
 
 

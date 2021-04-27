@@ -24,9 +24,9 @@ jobs:
       - name: change branch
         run: sed -i 's/%branch%/${{ steps.extract_branch.outputs.branch }}/g' ./src/main/resources/static/index.html
         working-directory: ./demoqa
-     # - name: Gradle wrapper
-     #   run: gradle wrapper
-     #   working-directory: ./demoqa
+      # - name: Gradle wrapper
+      #   run: gradle wrapper
+      #   working-directory: ./demoqa
       - name: Clean
         run: ./gradlew clean
         working-directory: ./demoqa
@@ -64,9 +64,9 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.DOCKER_QA }}
-          
-#hashtag pour les gars
-        
+
+        #hashtag pour les gars
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v2.3.0
         with:

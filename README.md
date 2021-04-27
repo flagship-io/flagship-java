@@ -1,5 +1,6 @@
 
 
+
 <p align="center">
 
 <img  src="https://mk0abtastybwtpirqi5t.kinstacdn.com/wp-content/uploads/picture-solutions-persona-product-flagship.jpg"  width="211"  height="182"  alt="flagship-java"  />
@@ -9,6 +10,7 @@
 <h3 align="center">Bring your features to life</h3>
 
 [![CI UnitTest & Build](https://github.com/raf-abtasty/flagship-java/actions/workflows/ci-test-build.yml/badge.svg?branch=main)](https://github.com/raf-abtasty/flagship-java/actions/workflows/ci-test-build.yml)
+[![CI UnitTest & Build](https://github.com/flagship-io/flagship-java/actions/workflows/ci-test-build.yml/badge.svg?branch=master)](https://github.com/flagship-io/flagship-java/actions/workflows/ci-test-build.yml)
 [![java](https://img.shields.io/badge/Java-1.8-blue.svg)]()
 [![Apache2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
@@ -17,11 +19,11 @@
 
 ## Docs
 
-- [Get Started](http://developers.flagship.io/)
-- [Initialize and start](http://developers.flagship.io/)
-- [Campaign integration](http://developers.flagship.io/)
-- [Hit tracking](http://developers.flagship.io/)
-- [Release Notes](http://developers.flagship.io/)
+- [Get Started](https://developers.flagship.io/docs/sdk/java/v1.0#getting-started)
+- [Initialize and start](https://developers.flagship.io/docs/sdk/java/v1.0#initialization)
+- [Campaign integration](https://developers.flagship.io/docs/sdk/java/v1.0#managing-visitor-campaigns)
+- [Hit tracking](https://developers.flagship.io/docs/sdk/java/v1.0#hit-tracking)
+- [Release Notes](https://developers.flagship.io/docs/sdk/java/v1.0#release-notes)
 
 
 ## Contributors
@@ -30,4 +32,4 @@
 
 ## Licence
 
-[Apache License.](https://github.com/raf-abtasty/flagship-java/blob/main/LICENSE)
+[Apache License.](https://github.com/flagship-io/flagship-java/blob/master/LICENSE)

@@ -17,11 +17,11 @@
 
 ## Docs
 
-- [Get Started](http://developers.flagship.io/)
-- [Initialize and start](http://developers.flagship.io/)
-- [Campaign integration](http://developers.flagship.io/)
-- [Hit tracking](http://developers.flagship.io/)
-- [Release Notes](http://developers.flagship.io/)
+- [Get Started](https://developers.flagship.io/docs/sdk/java/v1.0#getting-started)
+- [Initialize and start](https://developers.flagship.io/docs/sdk/java/v1.0#initialization)
+- [Campaign integration](https://developers.flagship.io/docs/sdk/java/v1.0#managing-visitor-campaigns)
+- [Hit tracking](https://developers.flagship.io/docs/sdk/java/v1.0#hit-tracking)
+- [Release Notes](https://developers.flagship.io/docs/sdk/java/v1.0#release-notes)
 
 
 ## Contributors

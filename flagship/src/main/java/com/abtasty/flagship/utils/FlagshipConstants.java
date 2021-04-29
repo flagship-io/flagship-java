@@ -21,6 +21,7 @@ public final class FlagshipConstants {
         public static String PARSING_VARIATION_ERROR = PARSING_ERROR + " variation.";
         public static String PARSING_MODIFICATION_ERROR = PARSING_ERROR + " modification.";
         public static String PARSING_TARGETING_ERROR = PARSING_ERROR + " targeting.";
+        public static String TARGETING_COMPARISON_ERROR = "Targeting %s %s %s has failed.";
         public static String PARSING_VALUE_ERROR = PARSING_ERROR + " modification.";
         public static String GET_MODIFICATION_CAST_ERROR = "Modification for key '%s' has a different type. Default value is returned.";
         public static String GET_MODIFICATION_MISSING_ERROR = "No modification for key '%s'. Default value is returned.";

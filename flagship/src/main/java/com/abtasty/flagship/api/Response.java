@@ -27,6 +27,10 @@ public class Response {
         return (this.responseCode < 400);
     }
 
+    public Boolean isSuccess(Boolean ignoreNoModification) {
+        return (!ignoreNoModification) ? (this.responseCode < 300) : (this.responseCode < 400);
+    }
+
     public String getRequestUrl() {
         return requestUrl;
     }

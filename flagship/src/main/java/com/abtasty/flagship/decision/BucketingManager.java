@@ -46,10 +46,13 @@ public class BucketingManager extends DecisionManager {
             Response response = HttpManager.getInstance().sendHttpRequest(HttpManager.RequestType.GET,
                     String.format(BUCKETING, config.getEnvId()), headers, null, config.getTimeout());
             logResponse(response);
-            last_modified = response.getResponseHeader("Last-Modified");
-            ArrayList<Campaign> newCampaigns = parseCampaignsResponse(response.getResponseContent());
+            if (response.isSuccess(false)) {
+                last_modified = response.getResponseHeader("Last-Modified");
+                campaigns = parseCampaignsResponse(response.getResponseContent());
+//                    ArrayList<Campaign> newCampaigns = parseCampaignsResponse(response.getResponseContent());
 //            if (newCampaigns != null)
 //                campaigns = new ConcurrentLinkedQueue<>(newCampaigns);
+            }
         } catch (Exception e) {
             FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, LogManager.Level.ERROR, e.getMessage());
         }

@@ -19,6 +19,7 @@ public class FlagshipLogManager extends LogManager {
         SYNCHRONIZE("SYNCHRONIZE"),
         CAMPAIGNS("CAMPAIGNS"),
         PARSING("PARSING"),
+        TARGETING("TARGETING"),
         ALLOCATION("ALLOCATION"),
         GET_MODIFICATION("GET_MODIFICATION"),
         GET_MODIFICATION_INFO("GET_MODIFICATION_INFO"),

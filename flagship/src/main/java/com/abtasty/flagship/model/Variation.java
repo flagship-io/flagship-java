@@ -64,7 +64,7 @@ public class Variation implements Serializable {
     public static Variation parse(String campaignId, String variationGroupId, JSONObject variationObj) {
         try {
             String variationId = variationObj.getString("id");
-            boolean isReference = variationObj.getBoolean("reference");
+            boolean isReference = variationObj.optBoolean("reference", false);
             Modifications modifications = Modifications.parse(campaignId, variationGroupId, variationId, isReference, variationObj.getJSONObject("modifications"));
             int allocation = variationObj.optInt("allocation", -1);
             return new Variation(campaignId, variationGroupId, variationId, isReference, modifications, allocation);

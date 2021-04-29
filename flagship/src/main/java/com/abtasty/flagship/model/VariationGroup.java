@@ -65,7 +65,7 @@ public class VariationGroup implements Serializable {
                 //selectedVariation = loadFromCache()
                 JSONArray variationArr = variationGroupsObj.optJSONArray("variations");
                 if (variationArr != null) {
-                    int p = 0;
+//                    int p = 0;
 //                    long murmur = MurmurHash.getAllocationFromMurmur(variationGroupId, "");
                     for (int i = 0; i < variationArr.length(); i++) {
                         JSONObject variationObj = variationArr.getJSONObject(i);

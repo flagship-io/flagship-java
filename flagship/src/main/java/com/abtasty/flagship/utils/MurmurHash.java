@@ -13,7 +13,7 @@ public class MurmurHash {
         }
     }
 
-    public static long murmurHash3_x86_32(String source) {
+    private static long murmurHash3_x86_32(String source) {
 
         int c1 = -0x3361d2af;
         int c2 = 0x1b873593;
@@ -33,20 +33,20 @@ public class MurmurHash {
                 k2 = charCode;
                 bits = 8;
             } else if (charCode < 0x800) {
-                k2 = (0xC0 | (charCode >> 6) | (0x80 | (charCode & 0x3F) << 8));
+                k2 = (0xC0 | (charCode >> 6) | ((0x80 | (charCode & 0x3F)) << 8));
                 bits = 16;
             } else if (charCode < 0xD800 || charCode > 0xDFFF || pos >= end) {
-                k2 = (0xE0 | (charCode >> 12) | (0x80 | (charCode >> 6 & 0x3F) << 8) | (0x80 | (charCode & 0x3F) << 16));
+                k2 = (0xE0 | (charCode >> 12) | ((0x80 | (charCode >> 6 & 0x3F)) << 8) | ((0x80 | (charCode & 0x3F)) << 16));
                 bits = 24;
             } else {
                 int utf32 = source.charAt(pos++);
                 utf32 = (charCode - 0xD7C0 << 10) + (utf32 & 0x3FF);
-                k2 = (0xff & (0xF0 | (utf32 >> 18)) | (0x80 | (utf32 >> 12 & 0x3F) << 8) | (0x80 | (utf32 >> 6 & 0x3F) << 16) | (0x80 | (utf32 & 0x3F) << 24));
+                k2 = (0xff & (0xF0 | (utf32 >> 18)) | ((0x80 | (utf32 >> 12 & 0x3F)) << 8) | ((0x80 | (utf32 >> 6 & 0x3F)) << 16) | ((0x80 | (utf32 & 0x3F)) << 24));
                 bits = 32;
             }
-
             k1 = (k1 | (k2 << shift));
             shift += bits;
+
             if (shift >= 32) {
                 k1 *= c1;
                 k1 = (k1 << 15) | (k1 >>> 17);

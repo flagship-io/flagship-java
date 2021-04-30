@@ -9,12 +9,11 @@ import com.abtasty.flagship.utils.LogManager;
 import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.concurrent.ConcurrentMap;
 
 public class ApiManager extends DecisionManager {
 
     @Override
-    public ArrayList<Campaign> getCampaigns(String envId, String visitorId, ConcurrentMap<String, Object> context) {
+    public ArrayList<Campaign> getCampaigns(String envId, String visitorId, HashMap<String, Object> context) {
 
         HashMap<String, String> headers = new HashMap<String, String>();
         headers.put("x-api-key", config.getApiKey());

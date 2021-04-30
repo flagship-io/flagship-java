@@ -32,12 +32,11 @@ public abstract class DecisionManager implements IDecisionManager, IFlagshipEndp
         return null;
     }
 
-    public HashMap<String, Modification> getModifications(Flagship.Mode mode, ArrayList<Campaign> campaigns) {
+    public HashMap<String, Modification> getModifications(ArrayList<Campaign> campaigns) {
         HashMap<String, Modification> modifications = new HashMap<String, Modification>();
         if (campaigns != null) {
             campaigns.forEach(campaign -> {
-                HashMap<String, Modification> campaignModifications = campaign.getModifications(mode);
-                modifications.putAll(campaignModifications);
+                modifications.putAll(campaign.getModifications());
             });
         }
         return modifications;

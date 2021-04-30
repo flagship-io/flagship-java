@@ -3,13 +3,14 @@ package com.abtasty.flagship.decision;
 import com.abtasty.flagship.api.HttpManager;
 import com.abtasty.flagship.api.Response;
 import com.abtasty.flagship.model.Campaign;
+import com.abtasty.flagship.model.Variation;
+import com.abtasty.flagship.model.VariationGroup;
 import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ConcurrentMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class BucketingManager extends DecisionManager {
@@ -27,8 +28,15 @@ public class BucketingManager extends DecisionManager {
     }
 
     @Override
-    public ArrayList<Campaign> getCampaigns(String envId, String visitorId, ConcurrentMap<String, Object> context) {
-        return new ArrayList<>(campaigns);
+    public ArrayList<Campaign> getCampaigns(String envId, String visitorId, HashMap<String, Object> context) {
+        ArrayList<Campaign> targetedCampaigns = new ArrayList<>();
+        ArrayList<Campaign> allCampaigns = new ArrayList<>(this.campaigns);
+        allCampaigns.forEach(campaign -> {
+            campaign.selectVariation(visitorId);
+            if (campaign.selectedVariationGroupFromTargeting(context))
+                targetedCampaigns.add(campaign);
+        });
+        return targetedCampaigns;
     }
 
     public void startPolling() {

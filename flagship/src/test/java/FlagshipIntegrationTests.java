@@ -5,11 +5,13 @@ import com.abtasty.flagship.hits.*;
 import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.main.FlagshipConfig;
 import com.abtasty.flagship.main.Visitor;
+import com.abtasty.flagship.utils.ETargetingComp;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -670,6 +672,80 @@ public class FlagshipIntegrationTests {
             assertFalse(infoFeature.getBoolean("isReference"));
         } catch (InterruptedException e) {
             e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void targetingCompare() {
+        try {
+            assertTrue(ETargetingComp.get("EQUALS").compare("test", "test"));
+            assertFalse(ETargetingComp.get("EQUALS").compare("test", "tests"));
+            assertFalse(ETargetingComp.get("EQUALS").compare("test", 1));
+            assertTrue(ETargetingComp.get("EQUALS").compare(1.0f, 1));
+            assertTrue(ETargetingComp.get("EQUALS").compare(1.0f, 1.0d));
+            assertTrue(ETargetingComp.get("EQUALS").compare("A", new JSONArray("['B', 'A']")));
+
+            assertFalse(ETargetingComp.get("NOT_EQUALS").compare("test", "test"));
+            assertTrue(ETargetingComp.get("NOT_EQUALS").compare("test", "tests"));
+            assertFalse(ETargetingComp.get("NOT_EQUALS").compare("test", 1));
+            assertFalse(ETargetingComp.get("NOT_EQUALS").compare("test", 1));
+            assertTrue(ETargetingComp.get("NOT_EQUALS").compare(1.1, 1));
+            assertTrue(ETargetingComp.get("NOT_EQUALS").compare("A", new JSONArray("['B', 'C']")));
+
+            assertTrue(ETargetingComp.get("CONTAINS").compare("test", "test"));
+            assertFalse(ETargetingComp.get("CONTAINS").compare("test", "tests"));
+            assertTrue(ETargetingComp.get("CONTAINS").compare("tests", "test"));
+            assertFalse(ETargetingComp.get("CONTAINS").compare("test", 1));
+            assertTrue(ETargetingComp.get("CONTAINS").compare(1.1, 1));
+            assertTrue(ETargetingComp.get("CONTAINS").compare("Aaa", new JSONArray("['B', 'C', 'A']")));
+
+            assertFalse(ETargetingComp.get("NOT_CONTAINS").compare("test", "test"));
+            assertTrue(ETargetingComp.get("NOT_CONTAINS").compare("test", "tests"));
+            assertFalse(ETargetingComp.get("NOT_CONTAINS").compare("test", "test"));
+            assertFalse(ETargetingComp.get("NOT_CONTAINS").compare("test", 1));
+            assertFalse(ETargetingComp.get("NOT_CONTAINS").compare(1.1, 1));
+            assertTrue(ETargetingComp.get("NOT_CONTAINS").compare("aaa", new JSONArray("['B', 'C', 'A']")));
+
+            assertFalse(ETargetingComp.get("GREATER_THAN").compare("test", "test"));
+            assertTrue(ETargetingComp.get("GREATER_THAN").compare("test", "TEST"));
+            assertFalse(ETargetingComp.get("GREATER_THAN").compare("TEST", "TEST"));
+            assertFalse(ETargetingComp.get("GREATER_THAN").compare("TEST", "test"));
+            assertFalse(ETargetingComp.get("GREATER_THAN").compare("TEST", false));
+            assertFalse(ETargetingComp.get("GREATER_THAN").compare(5,  new JSONArray("[3, 2, 1]")));
+            assertFalse(ETargetingComp.get("GREATER_THAN").compare(false, false));
+            assertFalse(ETargetingComp.get("GREATER_THAN").compare(false, true));
+            assertTrue(ETargetingComp.get("GREATER_THAN").compare(true, false));
+            assertFalse(ETargetingComp.get("GREATER_THAN").compare(2f, 8.0d));
+
+
+            assertFalse(ETargetingComp.get("LOWER_THAN").compare("test", "test"));
+            assertFalse(ETargetingComp.get("LOWER_THAN").compare("test", "TEST"));
+            assertFalse(ETargetingComp.get("LOWER_THAN").compare("TEST", "TEST"));
+            assertTrue(ETargetingComp.get("LOWER_THAN").compare("TEST", "test"));
+            assertFalse(ETargetingComp.get("LOWER_THAN").compare("TEST", false));
+            assertFalse(ETargetingComp.get("LOWER_THAN").compare(5,  new JSONArray("[3, 2, 1]")));
+            assertFalse(ETargetingComp.get("LOWER_THAN").compare(false, false));
+            assertTrue(ETargetingComp.get("LOWER_THAN").compare(false, true));
+            assertFalse(ETargetingComp.get("LOWER_THAN").compare(true, false));
+            assertTrue(ETargetingComp.get("LOWER_THAN").compare(2f, 8.0d));
+
+            assertTrue(ETargetingComp.get("GREATER_THAN_OR_EQUALS").compare("test", "test"));
+            assertTrue(ETargetingComp.get("GREATER_THAN_OR_EQUALS").compare(4, 4.0));
+            assertTrue(ETargetingComp.get("GREATER_THAN_OR_EQUALS").compare(4, 2.0));
+            assertFalse(ETargetingComp.get("GREATER_THAN_OR_EQUALS").compare(false, 2.0));
+
+            assertTrue(ETargetingComp.get("LOWER_THAN_OR_EQUALS").compare("test", "test"));
+            assertTrue(ETargetingComp.get("LOWER_THAN_OR_EQUALS").compare(4, 4.0));
+            assertFalse(ETargetingComp.get("LOWER_THAN_OR_EQUALS").compare(4, 2.0));
+            assertFalse(ETargetingComp.get("LOWER_THAN_OR_EQUALS").compare(false, 2.0));
+
+            assertTrue(ETargetingComp.get("STARTS_WITH").compare("test", "test"));
+            assertTrue(ETargetingComp.get("STARTS_WITH").compare("testa", "test"));
+            assertTrue(ETargetingComp.get("ENDS_WITH").compare("test", "test"));
+            assertTrue(ETargetingComp.get("ENDS_WITH").compare("atest", "test"));
+
+        } catch (Exception e) {
+            assert false;
         }
     }
 }

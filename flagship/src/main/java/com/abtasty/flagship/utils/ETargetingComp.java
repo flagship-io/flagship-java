@@ -8,7 +8,7 @@ public enum ETargetingComp implements ITargetingComp {
 
         @Override
         public boolean compareObjects(Object contextValue, Object flagshipValue) {
-            return contextValue == flagshipValue;
+            return contextValue.equals(flagshipValue);
         }
 
         @Override
@@ -33,7 +33,7 @@ public enum ETargetingComp implements ITargetingComp {
 
         @Override
         public boolean compareObjects(Object contextValue, Object flagshipValue) {
-            return contextValue != flagshipValue;
+            return !contextValue.equals(flagshipValue);
         }
 
         @Override

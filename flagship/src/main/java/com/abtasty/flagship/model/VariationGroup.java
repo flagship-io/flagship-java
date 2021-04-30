@@ -8,16 +8,18 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class VariationGroup implements Serializable {
 
-    private final String                        campaignId;
-    private final String                        variationGroupId;
-    private final HashMap<String, Variation>    variations;
-    private final TargetingGroups               targetingGroups;
-    private final String                        selectedVariationId;
+    private final String                            campaignId;
+private final String                                variationGroupId;
+    private final LinkedHashMap<String, Variation>  variations;
+    private final TargetingGroups                   targetingGroups;
+    private String                                  selectedVariationId;
 
-    public VariationGroup(String campaignId, String variationGroupId, HashMap<String, Variation> variations, TargetingGroups targetingGroups, String selectedVariationId) {
+    public VariationGroup(String campaignId, String variationGroupId, LinkedHashMap<String, Variation> variations, TargetingGroups targetingGroups, String selectedVariationId) {
         this.campaignId = campaignId;
         this.variationGroupId = variationGroupId;
         this.targetingGroups = targetingGroups;
@@ -45,12 +47,46 @@ public class VariationGroup implements Serializable {
         return selectedVariationId;
     }
 
+    public Variation getSelectedVariation() {
+        if (selectedVariationId != null && variations != null)
+            return variations.get(selectedVariationId);
+        return null;
+    }
+
+    public void selectVariation(String visitorId) {
+//        if (selectedVariationId == null) //todo load from cache
+//            selectedVariationId = loadFromCache();
+        if (selectedVariationId == null && variations != null) {
+            int p = 0;
+            int murmurAllocation = MurmurHash.getAllocationFromMurmur(variationGroupId, visitorId);
+            for (Map.Entry<String, Variation> e : variations.entrySet()) {
+                Variation variation = e.getValue();
+                p += variation.getAllocation();
+                if (murmurAllocation < p) {
+                    selectedVariationId = variation.getVariationId();
+                    variation.setSelected(true);
+                    FlagshipLogManager.log(FlagshipLogManager.Tag.ALLOCATION, LogManager.Level.DEBUG,
+                            String.format(FlagshipConstants.Info.NEW_ALLOCATION, variation.getVariationId(),
+                                    murmurAllocation));
+                    //saveToCache() //todo save in cache
+                    break;
+                }
+            }
+        }
+    }
+
+    public boolean isTargetingValid(HashMap<String, Object> context) {
+        if (targetingGroups != null)
+            return targetingGroups.isTargetingValid(context);
+        return true;
+    }
+
     public static VariationGroup parse(String campaignId, JSONObject variationGroupsObj, boolean bucketing) {
         try {
             String variationGroupId = variationGroupsObj.getString(bucketing ? "id" : "variationGroupId");
             String selectedVariationId = null;
             TargetingGroups targetingGroups = null;
-            HashMap<String, Variation> variations = new HashMap<String, Variation>();
+            LinkedHashMap<String, Variation> variations = new LinkedHashMap<String, Variation>();
             if (!bucketing) {
                 // api
                 JSONObject variationObj = variationGroupsObj.getJSONObject("variation");
@@ -62,29 +98,14 @@ public class VariationGroup implements Serializable {
                 }
             } else {
                 //bucketing
-                //selectedVariation = loadFromCache()
                 JSONArray variationArr = variationGroupsObj.optJSONArray("variations");
                 if (variationArr != null) {
-//                    int p = 0;
-//                    long murmur = MurmurHash.getAllocationFromMurmur(variationGroupId, "");
                     for (int i = 0; i < variationArr.length(); i++) {
                         JSONObject variationObj = variationArr.getJSONObject(i);
                         if (variationObj.has("allocation")) {
                             Variation variation = Variation.parse(campaignId, variationGroupId, variationObj);
-                            if (variation != null) {
-//                                if (selectedVariationId == null) {
-//                                    p += variation.getAllocation();
-//                                    if (murmur < p) {
-//                                        selectedVariationId = variation.getVariationId();
-//                                        variation.setSelected(true);
-//                                        FlagshipLogManager.log(FlagshipLogManager.Tag.ALLOCATION, LogManager.Level.DEBUG,
-//                                                String.format(FlagshipConstants.Info.NEW_ALLOCATION, variation.getVariationId(),
-//                                                        murmur));
-//                                        //Save in cache
-//                                    }
-//                                }
+                            if (variation != null)
                                 variations.put(variation.getVariationId(), variation);
-                            }
                         }
                     }
                     JSONObject targetingObj = variationGroupsObj.optJSONObject("targeting");

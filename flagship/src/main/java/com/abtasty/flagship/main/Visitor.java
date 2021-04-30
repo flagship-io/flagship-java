@@ -97,10 +97,10 @@ public class Visitor {
     public CompletableFuture<Visitor> synchronizeModifications() {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                ArrayList<Campaign> campaigns = this.decisionManager.getCampaigns(this.config.getEnvId(), visitorId, context);
+                ArrayList<Campaign> campaigns = this.decisionManager.getCampaigns(this.config.getEnvId(), visitorId, new HashMap<String, Object>(context));
                 this.modifications.clear();
                 if (!decisionManager.isPanic()) {
-                    HashMap<String, Modification> modifications = this.decisionManager.getModifications(this.config.getDecisionMode(), campaigns);
+                    HashMap<String, Modification> modifications = this.decisionManager.getModifications(campaigns);
                     if (modifications != null)
                         this.modifications.putAll(modifications);
                 }

@@ -7,6 +7,7 @@ import com.abtasty.flagship.utils.LogManager;
 import org.json.JSONObject;
 
 import java.io.Serializable;
+import java.util.HashMap;
 
 public class Targeting implements Serializable {
 
@@ -32,15 +33,17 @@ public class Targeting implements Serializable {
         }
     }
 
-    public boolean isTargetingValid() {
-        try {
-            Object contextValue = null; //Todo context value
-            if (contextValue == null)
-                return false;
-            else
-                return ETargetingComp.get(operator).compare(contextValue, value);
-        } catch (Exception e) {
-            return  false;
-        }
+    public boolean isTargetingValid(HashMap<String, Object> context) {
+
+        Object contextValue = context.getOrDefault(key, null);
+        ETargetingComp comparator = ETargetingComp.get(operator);
+        if (comparator == null || key == null)
+            return false;
+        else if (comparator == ETargetingComp.EQUALS && key.equals("fs_all_users"))
+            return true;
+        else if (contextValue == null)
+            return false;
+        else
+            return comparator.compare(contextValue, value);
     }
 }

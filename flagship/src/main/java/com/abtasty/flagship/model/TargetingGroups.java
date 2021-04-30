@@ -6,6 +6,7 @@ import com.abtasty.flagship.utils.LogManager;
 import org.json.JSONArray;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class TargetingGroups implements Serializable {
 
@@ -30,10 +31,14 @@ public class TargetingGroups implements Serializable {
         }
     }
 
-    public Boolean isTargetingValid() {
+    public ArrayList<TargetingList> getTargetingGroups() {
+        return targetingGroups;
+    }
+
+    public Boolean isTargetingValid(HashMap<String, Object> context) {
         if (targetingGroups != null) {
             for (TargetingList group : targetingGroups) {
-                if (group.isTargetingValid())
+                if (group.isTargetingValid(context))
                     return true;
             }
         }

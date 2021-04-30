@@ -7,6 +7,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class TargetingList implements Serializable {
 
@@ -32,10 +33,14 @@ public class TargetingList implements Serializable {
         }
     }
 
-    public Boolean isTargetingValid() {
+    public ArrayList<Targeting> getTargetingList() {
+        return targetingList;
+    }
+
+    public Boolean isTargetingValid(HashMap<String, Object> context) {
         if (targetingList != null) {
             for (Targeting targeting : targetingList) {
-                if (!targeting.isTargetingValid())
+                if (!targeting.isTargetingValid(context))
                     return false;
             }
         }

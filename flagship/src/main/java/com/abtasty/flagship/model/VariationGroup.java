@@ -14,7 +14,7 @@ import java.util.Map;
 public class VariationGroup implements Serializable {
 
     private final String                            campaignId;
-private final String                                variationGroupId;
+    private final String                            variationGroupId;
     private final LinkedHashMap<String, Variation>  variations;
     private final TargetingGroups                   targetingGroups;
     private String                                  selectedVariationId;

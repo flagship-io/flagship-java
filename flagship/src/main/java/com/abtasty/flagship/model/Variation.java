@@ -4,9 +4,7 @@ import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
 import org.json.JSONObject;
-
 import java.io.Serializable;
-import java.util.logging.Level;
 
 public class Variation implements Serializable {
 

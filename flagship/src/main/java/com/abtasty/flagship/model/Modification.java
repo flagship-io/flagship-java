@@ -4,12 +4,12 @@ import java.io.Serializable;
 
 public class Modification implements Serializable {
 
-    private String      key;
-    private String      campaignId;
-    private String      variationGroupId;
-    private String      variationId;
-    private boolean     isReference;
-    private Object      value;
+    private final String      key;
+    private final String      campaignId;
+    private final String      variationGroupId;
+    private final String      variationId;
+    private final boolean     isReference;
+    private final Object      value;
 
     public Modification(String key, String campaignId, String variationGroupId, String variationId, boolean isReference, Object value) {
         this.key = key;

@@ -27,10 +27,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import static org.junit.jupiter.api.Assertions.*;
@@ -67,14 +64,16 @@ public class FlagshipIntegrationTests {
                 public Object answer(InvocationOnMock invocation) throws Throwable {
                     Response response = (Response) invocation.callRealMethod();
                     if (requestToVerify.containsKey(response.getRequestUrl())) {
+                        OnRequestValidation validation = requestToVerify.get(response.getRequestUrl());
                         try {
-                            requestToVerify.get(response.getRequestUrl()).onRequestValidation(response);
+                           validation.onRequestValidation(response);
                         } catch (Error | Exception e) {
                             requestsVerified = false;
                             System.err.println("Error verifying : " + response.getRequestUrl());
                             e.printStackTrace();
                         }
-                        requestToVerify.remove(response.getRequestUrl());
+                        if (validation.shouldBeRemoved())
+                            requestToVerify.remove(response.getRequestUrl());
                     } else {
                         missingRequestVerification = true;
                         System.err.println("Error url not verified : " + response.getRequestUrl());
@@ -89,6 +88,7 @@ public class FlagshipIntegrationTests {
     }
 
     interface OnRequestValidation {
+        default boolean shouldBeRemoved() {return true;}
         void onRequestValidation(Response response);
     }
 
@@ -747,5 +747,73 @@ public class FlagshipIntegrationTests {
         } catch (Exception e) {
             assert false;
         }
+    }
+
+
+    @Test
+    public void bucketingPollingInterval() throws InterruptedException, ExecutionException {
+        mockResponse("https://cdn.flagship.io/my_env_id/bucketing.json", 200, FlagshipIntegrationConstants.bucketingResponse);
+        AtomicInteger nbBucketingCall = new AtomicInteger(0);
+        verifyRequest("https://cdn.flagship.io/my_env_id/bucketing.json", new OnRequestValidation() {
+
+            @Override
+            public boolean shouldBeRemoved() {
+                return false;
+            }
+
+            @Override
+            public void onRequestValidation(Response response) {
+                    nbBucketingCall.incrementAndGet();
+            }
+        });
+        Flagship.start("my_env_id", "my_api_key", new FlagshipConfig()
+                .withFlagshipMode(Flagship.Mode.BUCKETING)
+                .withBucketingPollingIntervals(8, TimeUnit.SECONDS));
+        Thread.sleep(10000);
+        assertEquals(2, nbBucketingCall.get());
+        nbBucketingCall.set(0);
+        Flagship.start("my_env_id", "my_api_key", new FlagshipConfig()
+                .withFlagshipMode(Flagship.Mode.BUCKETING)
+                .withBucketingPollingIntervals(2, TimeUnit.SECONDS));
+        Thread.sleep(10000);
+        assertEquals(6, nbBucketingCall.get());
+    }
+
+    @Test
+    public void bucketing() throws InterruptedException, ExecutionException {
+        mockResponse("https://cdn.flagship.io/my_env_id/bucketing.json", 200, FlagshipIntegrationConstants.bucketingResponse);
+        verifyRequest("https://cdn.flagship.io/my_env_id/bucketing.json", new OnRequestValidation() {
+            @Override
+            public boolean shouldBeRemoved() {
+                return false;
+            }
+
+            @Override
+            public void onRequestValidation(Response response) {
+            }
+        });
+        Flagship.start("my_env_id", "my_api_key", new FlagshipConfig()
+                .withFlagshipMode(Flagship.Mode.BUCKETING)
+                .withBucketingPollingIntervals(1, TimeUnit.MINUTES));
+        Visitor visitor1 = Flagship.newVisitor("visitor_1", new HashMap<String, Object>() {{
+            put("ab10_enabled", true);
+        }});
+        Visitor visitor2 = Flagship.newVisitor("visitor_2", new HashMap<String, Object>() {{
+            put("ab10_enabled", true);
+        }});
+        Thread.sleep(1000);
+        visitor1.synchronizeModifications().get();
+        assertEquals(9, visitor1.getModification("ab10_variation", 0));
+        assertEquals("xxxxxxc3fk9jdb020ukg", visitor1.getModificationInfo("ab10_variation").getString("campaignId"));
+        assertEquals("xxxxxxc3fk9jdb020ulg", visitor1.getModificationInfo("ab10_variation").getString("variationGroupId"));
+        assertEquals("xxxxxxgbcahim831l72g", visitor1.getModificationInfo("ab10_variation").getString("variationId"));
+        assertFalse(visitor1.getModificationInfo("ab10_variation").getBoolean("isReference"));
+        visitor1.updateContext("ab10_enabled", false);
+        visitor1.synchronizeModifications().get();
+        assertEquals(0, visitor1.getModification("ab10_variation", 0));
+        assertNull(visitor1.getModificationInfo("ab10_variation"));
+        visitor2.synchronizeModifications().get();
+        assertEquals(2, visitor2.getModification("ab10_variation", 0));
+        assertEquals(0, visitor1.getModification("ab10_variation", 0));
     }
 }

@@ -5,6 +5,7 @@ import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.main.FlagshipConfig;
 import com.abtasty.flagship.main.Visitor;
 import com.abtasty.flagship.utils.LogManager;
+import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
@@ -17,12 +18,12 @@ public class DemoFlagship {
                 new FlagshipConfig()
                         .withLogLevel(LogManager.Level.ALL)
                         .withFlagshipMode(Flagship.Mode.BUCKETING)
-                        .withBucketingPollingIntervals(2, TimeUnit.SECONDS)
+                        .withBucketingPollingIntervals(20, TimeUnit.SECONDS)
         );
 //        Flagship.start("my_env_id", "my api key", new FlagshipConfig().withLogLevel(LogManager.Level.ALL));
 
         Thread.sleep(2000);
-        Visitor visitor = Flagship.newVisitor("visitor1");
+        Visitor visitor = Flagship.newVisitor("xx_visitor1963");
 
         visitor.updateContext("isVIP", true);
 
@@ -45,8 +46,40 @@ public class DemoFlagship {
 
         });
 
+
+        //////////
+
+        visitor.updateContext("isVIPUser", false);
+        visitor.updateContext(new HashMap<>() {{
+            put("daysSinceLastLaunch", 6);
+            put("sdk_deviceModel", "coucou");
+        }});
+
+        visitor.synchronizeModifications().whenComplete((instance, error) -> {
+
+        });
+
+        JSONObject featureEnabled = visitor.getModificationInfo("featureEnabled");
+        JSONObject isref = visitor.getModificationInfo("isref");
+        JSONObject all_users = visitor.getModificationInfo("all_users");
+        JSONObject release = visitor.getModificationInfo("release");
+        JSONObject target = visitor.getModificationInfo("target");
+
+        System.out.println("featureEnabled = " + featureEnabled);
+        System.out.println("isref = " + isref);
+        System.out.println("all_users = " + all_users);
+        System.out.println("release = " + release);
+        System.out.println("target = " + target);
+
+        visitor.activateModification("featureEnabled");
+        visitor.activateModification("isref");
+        visitor.activateModification("all_users");
+        visitor.activateModification("release");
+        visitor.activateModification("target");
+
+
         try {
-            Thread.sleep(50000);
+            Thread.sleep(5000000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

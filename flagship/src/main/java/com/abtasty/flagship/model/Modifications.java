@@ -7,7 +7,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.logging.Level;
 
 
 public class Modifications implements Serializable {

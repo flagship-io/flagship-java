@@ -117,5 +117,14 @@ public class Campaign implements Serializable {
                 ", variationGroups=" + variationGroups +
                 '}';
     }
+
+    @Override
+    public Campaign clone() {
+        try {
+            return (Campaign) super.clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
+    }
 }
 

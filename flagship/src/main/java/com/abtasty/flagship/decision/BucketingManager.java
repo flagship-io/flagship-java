@@ -3,23 +3,21 @@ package com.abtasty.flagship.decision;
 import com.abtasty.flagship.api.HttpManager;
 import com.abtasty.flagship.api.Response;
 import com.abtasty.flagship.model.Campaign;
-import com.abtasty.flagship.model.Variation;
-import com.abtasty.flagship.model.VariationGroup;
 import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class BucketingManager extends DecisionManager {
 
     private boolean                         pollingDaemon = true;
     private Thread                          pollingThread = null;
-//    private ConcurrentLinkedQueue<Campaign> campaigns = new ConcurrentLinkedQueue<>();
-    private ArrayList<Campaign>             campaigns = new ArrayList<Campaign>();
+//    private ArrayList<Campaign>             campaigns = new ArrayList<Campaign>();
+
     private String                          last_modified;
+    private String                          bucketing_content;
 
     @Override
     public void start() {
@@ -30,12 +28,16 @@ public class BucketingManager extends DecisionManager {
     @Override
     public ArrayList<Campaign> getCampaigns(String envId, String visitorId, HashMap<String, Object> context) {
         ArrayList<Campaign> targetedCampaigns = new ArrayList<>();
-        ArrayList<Campaign> allCampaigns = new ArrayList<>(this.campaigns);
-        allCampaigns.forEach(campaign -> {
-            campaign.selectVariation(visitorId);
-            if (campaign.selectedVariationGroupFromTargeting(context))
-                targetedCampaigns.add(campaign);
-        });
+        if (bucketing_content != null) {
+            ArrayList<Campaign> campaigns = parseCampaignsResponse(bucketing_content);
+            if (campaigns != null) {
+                for (Campaign campaign : campaigns) {
+                    campaign.selectVariation(visitorId);
+                    if (campaign.selectedVariationGroupFromTargeting(context))
+                        targetedCampaigns.add(campaign);
+                }
+            }
+        }
         return targetedCampaigns;
     }
 
@@ -56,10 +58,10 @@ public class BucketingManager extends DecisionManager {
             logResponse(response);
             if (response.isSuccess(false)) {
                 last_modified = response.getResponseHeader("Last-Modified");
-                campaigns = parseCampaignsResponse(response.getResponseContent());
-//                    ArrayList<Campaign> newCampaigns = parseCampaignsResponse(response.getResponseContent());
-//            if (newCampaigns != null)
-//                campaigns = new ConcurrentLinkedQueue<>(newCampaigns);
+                bucketing_content = response.getResponseContent();
+//                ArrayList<Campaign> newCampaigns = parseCampaignsResponse(response.getResponseContent());
+//                if (newCampaigns != null)
+//                    campaigns = new ArrayList<>(newCampaigns);
             }
         } catch (Exception e) {
             FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, LogManager.Level.ERROR, e.getMessage());

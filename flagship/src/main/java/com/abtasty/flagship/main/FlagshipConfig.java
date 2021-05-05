@@ -15,24 +15,22 @@ import java.util.concurrent.TimeUnit;
  */
 public class FlagshipConfig {
 
-    private String              envId           = null;
-    private String              apiKey          = null;
-    private Flagship.Mode       decisionMode    = Flagship.Mode.DECISION_API;
-    private int                 timeout         = 2000;
-    private LogManager.Level    logLevel        = LogManager.Level.ALL;
-    private LogManager          logManager      = new FlagshipLogManager(logLevel);
-    private TrackingManager     trackingManager = new TrackingManager();
-    private DecisionManager     decisionManager = null;
-    private long                pollingTime     = 60;
-    private TimeUnit            pollingUnit     = TimeUnit.SECONDS;
+    private String                              envId                   = null;
+    private String                              apiKey                  = null;
+    private Flagship.Mode                       decisionMode            = Flagship.Mode.DECISION_API;
+    private int                                 timeout                 = 2000;
+    private LogManager.Level                    logLevel                = LogManager.Level.ALL;
+    private LogManager                          logManager              = new FlagshipLogManager(logLevel);
+    private TrackingManager                     trackingManager         = new TrackingManager(); //todo remove this
+    private long                                pollingTime             = 60;
+    private TimeUnit                            pollingUnit             = TimeUnit.SECONDS;
+    private Flagship.OnStatusChangedListener    onStatusChangedListener = null;
 
 
     /**
      * Create a new empty FlagshipConfig configuration.
      */
-    public FlagshipConfig() {
-        init();
-    }
+    public FlagshipConfig() { }
 
     /**
      * Create a new FlagshipConfig configuration.
@@ -43,11 +41,6 @@ public class FlagshipConfig {
     protected FlagshipConfig(String envId, String apiKey) {
         this.envId = envId;
         this.apiKey = apiKey;
-        init();
-    }
-
-    private void init() {
-        this.decisionManager = (this.decisionMode == Flagship.Mode.DECISION_API) ? new ApiManager() : new BucketingManager();
     }
 
     /**
@@ -76,10 +69,8 @@ public class FlagshipConfig {
      * @return FlagshipConfig
      */
     public FlagshipConfig withFlagshipMode(Flagship.Mode mode) {
-        if (mode != null) {
+        if (mode != null)
             this.decisionMode = mode;
-            init();
-        }
         return this;
     }
 
@@ -131,6 +122,21 @@ public class FlagshipConfig {
         return this;
     }
 
+    /**
+     * Define a new listener in order to get callback when the SDK status has changed.
+     * @param listener new listener.
+     * @return FlagshipConfig
+     */
+    public FlagshipConfig withStatusChangeListener(Flagship.OnStatusChangedListener listener) {
+        if (listener != null)
+            onStatusChangedListener = listener;
+        return this;
+    }
+
+    public Flagship.OnStatusChangedListener getOnStatusChangedListener() {
+        return onStatusChangedListener;
+    }
+
     public int getTimeout() {
         return timeout;
     }
@@ -155,10 +161,6 @@ public class FlagshipConfig {
         return trackingManager;
     }
 
-    protected DecisionManager getDecisionManager() {
-        return decisionManager;
-    }
-
     public long getPollingTime() {
         return pollingTime;
     }
@@ -175,5 +177,9 @@ public class FlagshipConfig {
                 ", mode=" + decisionMode +
                 ", logManager=" + logManager +
                 '}';
+    }
+
+    protected static FlagshipConfig emptyConfig() {
+        return new FlagshipConfig("_YOUR_ENV_ID_", "_YOUR_API_KEY_");
     }
 }

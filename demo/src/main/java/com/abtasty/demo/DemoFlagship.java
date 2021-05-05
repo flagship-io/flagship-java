@@ -8,21 +8,29 @@ import com.abtasty.flagship.utils.LogManager;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 
 public class DemoFlagship {
 
     public static void main(String[] args) throws InterruptedException {
+
+        CountDownLatch flagshipReadyLatch = new CountDownLatch(1);
+
         Flagship.start("bkk4s7gcmjcg07fke9dg", "Q6FDmj6F188nh75lhEato2MwoyXDS7y34VrAL4Aa",
                 new FlagshipConfig()
                         .withLogLevel(LogManager.Level.ALL)
                         .withFlagshipMode(Flagship.Mode.BUCKETING)
                         .withBucketingPollingIntervals(20, TimeUnit.SECONDS)
+                        .withStatusChangeListener(newStatus -> {
+                            flagshipReadyLatch.countDown();
+                        })
         );
 //        Flagship.start("my_env_id", "my api key", new FlagshipConfig().withLogLevel(LogManager.Level.ALL));
 
-        Thread.sleep(2000);
+        flagshipReadyLatch.await();
+
         Visitor visitor = Flagship.newVisitor("xx_visitor1963");
 
         visitor.updateContext("isVIP", true);
@@ -37,7 +45,7 @@ public class DemoFlagship {
         Thread.sleep(2000);
 
         visitor.updateContext("isVIPUser", true);
-        visitor.updateContext(new HashMap<>() {{
+        visitor.updateContext(new HashMap<String, Object>() {{
             put("daysSinceLastLaunch", 5);
             put("sdk_deviceModel", "Pixel X");
         }});
@@ -50,7 +58,7 @@ public class DemoFlagship {
         //////////
 
         visitor.updateContext("isVIPUser", false);
-        visitor.updateContext(new HashMap<>() {{
+        visitor.updateContext(new HashMap<String, Object>() {{
             put("daysSinceLastLaunch", 6);
             put("sdk_deviceModel", "coucou");
         }});

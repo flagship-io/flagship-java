@@ -8,6 +8,12 @@ public final class FlagshipConstants {
         public static String NEW_ALLOCATION = "Variation %s selected with allocation %d.";
     }
 
+    public static class Warnings {
+        public static String VISITOR_ID_NULL_OR_EMPTY = "Visitor identifier must not be null or empty. A UUID has been generated.";
+        public static String VISITOR_STATUS_NOT_READY = "New visitor '%s' has been created while SDK status is %s. Feature management will only be possible when SDK status is READY.";
+        public static String PANIC = "Panic mode is on.";
+    }
+
     public static class Errors {
         public static String INITIALIZATION_PARAM_ERROR = "Params 'envId' and 'apiKey' must not be null.";
         public static String INITIALIZATION_PARAM_ERROR_CONFIG = "Param 'config' must not be null.";
@@ -29,7 +35,6 @@ public final class FlagshipConstants {
         public static String GET_MODIFICATION_ERROR = "An error occured while retreiving modification for key '%s'. Default value is returned.";
         public static String GET_MODIFICATION_INFO_ERROR = "No modification for key '%s'.";
         public static String HIT_INVALID_DATA_ERROR = "'%s' hit invalid format error. \n %s";
-        public static String PANIC = "Panic mode is on.";
         public static String PANIC_ERROR = "'%s' deactivated while panic mode is on.";
         public static String CONFIGURATION_POLLING_ERROR = "Setting a polling interval is only available for Bucketing Mode.";
     }

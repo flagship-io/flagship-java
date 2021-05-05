@@ -24,7 +24,6 @@ import java.util.concurrent.ConcurrentMap;
 public class Visitor {
 
     private final String                                visitorId;
-    private final FlagshipConfig                        config;
     private final ConcurrentMap<String, Object>         context = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, Modification>   modifications = new ConcurrentHashMap<>();
     private final DecisionManager                       decisionManager;
@@ -37,9 +36,8 @@ public class Visitor {
      * @param visitorId visitor unique identifier.
      * @param context   visitor context.
      */
-    protected Visitor(FlagshipConfig config, String visitorId, HashMap<String, Object> context) {
-        this.config = config;
-        this.decisionManager = config.getDecisionManager();
+    protected Visitor(FlagshipConfig config, DecisionManager decisionManager, String visitorId, HashMap<String, Object> context) {
+        this.decisionManager = decisionManager;
         this.trackingManager = config.getTrackingManager();
         this.visitorId = visitorId;
         this.updateContext(context);
@@ -97,7 +95,7 @@ public class Visitor {
     public CompletableFuture<Visitor> synchronizeModifications() {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                ArrayList<Campaign> campaigns = this.decisionManager.getCampaigns(this.config.getEnvId(), visitorId, new HashMap<String, Object>(context));
+                ArrayList<Campaign> campaigns = this.decisionManager.getCampaigns(visitorId, new HashMap<String, Object>(context));
                 this.modifications.clear();
                 if (!decisionManager.isPanic()) {
                     HashMap<String, Modification> modifications = this.decisionManager.getModifications(campaigns);

@@ -3,6 +3,8 @@ package com.abtasty.flagship.decision;
 import com.abtasty.flagship.BuildConfig;
 import com.abtasty.flagship.api.HttpManager;
 import com.abtasty.flagship.api.Response;
+import com.abtasty.flagship.main.Flagship;
+import com.abtasty.flagship.main.FlagshipConfig;
 import com.abtasty.flagship.model.Campaign;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
@@ -12,8 +14,19 @@ import java.util.HashMap;
 
 public class ApiManager extends DecisionManager {
 
+    public ApiManager(FlagshipConfig config) {
+        super(config);
+    }
+
     @Override
-    public ArrayList<Campaign> getCampaigns(String envId, String visitorId, HashMap<String, Object> context) {
+    public void setOnStatusChangedListener(Flagship.OnStatusChangedListener onStatusChangedListener) {
+        super.setOnStatusChangedListener(onStatusChangedListener);
+        if (Flagship.getStatus() != Flagship.Status.READY)
+            onStatusChangedListener.onStatusChanged(Flagship.Status.READY);
+    }
+
+    @Override
+    public ArrayList<Campaign> getCampaigns(String visitorId, HashMap<String, Object> context) {
 
         HashMap<String, String> headers = new HashMap<String, String>();
         headers.put("x-api-key", config.getApiKey());
@@ -30,7 +43,7 @@ public class ApiManager extends DecisionManager {
         ArrayList<Campaign> campaigns = new ArrayList<Campaign>();
         try {
             Response response = HttpManager.getInstance().sendHttpRequest(HttpManager.RequestType.POST,
-                    DECISION_API + envId + CAMPAIGNS,
+                    DECISION_API + config.getEnvId() + CAMPAIGNS,
                     headers,
                     json.toString(),
                     config.getTimeout());

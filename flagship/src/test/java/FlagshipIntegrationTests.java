@@ -140,8 +140,9 @@ public class FlagshipIntegrationTests {
         assertEquals(Flagship.getStatus(), Flagship.Status.READY);
 
         Flagship.start("my_env_id", "my_api_key");
-        assertNotNull(Flagship.getConfig());
         assertSame(Flagship.getStatus(), Flagship.Status.READY);
+        assertNotNull(Flagship.newVisitor("test"));
+        assertNotNull(Flagship.getConfig());
         assertEquals(Flagship.getConfig().getEnvId(), "my_env_id");
         assertEquals(Flagship.getConfig().getApiKey(), "my_api_key");
 
@@ -163,7 +164,7 @@ public class FlagshipIntegrationTests {
         assertEquals(Flagship.getConfig().getApiKey(), "my_api_key_2");
         assertTrue(Flagship.getConfig().getLogManager() instanceof CustomLogManager);
         try {
-            if (!logLatch.await(1, TimeUnit.SECONDS))
+            if (!logLatch.await(2, TimeUnit.SECONDS))
                 fail();
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -192,7 +193,7 @@ public class FlagshipIntegrationTests {
                 .withLogManager(new CustomLogManager(LogManager.Level.ALL)));
 
         Visitor visitor0 = Flagship.newVisitor(null);
-        assertNull(visitor0);
+        assertNotNull(visitor0);
 
         visitor0 = Flagship.newVisitor("visitor_0", null);
         assertNotNull(visitor0);
@@ -792,16 +793,22 @@ public class FlagshipIntegrationTests {
             public void onRequestValidation(Response response) {
             }
         });
+        CountDownLatch readyLatch = new CountDownLatch(1);
         Flagship.start("my_env_id", "my_api_key", new FlagshipConfig()
                 .withFlagshipMode(Flagship.Mode.BUCKETING)
-                .withBucketingPollingIntervals(1, TimeUnit.MINUTES));
+                .withBucketingPollingIntervals(1, TimeUnit.MINUTES)
+                .withStatusChangeListener(newStatus -> {
+                    if (newStatus == Flagship.Status.READY)
+                        readyLatch.countDown();
+                }));
+        if (!readyLatch.await(1, TimeUnit.SECONDS))
+            fail();
         Visitor visitor1 = Flagship.newVisitor("visitor_1", new HashMap<String, Object>() {{
             put("ab10_enabled", true);
         }});
         Visitor visitor2 = Flagship.newVisitor("visitor_2", new HashMap<String, Object>() {{
             put("ab10_enabled", true);
         }});
-        Thread.sleep(1000);
         visitor1.synchronizeModifications().get();
         assertEquals(9, visitor1.getModification("ab10_variation", 0));
         assertEquals("xxxxxxc3fk9jdb020ukg", visitor1.getModificationInfo("ab10_variation").getString("campaignId"));

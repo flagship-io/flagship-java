@@ -2,6 +2,8 @@ package com.abtasty.flagship.decision;
 
 import com.abtasty.flagship.api.HttpManager;
 import com.abtasty.flagship.api.Response;
+import com.abtasty.flagship.main.Flagship;
+import com.abtasty.flagship.main.FlagshipConfig;
 import com.abtasty.flagship.model.Campaign;
 import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.FlagshipLogManager;
@@ -14,19 +16,16 @@ public class BucketingManager extends DecisionManager {
 
     private boolean                         pollingDaemon = true;
     private Thread                          pollingThread = null;
-//    private ArrayList<Campaign>             campaigns = new ArrayList<Campaign>();
-
     private String                          last_modified;
     private String                          bucketing_content;
 
-    @Override
-    public void start() {
-        super.start();
+    public BucketingManager(FlagshipConfig config) {
+        super(config);
         startPolling();
     }
 
     @Override
-    public ArrayList<Campaign> getCampaigns(String envId, String visitorId, HashMap<String, Object> context) {
+    public ArrayList<Campaign> getCampaigns(String visitorId, HashMap<String, Object> context) {
         ArrayList<Campaign> targetedCampaigns = new ArrayList<>();
         if (bucketing_content != null) {
             ArrayList<Campaign> campaigns = parseCampaignsResponse(bucketing_content);
@@ -59,13 +58,16 @@ public class BucketingManager extends DecisionManager {
             if (response.isSuccess(false)) {
                 last_modified = response.getResponseHeader("Last-Modified");
                 bucketing_content = response.getResponseContent();
-//                ArrayList<Campaign> newCampaigns = parseCampaignsResponse(response.getResponseContent());
-//                if (newCampaigns != null)
-//                    campaigns = new ArrayList<>(newCampaigns);
+                updateFlagshipStatus();
             }
         } catch (Exception e) {
             FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, LogManager.Level.ERROR, e.getMessage());
         }
+    }
+
+    private void updateFlagshipStatus() {
+        if (onStatusChangedListener != null && Flagship.getStatus() != Flagship.Status.READY)
+            onStatusChangedListener.onStatusChanged(Flagship.Status.READY);
     }
 
     public void stopPolling() {

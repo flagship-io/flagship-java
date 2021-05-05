@@ -12,6 +12,7 @@ public class FlagshipLogManager extends LogManager {
 
     public enum Tag {
         GLOBAL("GLOBAL"),
+        VISITOR("VISITOR"),
         INITIALIZATION("INITIALIZATION"),
         CONFIGURATION("CONFIGURATION"),
         BUCKETING("BUCKETING"),

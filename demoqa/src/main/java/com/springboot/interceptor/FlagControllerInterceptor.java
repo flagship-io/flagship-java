@@ -1,7 +1,5 @@
 package com.springboot.interceptor;
 
-import java.util.concurrent.CountDownLatch;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -12,7 +10,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.abtasty.flagship.main.Flagship;
-import com.abtasty.flagship.main.Visitor;
+import com.abtasty.flagship.visitor.Visitor;
 
 @Component
 public class FlagControllerInterceptor implements HandlerInterceptor {

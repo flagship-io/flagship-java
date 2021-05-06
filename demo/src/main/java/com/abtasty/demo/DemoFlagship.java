@@ -3,7 +3,7 @@ package com.abtasty.demo;
 import com.abtasty.flagship.hits.Screen;
 import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.main.FlagshipConfig;
-import com.abtasty.flagship.main.Visitor;
+import com.abtasty.flagship.visitor.Visitor;
 import com.abtasty.flagship.utils.LogManager;
 import org.json.JSONObject;
 
@@ -23,8 +23,10 @@ public class DemoFlagship {
                         .withLogLevel(LogManager.Level.ALL)
                         .withFlagshipMode(Flagship.Mode.BUCKETING)
                         .withBucketingPollingIntervals(20, TimeUnit.SECONDS)
-                        .withStatusChangeListener(newStatus -> {
-                            flagshipReadyLatch.countDown();
+                        .withStatusListener(newStatus -> {
+                            System.out.println("NEW STATUS = " + newStatus.name());
+                            if (newStatus == Flagship.Status.READY)
+                                flagshipReadyLatch.countDown();
                         })
         );
 //        Flagship.start("my_env_id", "my api key", new FlagshipConfig().withLogLevel(LogManager.Level.ALL));

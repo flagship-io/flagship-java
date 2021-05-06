@@ -4,14 +4,13 @@ import com.abtasty.flagship.api.Response;
 import com.abtasty.flagship.hits.*;
 import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.main.FlagshipConfig;
-import com.abtasty.flagship.main.Visitor;
+import com.abtasty.flagship.visitor.Visitor;
 import com.abtasty.flagship.utils.ETargetingComp;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -134,7 +133,7 @@ public class FlagshipIntegrationTests {
     @Test
     public void config() {
         Flagship.start(null, null, null);
-        assertEquals(Flagship.getStatus(), Flagship.Status.NOT_READY);
+        assertEquals(Flagship.getStatus(), Flagship.Status.NOT_INITIALIZED);
 
         Flagship.start("null", "null", new FlagshipConfig().withFlagshipMode(null));
         assertEquals(Flagship.getStatus(), Flagship.Status.READY);
@@ -151,7 +150,7 @@ public class FlagshipIntegrationTests {
 
             @Override
             public void onLog(Level level, String tag, String message) {
-                if (message.contains("Flagship SDK") && tag.equals(FlagshipLogManager.Tag.INITIALIZATION.getName()) && level == Level.INFO)
+                if (message.contains("Flagship SDK") && tag.equals(FlagshipLogManager.Tag.GLOBAL.getName()) && level == Level.INFO)
                     logLatch.countDown();
             }
         }
@@ -590,7 +589,7 @@ public class FlagshipIntegrationTests {
         });
         visitor.synchronizeModifications();
         Thread.sleep(200);
-        assertEquals(campaignCall.get(), 1);
+        assertEquals(1, campaignCall.get());
     }
 
     @Test
@@ -797,7 +796,7 @@ public class FlagshipIntegrationTests {
         Flagship.start("my_env_id", "my_api_key", new FlagshipConfig()
                 .withFlagshipMode(Flagship.Mode.BUCKETING)
                 .withBucketingPollingIntervals(1, TimeUnit.MINUTES)
-                .withStatusChangeListener(newStatus -> {
+                .withStatusListener(newStatus -> {
                     if (newStatus == Flagship.Status.READY)
                         readyLatch.countDown();
                 }));

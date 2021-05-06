@@ -17,7 +17,7 @@ public abstract class DecisionManager implements IDecisionManager, IFlagshipEndp
 
     protected   FlagshipConfig                      config;
     private     boolean                             panic = false;
-    protected   Flagship.OnStatusChangedListener    onStatusChangedListener = null;
+    protected   Flagship.StatusListener             statusListener = null;
 
     public DecisionManager(FlagshipConfig config) {
         this.config = config;
@@ -30,8 +30,8 @@ public abstract class DecisionManager implements IDecisionManager, IFlagshipEndp
             if (!panic)
                 return Campaign.parse(json.getJSONArray("campaigns"));
             else {
-                if (onStatusChangedListener != null)
-                    onStatusChangedListener.onStatusChanged(Flagship.Status.READY_PANIC_ON);
+                if (statusListener != null)
+                    statusListener.onStatusChanged(Flagship.Status.READY_PANIC_ON);
                 FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, LogManager.Level.WARNING, FlagshipConstants.Warnings.PANIC);
             }
         } catch (Exception e) {
@@ -69,7 +69,7 @@ public abstract class DecisionManager implements IDecisionManager, IFlagshipEndp
 
     }
 
-    public void setOnStatusChangedListener(Flagship.OnStatusChangedListener onStatusChangedListener) {
-        this.onStatusChangedListener = onStatusChangedListener;
+    public void setStatusListener(Flagship.StatusListener statusListener) {
+        this.statusListener = statusListener;
     }
 }

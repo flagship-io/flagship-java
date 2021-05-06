@@ -15,16 +15,16 @@ import java.util.concurrent.TimeUnit;
  */
 public class FlagshipConfig {
 
-    private String                              envId                   = null;
-    private String                              apiKey                  = null;
-    private Flagship.Mode                       decisionMode            = Flagship.Mode.DECISION_API;
-    private int                                 timeout                 = 2000;
-    private LogManager.Level                    logLevel                = LogManager.Level.ALL;
-    private LogManager                          logManager              = new FlagshipLogManager(logLevel);
-    private TrackingManager                     trackingManager         = new TrackingManager(); //todo remove this
-    private long                                pollingTime             = 60;
-    private TimeUnit                            pollingUnit             = TimeUnit.SECONDS;
-    private Flagship.OnStatusChangedListener    onStatusChangedListener = null;
+    private String                              envId               = null;
+    private String                              apiKey              = null;
+    private Flagship.Mode                       decisionMode        = Flagship.Mode.DECISION_API;
+    private int                                 timeout             = 2000;
+    private LogManager.Level                    logLevel            = LogManager.Level.ALL;
+    private LogManager                          logManager          = new FlagshipLogManager(logLevel);
+    private TrackingManager                     trackingManager     = new TrackingManager(); //todo remove this
+    private long                                pollingTime         = 60;
+    private TimeUnit                            pollingUnit         = TimeUnit.SECONDS;
+    private Flagship.StatusListener             statusListener      = null;
 
 
     /**
@@ -127,14 +127,14 @@ public class FlagshipConfig {
      * @param listener new listener.
      * @return FlagshipConfig
      */
-    public FlagshipConfig withStatusChangeListener(Flagship.OnStatusChangedListener listener) {
+    public FlagshipConfig withStatusListener(Flagship.StatusListener listener) {
         if (listener != null)
-            onStatusChangedListener = listener;
+            statusListener = listener;
         return this;
     }
 
-    public Flagship.OnStatusChangedListener getOnStatusChangedListener() {
-        return onStatusChangedListener;
+    public Flagship.StatusListener getStatusListener() {
+        return statusListener;
     }
 
     public int getTimeout() {
@@ -157,7 +157,7 @@ public class FlagshipConfig {
         return logManager;
     }
 
-    protected TrackingManager getTrackingManager() {
+    public TrackingManager getTrackingManager() {
         return trackingManager;
     }
 

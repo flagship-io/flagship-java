@@ -7,6 +7,8 @@ import com.abtasty.flagship.decision.DecisionManager;
 import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
+import com.abtasty.flagship.visitor.Visitor;
+
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -19,7 +21,7 @@ public class Flagship {
 
     private FlagshipConfig              config = FlagshipConfig.emptyConfig();
     private DecisionManager             decisionManager = null;
-    private Status                      status = Status.NOT_READY;
+    private Status                      status = Status.NOT_INITIALIZED;
 
     public enum Mode {
         DECISION_API,
@@ -30,18 +32,40 @@ public class Flagship {
         /**
          * Flagship SDK has not been started or initialized successfully.
          */
-        NOT_READY,
+        NOT_INITIALIZED(0x0),
         /**
-         * Flagship SDK is running in Panic mode.
+         * Flagship SDK is starting.
          */
-        READY_PANIC_ON,
+        STARTING(0x1),
+        /**
+         * Flagship SDK has been started successfully but is still polling campaigns.
+         */
+        POLLING(0x10),
+        /**
+         * Flagship SDK is ready but is running in Panic mode: All features are disabled except the one which refresh this status.
+         */
+        READY_PANIC_ON(0x20),
         /**
          * Flagship SDK is ready to use.
          */
-        READY;
+        READY(0x100);
+
+        private final int value;
+
+        Status(int value) {
+            this.value = value;
+        }
+
+        public boolean lessThan(Status status) {
+            return this.value < status.value;
+        }
+
+        public boolean greaterThan(Status status) {
+            return this.value > status.value;
+        }
     }
 
-    public interface OnStatusChangedListener {
+    public interface StatusListener {
         void onStatusChanged(Status newStatus);
     }
 
@@ -73,7 +97,7 @@ public class Flagship {
      * @param config : SDK configuration. @see FlagshipConfig
      */
     public static void start(String envId, String apiKey, FlagshipConfig config) {
-        instance().setStatus(Status.NOT_READY);
+        instance().updateStatus(Status.STARTING);
         if (envId != null && apiKey != null) {
             if (config == null)
                 config = new FlagshipConfig(envId, apiKey);
@@ -81,23 +105,26 @@ public class Flagship {
             config.withApiKey(apiKey);
             instance().setConfig(config);
             DecisionManager decisionManager = (config.getDecisionMode() == Flagship.Mode.DECISION_API) ? new ApiManager(config) : new BucketingManager(config);
-            decisionManager.setOnStatusChangedListener(newStatus -> instance().setStatus(newStatus));
+            decisionManager.setStatusListener(newStatus -> instance().updateStatus(newStatus));
             instance().setDecisionManager(decisionManager);
-        } else
+        } else {
+            instance().updateStatus(Status.NOT_INITIALIZED);
             FlagshipLogManager.log(FlagshipLogManager.Tag.INITIALIZATION, LogManager.Level.ERROR, FlagshipConstants.Errors.INITIALIZATION_PARAM_ERROR);
+        }
     }
 
     public static Status getStatus() {
         return instance().status;
     }
 
-    protected void setStatus(Status status) {
+    protected void updateStatus(Status status) {
         if (this.status != status) {
             this.status = status;
-            if (this.config != null && this.config.getOnStatusChangedListener() != null)
-                config.getOnStatusChangedListener().onStatusChanged(status);
-            if (this.status == Status.READY)
-                FlagshipLogManager.log(FlagshipLogManager.Tag.INITIALIZATION, LogManager.Level.INFO, String.format(FlagshipConstants.Info.STARTED, BuildConfig.flagship_version_name));
+            FlagshipLogManager.log(FlagshipLogManager.Tag.GLOBAL, LogManager.Level.INFO, (this.status == Status.READY) ?
+                            String.format(FlagshipConstants.Info.READY, BuildConfig.flagship_version_name) :
+                            String.format(FlagshipConstants.Info.STATUS_CHANGED, status));
+            if (this.config != null && this.config.getStatusListener() != null)
+                config.getStatusListener().onStatusChanged(status);
         }
     }
 
@@ -146,7 +173,7 @@ public class Flagship {
             visitorId = UUID.randomUUID().toString();
             FlagshipLogManager.log(FlagshipLogManager.Tag.VISITOR, LogManager.Level.WARNING, FlagshipConstants.Warnings.VISITOR_ID_NULL_OR_EMPTY);
         }
-        else if (getStatus() == Status.NOT_READY)
+        else if (!getStatus().greaterThan(Status.POLLING))
             FlagshipLogManager.log(FlagshipLogManager.Tag.VISITOR, LogManager.Level.WARNING, String.format(FlagshipConstants.Warnings.VISITOR_STATUS_NOT_READY, visitorId, getStatus()));
         return new Visitor(getConfig(), getDecisionManager(), visitorId, (context != null) ? context : new HashMap<String, Object>());
     }

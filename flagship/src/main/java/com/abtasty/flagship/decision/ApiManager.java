@@ -19,10 +19,10 @@ public class ApiManager extends DecisionManager {
     }
 
     @Override
-    public void setOnStatusChangedListener(Flagship.OnStatusChangedListener onStatusChangedListener) {
-        super.setOnStatusChangedListener(onStatusChangedListener);
-        if (Flagship.getStatus() != Flagship.Status.READY)
-            onStatusChangedListener.onStatusChanged(Flagship.Status.READY);
+    public void setStatusListener(Flagship.StatusListener statusListener) {
+        super.setStatusListener(statusListener);
+        if (Flagship.getStatus().lessThan(Flagship.Status.READY))
+            statusListener.onStatusChanged(Flagship.Status.READY);
     }
 
     @Override

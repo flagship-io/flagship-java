@@ -25,6 +25,13 @@ public class BucketingManager extends DecisionManager {
     }
 
     @Override
+    public void setStatusListener(Flagship.StatusListener statusListener) {
+        super.setStatusListener(statusListener);
+        if (Flagship.getStatus().lessThan(Flagship.Status.READY))
+            statusListener.onStatusChanged(Flagship.Status.POLLING);
+    }
+
+    @Override
     public ArrayList<Campaign> getCampaigns(String visitorId, HashMap<String, Object> context) {
         ArrayList<Campaign> targetedCampaigns = new ArrayList<>();
         if (bucketing_content != null) {
@@ -66,8 +73,8 @@ public class BucketingManager extends DecisionManager {
     }
 
     private void updateFlagshipStatus() {
-        if (onStatusChangedListener != null && Flagship.getStatus() != Flagship.Status.READY)
-            onStatusChangedListener.onStatusChanged(Flagship.Status.READY);
+        if (statusListener != null && Flagship.getStatus() != Flagship.Status.READY)
+            statusListener.onStatusChanged(Flagship.Status.READY);
     }
 
     public void stopPolling() {

@@ -3,9 +3,10 @@ package com.abtasty.flagship.utils;
 public final class FlagshipConstants {
 
     public static class Info {
-        public static String STARTED = "Flagship SDK (version: %s) READY";
+        public static String READY = "Flagship SDK (version: %s) READY";
         public static String BUCKETING_INTERVAL = "Polling event.";
         public static String NEW_ALLOCATION = "Variation %s selected with allocation %d.";
+        public static String STATUS_CHANGED = "SDK status has changed : %s.";
     }
 
     public static class Warnings {
@@ -35,7 +36,7 @@ public final class FlagshipConstants {
         public static String GET_MODIFICATION_ERROR = "An error occured while retreiving modification for key '%s'. Default value is returned.";
         public static String GET_MODIFICATION_INFO_ERROR = "No modification for key '%s'.";
         public static String HIT_INVALID_DATA_ERROR = "'%s' hit invalid format error. \n %s";
-        public static String PANIC_ERROR = "'%s' deactivated while panic mode is on.";
+        public static String METHOD_DEACTIVATED_ERROR = "Method '%s' is deactivated while SDK status is: %s.";
         public static String CONFIGURATION_POLLING_ERROR = "Setting a polling interval is only available for Bucketing Mode.";
     }
 

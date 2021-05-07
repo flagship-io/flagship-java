@@ -1,13 +1,7 @@
 package com.abtasty.flagship.main;
 
-import com.abtasty.flagship.api.TrackingManager;
-import com.abtasty.flagship.decision.ApiManager;
-import com.abtasty.flagship.decision.BucketingManager;
-import com.abtasty.flagship.decision.DecisionManager;
-import com.abtasty.flagship.utils.FlagshipConstants;
-import com.abtasty.flagship.utils.LogManager;
 import com.abtasty.flagship.utils.FlagshipLogManager;
-
+import com.abtasty.flagship.utils.LogManager;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -21,7 +15,6 @@ public class FlagshipConfig {
     private int                                 timeout             = 2000;
     private LogManager.Level                    logLevel            = LogManager.Level.ALL;
     private LogManager                          logManager          = new FlagshipLogManager(logLevel);
-    private TrackingManager                     trackingManager     = new TrackingManager(); //todo remove this
     private long                                pollingTime         = 60;
     private TimeUnit                            pollingUnit         = TimeUnit.SECONDS;
     private Flagship.StatusListener             statusListener      = null;
@@ -46,21 +39,17 @@ public class FlagshipConfig {
     /**
      * Specify the environment id provided by Flagship, to use.
      * @param envId environment id.
-     * @return FlagshipConfig
      */
-    protected FlagshipConfig withEnvId(String envId) {
+    protected void withEnvId(String envId) {
         this.envId = envId;
-        return this;
     }
 
     /**
      * Specify the secure api key provided by Flagship, to use.
      * @param apiKey secure api key.
-     * @return FlagshipConfig
      */
-    protected FlagshipConfig withApiKey(String apiKey) {
+    protected void withApiKey(String apiKey) {
         this.apiKey = apiKey;
-        return this;
     }
 
     /**
@@ -86,7 +75,7 @@ public class FlagshipConfig {
 
     /**
      * Specify a log level to filter SDK logs.
-     * @param level
+     * @param level level of log priority.
      * @return FlagshipConfig
      */
     public FlagshipConfig withLogLevel(LogManager.Level level) {
@@ -157,10 +146,6 @@ public class FlagshipConfig {
         return logManager;
     }
 
-    public TrackingManager getTrackingManager() {
-        return trackingManager;
-    }
-
     public long getPollingTime() {
         return pollingTime;
     }
@@ -181,5 +166,9 @@ public class FlagshipConfig {
 
     protected static FlagshipConfig emptyConfig() {
         return new FlagshipConfig("_YOUR_ENV_ID_", "_YOUR_API_KEY_");
+    }
+
+    protected boolean isSet() {
+        return (envId != null && apiKey != null);
     }
 }

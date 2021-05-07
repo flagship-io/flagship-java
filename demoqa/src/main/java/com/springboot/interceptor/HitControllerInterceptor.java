@@ -10,15 +10,14 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.abtasty.flagship.main.Flagship;
-import com.abtasty.flagship.visitor.Visitor;
+import com.abtasty.flagship.main.visitor.Visitor;
 
 @Component
 public class HitControllerInterceptor implements HandlerInterceptor {
 
-    private static final String Vis = "Visitor";
-    public static Visitor visitor;
-    private static Logger log = LoggerFactory.getLogger(HitControllerInterceptor.class);
-
+    private static final    Logger  log     = LoggerFactory.getLogger(HitControllerInterceptor.class);
+    private static final    String  Vis     = "Visitor";
+    public  static          Visitor visitor;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)

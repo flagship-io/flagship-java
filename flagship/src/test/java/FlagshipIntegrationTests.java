@@ -4,7 +4,7 @@ import com.abtasty.flagship.api.Response;
 import com.abtasty.flagship.hits.*;
 import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.main.FlagshipConfig;
-import com.abtasty.flagship.visitor.Visitor;
+import com.abtasty.flagship.main.visitor.Visitor;
 import com.abtasty.flagship.utils.ETargetingComp;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
@@ -14,8 +14,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -47,38 +45,32 @@ public class FlagshipIntegrationTests {
         try {
             HttpManager mock = PowerMockito.spy(HttpManager.getInstance());
             Whitebox.setInternalState(HttpManager.class, "instance", mock);
-            doAnswer(new Answer<Object>() {
-                @Override
-                public Object answer(InvocationOnMock invocation) throws Throwable {
-                    URL url = invocation.getArgument(0);
-                    if (responseToMock.containsKey(url.toString())) {
-                        return responseToMock.get(url.toString());
-                    } else
-                        return invocation.callRealMethod();
-                }
+            doAnswer(invocation -> {
+                URL url = invocation.getArgument(0);
+                if (responseToMock.containsKey(url.toString())) {
+                    return responseToMock.get(url.toString());
+                } else
+                    return invocation.callRealMethod();
             }).when(mock, "createConnection", any());
 
-            doAnswer(new Answer<Object>() {
-                @Override
-                public Object answer(InvocationOnMock invocation) throws Throwable {
-                    Response response = (Response) invocation.callRealMethod();
-                    if (requestToVerify.containsKey(response.getRequestUrl())) {
-                        OnRequestValidation validation = requestToVerify.get(response.getRequestUrl());
-                        try {
-                           validation.onRequestValidation(response);
-                        } catch (Error | Exception e) {
-                            requestsVerified = false;
-                            System.err.println("Error verifying : " + response.getRequestUrl());
-                            e.printStackTrace();
-                        }
-                        if (validation.shouldBeRemoved())
-                            requestToVerify.remove(response.getRequestUrl());
-                    } else {
-                        missingRequestVerification = true;
-                        System.err.println("Error url not verified : " + response.getRequestUrl());
+            doAnswer(invocation -> {
+                Response response = (Response) invocation.callRealMethod();
+                if (requestToVerify.containsKey(response.getRequestUrl())) {
+                    OnRequestValidation validation = requestToVerify.get(response.getRequestUrl());
+                    try {
+                       validation.onRequestValidation(response);
+                    } catch (Error | Exception e) {
+                        requestsVerified = false;
+                        System.err.println("Error verifying : " + response.getRequestUrl());
+                        e.printStackTrace();
                     }
-                    return response;
+                    if (validation.shouldBeRemoved())
+                        requestToVerify.remove(response.getRequestUrl());
+                } else {
+                    missingRequestVerification = true;
+                    System.err.println("Error url not verified : " + response.getRequestUrl());
                 }
+                return response;
             }).when(mock, "parseResponse", any(), any(), any(), any(), any());
         } catch (Exception e) {
             e.printStackTrace();
@@ -775,8 +767,8 @@ public class FlagshipIntegrationTests {
         Flagship.start("my_env_id", "my_api_key", new FlagshipConfig()
                 .withFlagshipMode(Flagship.Mode.BUCKETING)
                 .withBucketingPollingIntervals(2, TimeUnit.SECONDS));
-        Thread.sleep(10000);
-        assertEquals(6, nbBucketingCall.get());
+        Thread.sleep(10500);
+        assertEquals(7, nbBucketingCall.get());
     }
 
     @Test

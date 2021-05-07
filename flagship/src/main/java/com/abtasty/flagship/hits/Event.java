@@ -9,7 +9,7 @@ public class Event extends Hit<Event> {
         ACTION_TRACKING("Action Tracking"),
         USER_ENGAGEMENT("User Engagement");
 
-        private String name = null;
+        private String name;
 
         EventCategory(String name) {
             this.name = name;

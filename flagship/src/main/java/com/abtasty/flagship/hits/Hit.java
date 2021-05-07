@@ -4,14 +4,12 @@ import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.utils.FlagshipConstants;
 import org.json.JSONObject;
 
-import static com.abtasty.flagship.api.IFlagshipEndpoints.ARIANE;
-
 public abstract class Hit<T> {
 
     enum Type { SCREENVIEW, PAGEVIEW, TRANSACTION, ITEM, EVENT, ACTIVATION, BATCH }
 
-    private     Type        type = Type.SCREENVIEW;
-    protected   JSONObject  data = new JSONObject();
+    private         Type        type;
+    protected final JSONObject  data = new JSONObject();
 
     public Hit(Type type) {
 

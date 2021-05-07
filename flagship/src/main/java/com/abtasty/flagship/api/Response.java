@@ -9,10 +9,10 @@ public class Response {
     private String                      requestContent = "";
     private HashMap<String, String>     requestHeaders = new HashMap<String, String>();
 
-    private int                         responseCode = -1;
-    private String                      responseContent = "";
-    private String                      responseMessage = "";
-    private HashMap<String, String>     responseHeaders = new HashMap<String, String>();
+    private int                         responseCode;
+    private String                      responseContent;
+    private String                      responseMessage;
+    private HashMap<String, String>     responseHeaders;
     private long                        responseTime = 0;
 
 

@@ -12,7 +12,7 @@ import java.util.Date;
 
 public class LogHelper {
 
-    private static String filename = "logs";
+    private static final String filename = "logs";
 
     public static void clearLogFile() {
         File fd = new File(filename);

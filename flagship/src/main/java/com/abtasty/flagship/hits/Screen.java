@@ -2,11 +2,6 @@ package com.abtasty.flagship.hits;
 
 import com.abtasty.flagship.utils.FlagshipConstants;
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-
 
 public class Screen extends Hit<Screen> {
 

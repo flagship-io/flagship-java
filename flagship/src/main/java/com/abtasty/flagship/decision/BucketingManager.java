@@ -10,14 +10,14 @@ import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 public class BucketingManager extends DecisionManager {
 
-    private boolean                         pollingDaemon = true;
-    private Thread                          pollingThread = null;
     private String                          last_modified;
     private String                          bucketing_content;
+    private ScheduledExecutorService        executor;
 
     public BucketingManager(FlagshipConfig config) {
         super(config);
@@ -48,10 +48,19 @@ public class BucketingManager extends DecisionManager {
     }
 
     public void startPolling() {
-        pollingDaemon = true;
-        if (pollingThread == null)
-            initPollingThread();
-        this.pollingThread.start();
+        if (executor == null) {
+            executor = Executors.newSingleThreadScheduledExecutor(r -> {
+                Thread t = Executors.defaultThreadFactory().newThread(r);
+                t.setDaemon(true);
+                return t;
+            });
+            executor.scheduleAtFixedRate(() -> {
+                FlagshipLogManager.log(FlagshipLogManager.Tag.BUCKETING,
+                        LogManager.Level.DEBUG,
+                        FlagshipConstants.Info.BUCKETING_INTERVAL);
+                sendBucketingRequest();
+            }, 0, config.getPollingTime(), config.getPollingUnit());
+        }
     }
 
     private void sendBucketingRequest() {
@@ -60,7 +69,10 @@ public class BucketingManager extends DecisionManager {
             if (last_modified != null)
                 headers.put("If-Modified-Since", last_modified);
             Response response = HttpManager.getInstance().sendHttpRequest(HttpManager.RequestType.GET,
-                    String.format(BUCKETING, config.getEnvId()), headers, null, config.getTimeout());
+                    String.format(BUCKETING, config.getEnvId()),
+                    headers,
+                    null,
+                    config.getTimeout());
             logResponse(response);
             if (response.isSuccess(false)) {
                 last_modified = response.getResponseHeader("Last-Modified");
@@ -78,21 +90,7 @@ public class BucketingManager extends DecisionManager {
     }
 
     public void stopPolling() {
-        pollingDaemon = false;
-    }
-
-    private void initPollingThread() {
-        this.pollingThread = new Thread(() -> {
-            while (pollingDaemon) {
-                FlagshipLogManager.log(FlagshipLogManager.Tag.BUCKETING, LogManager.Level.DEBUG, FlagshipConstants.Info.BUCKETING_INTERVAL);
-                try {
-                    sendBucketingRequest();
-                    Thread.sleep(TimeUnit.MILLISECONDS.convert(config.getPollingTime(), config.getPollingUnit()));
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        this.pollingThread.setDaemon(true);
+        if (executor != null && !executor.isShutdown())
+            executor.shutdownNow();
     }
 }

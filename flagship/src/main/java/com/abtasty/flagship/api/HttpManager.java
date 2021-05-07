@@ -15,7 +15,7 @@ public class HttpManager {
         POST("POST"),
         GET("GET");
 
-        public String name = "";
+        public String name;
 
         RequestType(String name) {
             this.name = name;
@@ -27,8 +27,7 @@ public class HttpManager {
     private final ThreadPoolExecutor    threadPoolExecutor;
     private final long                  workerTimeout = 500L;
     private final TimeUnit              workerTimeoutUnit = TimeUnit.MILLISECONDS;
-    private int                         workers = 0;
-    private boolean                     ready = false;
+    private int                         workers;
 
     public static HttpManager getInstance() {
         if (instance == null) {
@@ -53,11 +52,6 @@ public class HttpManager {
                     return t;
                 });
         this.threadPoolExecutor.allowCoreThreadTimeOut(true);
-        ready = true;
-    }
-
-    public boolean isReady() {
-        return ready;
     }
 
     public ThreadPoolExecutor getThreadPoolExecutor() {

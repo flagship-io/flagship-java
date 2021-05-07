@@ -15,9 +15,9 @@ import java.util.HashMap;
 
 public abstract class DecisionManager implements IDecisionManager, IFlagshipEndpoints {
 
-    protected   FlagshipConfig                      config;
-    private     boolean                             panic = false;
-    protected   Flagship.StatusListener             statusListener = null;
+    protected final     FlagshipConfig                      config;
+    private             boolean                             panic           = false;
+    protected           Flagship.StatusListener             statusListener  = null;
 
     public DecisionManager(FlagshipConfig config) {
         this.config = config;
@@ -42,11 +42,8 @@ public abstract class DecisionManager implements IDecisionManager, IFlagshipEndp
 
     public HashMap<String, Modification> getModifications(ArrayList<Campaign> campaigns) {
         HashMap<String, Modification> modifications = new HashMap<String, Modification>();
-        if (campaigns != null) {
-            campaigns.forEach(campaign -> {
-                modifications.putAll(campaign.getModifications());
-            });
-        }
+        if (campaigns != null)
+            campaigns.forEach(campaign -> modifications.putAll(campaign.getModifications()));
         return modifications;
     }
 
@@ -56,7 +53,7 @@ public abstract class DecisionManager implements IDecisionManager, IFlagshipEndp
 
     protected void logResponse(Response response) {
 
-        String content = "";
+        String content;
         try {
             content = new JSONObject(response.getResponseContent()).toString(2);
         } catch (Exception e) {

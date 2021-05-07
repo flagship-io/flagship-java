@@ -10,9 +10,9 @@ import java.util.HashMap;
 
 public class Targeting implements Serializable {
 
-    String key;
-    Object value;
-    String operator;
+    final String key;
+    final Object value;
+    final String operator;
 
     public Targeting(String key, Object value, String operator) {
         this.key = key;

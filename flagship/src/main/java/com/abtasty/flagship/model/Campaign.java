@@ -15,7 +15,7 @@ public class Campaign implements Serializable {
 
     private final String                                    id;
     private final LinkedHashMap<String, VariationGroup>     variationGroups;
-    private String                                          selectedVariationGroupId = null;
+    private String                                          selectedVariationGroupId;
 
     public Campaign(String id, LinkedHashMap<String, VariationGroup> variationGroups, String selectedVariationGroupId) {
         this.id = id;

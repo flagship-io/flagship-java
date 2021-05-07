@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.abtasty.flagship.visitor.Visitor;
+import com.abtasty.flagship.main.visitor.Visitor;
 
 @RestController
 public class FlagController {
@@ -53,7 +53,7 @@ public class FlagController {
 
             case "JSONArray":
                 try {
-                    JSONArray array = new JSONArray(defaultValue.toString());
+                    JSONArray array = new JSONArray(defaultValue);
                     flag = visitor.getModification(flag_key, array, activate);
                 } catch (Exception e) {
                     error = e.getMessage();
@@ -62,7 +62,7 @@ public class FlagController {
 
             case "JSONObject":
                 try {
-                    JSONObject object = new JSONObject(defaultValue.toString());
+                    JSONObject object = new JSONObject(defaultValue);
                     flag = visitor.getModification(flag_key, object, activate);
                 } catch (Exception e) {
                     error = e.getMessage();

@@ -28,7 +28,7 @@ public class FlagshipLogManager extends LogManager {
         ACTIVATE("ACTIVATE"),
         EXCEPTION("EXCEPTION");
 
-        String name = "";
+        String name;
 
         Tag(String name) {
             this.name = name;
@@ -143,7 +143,7 @@ public class FlagshipLogManager extends LogManager {
                 getColor(level),
                 currentDate(),
                 this.mainTag,
-                level.toString(),
+                level,
                 tag,
                 message,
                 RESET);

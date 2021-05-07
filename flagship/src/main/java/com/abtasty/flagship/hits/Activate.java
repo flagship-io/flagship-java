@@ -3,9 +3,6 @@ package com.abtasty.flagship.hits;
 import com.abtasty.flagship.model.Modification;
 import com.abtasty.flagship.utils.FlagshipConstants;
 
-import static com.abtasty.flagship.api.IFlagshipEndpoints.ACTIVATION;
-import static com.abtasty.flagship.api.IFlagshipEndpoints.DECISION_API;
-
 /**
  * Internal Hit for activations
  */

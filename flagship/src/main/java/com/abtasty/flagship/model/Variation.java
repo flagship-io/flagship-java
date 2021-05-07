@@ -64,7 +64,7 @@ public class Variation implements Serializable {
             String variationId = variationObj.getString("id");
             boolean isReference = variationObj.optBoolean("reference", false);
             Modifications modifications = Modifications.parse(campaignId, variationGroupId, variationId, isReference, variationObj.getJSONObject("modifications"));
-            int allocation = variationObj.optInt("allocation", -1);
+            int allocation = variationObj.optInt("allocation", 100);
             return new Variation(campaignId, variationGroupId, variationId, isReference, modifications, allocation);
         } catch (Exception e) {
             FlagshipLogManager.log(FlagshipLogManager.Tag.PARSING, LogManager.Level.ERROR, FlagshipConstants.Errors.PARSING_VARIATION_ERROR);

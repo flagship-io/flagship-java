@@ -33,11 +33,9 @@ public class TrackingManager implements IFlagshipEndpoints {
         data.put(FlagshipConstants.HitKeyMap.VISITOR_ID, visitorId);
         if (hit.checkData()) {
             CompletableFuture<Response> response = HttpManager.getInstance().sendAsyncHttpRequest(HttpManager.RequestType.POST, endpoint, headers, data.toString());
-            response.whenComplete((httpResponse, error) -> {
-                logHit(hit, httpResponse);
-            });
+            response.whenComplete((httpResponse, error) -> logHit(hit, httpResponse));
         } else {
-            FlagshipLogManager.log(FlagshipLogManager.Tag.TRACKING, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.HIT_INVALID_DATA_ERROR, hit.getType(), hit.toString()));
+            FlagshipLogManager.log(FlagshipLogManager.Tag.TRACKING, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.HIT_INVALID_DATA_ERROR, hit.getType(), hit));
         }
     }
 

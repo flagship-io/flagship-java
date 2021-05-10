@@ -33,10 +33,11 @@ public final class FlagshipConstants {
         public static final String GET_MODIFICATION_CAST_ERROR = "Modification for key '%s' has a different type. Default value is returned.";
         public static final String GET_MODIFICATION_MISSING_ERROR = "No modification for key '%s'. Default value is returned.";
         public static final String GET_MODIFICATION_KEY_ERROR = "Key '%s' must not be null. Default value is returned.";
-        public static final String GET_MODIFICATION_ERROR = "An error occured while retreiving modification for key '%s'. Default value is returned.";
+        public static final String GET_MODIFICATION_ERROR = "An error occurred while retrieving modification for key '%s'. Default value is returned.";
         public static final String GET_MODIFICATION_INFO_ERROR = "No modification for key '%s'.";
         public static final String HIT_INVALID_DATA_ERROR = "'%s' hit invalid format error. \n %s";
         public static final String METHOD_DEACTIVATED_ERROR = "Method '%s' is deactivated while SDK status is: %s.";
+        public static final String METHOD_DEACTIVATED_CONSENT_ERROR = "Method '%s' is deactivated for visitor '%s': visitor did not consent.";
         public static String CONFIGURATION_POLLING_ERROR = "Setting a polling interval is only available for Bucketing Mode.";
     }
 

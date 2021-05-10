@@ -105,7 +105,6 @@ public class HttpManager {
                                                                    String uri,
                                                                    HashMap<String, String> headers,
                                                                    String content) {
-
         return CompletableFuture.supplyAsync(() -> {
             try {
                 return sendHttpRequest(type, uri, headers, content);

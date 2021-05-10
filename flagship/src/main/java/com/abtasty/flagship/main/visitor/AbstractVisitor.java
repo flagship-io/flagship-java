@@ -6,6 +6,9 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Only for Visitor
+ */
 abstract class AbstractVisitor {
 
     private  Boolean    hasConsented = true;
@@ -107,11 +110,23 @@ abstract class AbstractVisitor {
             return new DefaultStrategy();
     }
 
+    /**
+     * Return if the visitor has given his consent for private data usage.
+     * @return return a true if the visitor has given consent, false otherwise.
+     */
     public Boolean hasConsented() {
         return hasConsented;
     }
 
+    /**
+     * Set visitor consent for private data usage. When false some features will be deactivated, cache will be deactivated and cleared.
+     * @param hasConsented Set to true when the visitor has consented, false otherwise.
+     */
     public void setConsent(Boolean hasConsented) {
         this.hasConsented = hasConsented;
+        if (!hasConsented)
+            clearVisitorData();
     }
+
+    abstract void clearVisitorData();
 }

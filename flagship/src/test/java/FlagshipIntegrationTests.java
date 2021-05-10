@@ -814,4 +814,72 @@ public class FlagshipIntegrationTests {
         assertEquals(2, visitor2.getModification("ab10_variation", 0));
         assertEquals(0, visitor1.getModification("ab10_variation", 0));
     }
+
+    @Test
+    public void visitor_status_strategy() throws InterruptedException, ExecutionException {
+
+
+        CountDownLatch contextLatch = new CountDownLatch(4);
+        mockResponse("https://cdn.flagship.io/my_env_id/bucketing.json", 200, FlagshipIntegrationConstants.bucketingResponse);
+        verifyRequest("https://cdn.flagship.io/my_env_id/bucketing.json", new OnRequestValidation() {
+            @Override
+            public boolean shouldBeRemoved() {
+                return false;
+            }
+
+            @Override
+            public void onRequestValidation(Response response) {
+            }
+        });
+        verifyRequest("https://decision.flagship.io/v2/my_env_id/events", new OnRequestValidation() {
+            @Override
+            public void onRequestValidation(Response response) {
+                JSONObject json = response.getRequestContentAsJson();
+                assert json.getString("type").equals("CONTEXT");
+                assert json.getString("visitorId").equals("visitor_1");
+                assert json.getJSONObject("data").getInt("age") == 32;
+                contextLatch.countDown();
+            }
+        });
+        CountDownLatch latchNotInitialized = new CountDownLatch(1);
+        CountDownLatch readyLatch = new CountDownLatch(1);
+        CountDownLatch synchronizeDeactivatedLog = new CountDownLatch(1);
+        CountDownLatch consentDeactivatedLog = new CountDownLatch(1);
+
+        assertEquals(Flagship.getStatus(), Flagship.Status.NOT_INITIALIZED);
+        Flagship.start("my_env_id", "my_api_key", new FlagshipConfig()
+                .withFlagshipMode(Flagship.Mode.BUCKETING)
+                .withBucketingPollingIntervals(1, TimeUnit.MINUTES)
+                .withStatusListener(newStatus -> {
+                    if (newStatus == Flagship.Status.READY)
+                        readyLatch.countDown();
+                })
+                .withLogManager(new LogManager() {
+                    @Override
+                    public void onLog(Level level, String tag, String message) {
+                        System.out.println("message => " + message);
+                        if (message.contains("has been created while SDK status is POLLING"))
+                            latchNotInitialized.countDown();
+                        else if (message.contains("'synchronizeModifications()' is deactivated"))
+                            synchronizeDeactivatedLog.countDown();
+                        else if (message.contains("'visitor_1': visitor did not consent."))
+                            consentDeactivatedLog.countDown();
+                    }
+                }));
+        assertEquals(Flagship.getStatus(), Flagship.Status.POLLING);
+        Visitor visitor_1 = Flagship.newVisitor("visitor_1");
+        visitor_1.updateContext("age", 32);
+        visitor_1.synchronizeModifications().get();
+        assertEquals(0, latchNotInitialized.getCount());
+        assertEquals(0, synchronizeDeactivatedLog.getCount());
+        readyLatch.await();
+        visitor_1.setConsent(false);
+        visitor_1.activateModification("key");
+        visitor_1.synchronizeModifications().get();
+        assertEquals(0, consentDeactivatedLog.getCount());
+        visitor_1.setConsent(true);
+        visitor_1.synchronizeModifications().get();
+        Thread.sleep(1000);
+        assertEquals(3, contextLatch.getCount());
+    }
 }

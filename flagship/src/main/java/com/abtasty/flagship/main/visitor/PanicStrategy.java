@@ -50,4 +50,7 @@ class PanicStrategy extends DefaultStrategy {
     public <T> void sendHit(Visitor visitor, Hit<T> hit) {
         logMethodDeactivatedError(FlagshipLogManager.Tag.TRACKING, "sendHit()");
     }
+
+    @Override
+    protected void sendContextRequest(Visitor visitor) { }       //do nothing
 }

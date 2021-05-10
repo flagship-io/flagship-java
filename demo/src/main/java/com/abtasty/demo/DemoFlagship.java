@@ -14,11 +14,15 @@ public class DemoFlagship {
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
 
+        Visitor visitor1 = Flagship.newVisitor("toto");
+        visitor1.synchronizeModifications().get();
+
         CountDownLatch flagshipReadyLatch = new CountDownLatch(1);
 
         Flagship.start("bkk4s7gcmjcg07fke9dg", "Q6FDmj6F188nh75lhEato2MwoyXDS7y34VrAL4Aa",
                 new FlagshipConfig()
                         .withLogLevel(LogManager.Level.ALL)
+//                        .withFlagshipMode(Flagship.Mode.DECISION_API)
                         .withFlagshipMode(Flagship.Mode.BUCKETING)
                         .withBucketingPollingIntervals(5, TimeUnit.SECONDS)
                         .withStatusListener(newStatus -> {
@@ -29,26 +33,14 @@ public class DemoFlagship {
         );
         flagshipReadyLatch.await();
 
-        Visitor visitor1 = Flagship.newVisitor("toto");
+//        Visitor visitor1 = Flagship.newVisitor("toto");
+        visitor1.updateContext("coucou", 1);
         visitor1.synchronizeModifications().get();
-
-        CountDownLatch flagshipReadyLatch2 = new CountDownLatch(1);
-        Flagship.start("bkk4s7gcmjcg07fke9dg", "Q6FDmj6F188nh75lhEato2MwoyXDS7y34VrAL4Aa",
-                new FlagshipConfig()
-                        .withLogLevel(LogManager.Level.ALL)
-                        .withFlagshipMode(Flagship.Mode.DECISION_API)
-                        .withBucketingPollingIntervals(5, TimeUnit.SECONDS)
-                        .withStatusListener(newStatus -> {
-                            System.out.println("NEW STATUS = " + newStatus.name());
-                            if (newStatus == Flagship.Status.READY)
-                                flagshipReadyLatch2.countDown();
-                        })
-        );
-
+        visitor1.activateModification("activate");
+        visitor1.setConsent(false);
         visitor1.synchronizeModifications().get();
-//        Visitor visitor2 = Flagship.newVisitor("toto2");
-//        visitor2.synchronizeModifications().get();
+        visitor1.activateModification("activate2");
+
+        Thread.sleep(10000);
     }
-
-
 }

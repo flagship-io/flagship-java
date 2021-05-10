@@ -54,7 +54,7 @@ public class VariationGroup implements Serializable {
     }
 
     public void selectVariation(String visitorId) {
-//        if (selectedVariationId == null) //todo load from cache
+//        if (selectedVariationId == null) //todo load from cache except if no consent
 //            selectedVariationId = loadFromCache();
         if (selectedVariationId == null && variations != null) {
             int p = 0;
@@ -68,7 +68,7 @@ public class VariationGroup implements Serializable {
                     FlagshipLogManager.log(FlagshipLogManager.Tag.ALLOCATION, LogManager.Level.DEBUG,
                             String.format(FlagshipConstants.Info.NEW_ALLOCATION, variation.getVariationId(),
                                     murmurAllocation));
-                    //saveToCache() //todo save in cache
+                    //saveToCache() //todo save in cache except if no consent
                     break;
                 }
             }

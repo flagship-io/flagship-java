@@ -5,6 +5,7 @@ import com.abtasty.flagship.api.TrackingManager;
 import com.abtasty.flagship.decision.DecisionManager;
 import com.abtasty.flagship.hits.Activate;
 import com.abtasty.flagship.hits.Hit;
+import com.abtasty.flagship.main.ConfigManager;
 import com.abtasty.flagship.model.Campaign;
 import com.abtasty.flagship.model.Modification;
 import com.abtasty.flagship.utils.FlagshipConstants;
@@ -40,6 +41,12 @@ class DefaultStrategy extends VisitorStrategy {
             FlagshipLogManager.log(FlagshipLogManager.Tag.UPDATE_CONTEXT, LogManager.Level.WARNING, FlagshipConstants.Errors.CONTEXT_PARAM_ERROR);
     }
 
+    protected void sendContextRequest(Visitor visitor) {
+        ConfigManager configManager = visitor.getManagerConfig();
+        TrackingManager trackingManager = configManager.getTrackingManager();
+        trackingManager.sendContextRequest(configManager.getFlagshipConfig().getEnvId(), visitor.visitorId, visitor.getContext());
+    }
+
     @Override
     public CompletableFuture<Visitor> synchronizeModifications(Visitor visitor) {
         DecisionManager decisionManager = visitor.getManagerConfig().getDecisionManager();
@@ -47,11 +54,10 @@ class DefaultStrategy extends VisitorStrategy {
             try {
                 ArrayList<Campaign> campaigns = decisionManager.getCampaigns(visitor.visitorId, new HashMap<String, Object>(visitor.context));
                 visitor.modifications.clear();
-                if (!decisionManager.isPanic()) {
-                    HashMap<String, Modification> modifications = decisionManager.getModifications(campaigns);
-                    if (modifications != null)
-                        visitor.modifications.putAll(modifications);
-                }
+                HashMap<String, Modification> modifications = decisionManager.getModifications(campaigns);
+                if (modifications != null)
+                    visitor.modifications.putAll(modifications);
+                sendContextRequest(visitor);
             } catch (Exception e) {
                 FlagshipLogManager.exception(e);
             }

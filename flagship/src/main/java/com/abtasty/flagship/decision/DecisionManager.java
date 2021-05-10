@@ -41,14 +41,14 @@ public abstract class DecisionManager implements IDecisionManager, IFlagshipEndp
     }
 
     public HashMap<String, Modification> getModifications(ArrayList<Campaign> campaigns) {
-        HashMap<String, Modification> modifications = new HashMap<String, Modification>();
-        if (campaigns != null)
-            campaigns.forEach(campaign -> modifications.putAll(campaign.getModifications()));
-        return modifications;
-    }
-
-    public boolean isPanic() {
-        return panic;
+        if (panic)
+            return null;
+        else {
+            HashMap<String, Modification> modifications = new HashMap<String, Modification>();
+            if (campaigns != null)
+                campaigns.forEach(campaign -> modifications.putAll(campaign.getModifications()));
+            return modifications;
+        }
     }
 
     protected void logResponse(Response response) {
@@ -63,7 +63,6 @@ public abstract class DecisionManager implements IDecisionManager, IFlagshipEndp
                 response.getResponseCode(), response.getResponseTime(), content);
         FlagshipLogManager.log(FlagshipLogManager.Tag.CAMPAIGNS, response.isSuccess() ?
                 LogManager.Level.DEBUG : LogManager.Level.ERROR, message);
-
     }
 
     public void setStatusListener(Flagship.StatusListener statusListener) {

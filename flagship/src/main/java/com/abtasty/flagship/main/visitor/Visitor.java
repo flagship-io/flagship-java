@@ -14,6 +14,8 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * Flagship visitor representation.
  */
+
+
 public class Visitor extends AbstractVisitor {
 
     private   final ConfigManager                           configManager;
@@ -81,4 +83,11 @@ public class Visitor extends AbstractVisitor {
         });
         return modificationJson;
     }
+
+    @Override
+    void clearVisitorData() {
+        //clear all visitor data.
+    }
+
+
 }

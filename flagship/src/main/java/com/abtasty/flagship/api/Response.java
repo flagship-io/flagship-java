@@ -1,5 +1,7 @@
 package com.abtasty.flagship.api;
 
+import org.json.JSONObject;
+
 import java.util.HashMap;
 
 public class Response {
@@ -41,6 +43,14 @@ public class Response {
 
     public String getRequestContent() {
         return requestContent;
+    }
+
+    public JSONObject getRequestContentAsJson() {
+        try {
+            return new JSONObject(getRequestContent());
+        } catch (Exception e) {
+            return  new JSONObject();
+        }
     }
 
     public void setRequestContent(String requestContent) {

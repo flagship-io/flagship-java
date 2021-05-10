@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentMap;
 
 public class TrackingManager implements IFlagshipEndpoints {
 
@@ -47,7 +48,7 @@ public class TrackingManager implements IFlagshipEndpoints {
         FlagshipLogManager.log(tag, level, log);
     }
 
-    public void sendContextRequest(String envId, String visitorId, HashMap<String, Object> context) {
+    public void sendContextRequest(String envId, String visitorId, ConcurrentMap<String, Object> context) {
         try {
             String endpoint = DECISION_API + envId + EVENTS;
             JSONObject body = new JSONObject();
@@ -58,7 +59,13 @@ public class TrackingManager implements IFlagshipEndpoints {
                 data.put(item.getKey(), item.getValue());
             }
             body.put("data", data);
-            HttpManager.getInstance().sendAsyncHttpRequest(HttpManager.RequestType.POST, endpoint, null, body.toString());
+            CompletableFuture<Response> response = HttpManager.getInstance().sendAsyncHttpRequest(HttpManager.RequestType.POST, endpoint, null, body.toString());
+            response.whenComplete((httpResponse, error) -> {
+                String log = String.format("[%s] %s [%d] [%dms]\n%s", httpResponse.getType(), httpResponse.getRequestUrl(),
+                        httpResponse.getResponseCode(), httpResponse.getResponseTime(), httpResponse.getRequestContentAsJson().toString(2));
+                LogManager.Level level = httpResponse.isSuccess() ? LogManager.Level.DEBUG : LogManager.Level.ERROR;
+                FlagshipLogManager.log(FlagshipLogManager.Tag.TRACKING, level, log);
+            });
         } catch (Exception e) {
             FlagshipLogManager.exception(e);
         }

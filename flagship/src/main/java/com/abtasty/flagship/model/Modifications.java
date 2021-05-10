@@ -8,7 +8,6 @@ import org.json.JSONObject;
 import java.io.Serializable;
 import java.util.HashMap;
 
-
 public class Modifications implements Serializable {
 
     private final String                          campaignId;

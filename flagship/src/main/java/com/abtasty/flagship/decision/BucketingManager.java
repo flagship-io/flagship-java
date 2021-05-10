@@ -4,7 +4,11 @@ import com.abtasty.flagship.api.HttpManager;
 import com.abtasty.flagship.api.Response;
 import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.main.FlagshipConfig;
+import com.abtasty.flagship.main.visitor.Visitor;
 import com.abtasty.flagship.model.Campaign;
+import com.abtasty.flagship.model.Modification;
+import com.abtasty.flagship.model.Variation;
+import com.abtasty.flagship.model.VariationGroup;
 import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
@@ -16,7 +20,7 @@ import java.util.concurrent.ScheduledExecutorService;
 public class BucketingManager extends DecisionManager {
 
     private String                          last_modified;
-    private String                          bucketing_content;
+    private ArrayList<Campaign>             campaigns = new ArrayList<>();
     private ScheduledExecutorService        executor;
 
     public BucketingManager(FlagshipConfig config) {
@@ -31,22 +35,6 @@ public class BucketingManager extends DecisionManager {
             statusListener.onStatusChanged(Flagship.Status.POLLING);
     }
 
-    @Override
-    public ArrayList<Campaign> getCampaigns(String visitorId, HashMap<String, Object> context) {
-        ArrayList<Campaign> targetedCampaigns = new ArrayList<>();
-        if (bucketing_content != null) {
-            ArrayList<Campaign> campaigns = parseCampaignsResponse(bucketing_content);
-            if (campaigns != null) {
-                for (Campaign campaign : campaigns) {
-                    campaign.selectVariation(visitorId);
-                    if (campaign.selectedVariationGroupFromTargeting(context))
-                        targetedCampaigns.add(campaign);
-                }
-            }
-        }
-        return targetedCampaigns;
-    }
-
     public void startPolling() {
         if (executor == null) {
             executor = Executors.newSingleThreadScheduledExecutor(r -> {
@@ -58,25 +46,24 @@ public class BucketingManager extends DecisionManager {
                 FlagshipLogManager.log(FlagshipLogManager.Tag.BUCKETING,
                         LogManager.Level.DEBUG,
                         FlagshipConstants.Info.BUCKETING_INTERVAL);
-                sendBucketingRequest();
+                updateBucketingCampaigns();
             }, 0, config.getPollingTime(), config.getPollingUnit());
         }
     }
 
-    private void sendBucketingRequest() {
+    private void updateBucketingCampaigns() {
         try {
             HashMap<String, String> headers = new HashMap<String, String>();
             if (last_modified != null)
                 headers.put("If-Modified-Since", last_modified);
             Response response = HttpManager.getInstance().sendHttpRequest(HttpManager.RequestType.GET,
-                    String.format(BUCKETING, config.getEnvId()),
-                    headers,
-                    null,
-                    config.getTimeout());
+                    String.format(BUCKETING, config.getEnvId()), headers, null, config.getTimeout());
             logResponse(response);
             if (response.isSuccess(false)) {
                 last_modified = response.getResponseHeader("Last-Modified");
-                bucketing_content = response.getResponseContent();
+                ArrayList<Campaign> campaigns = parseCampaignsResponse(response.getResponseContent());
+                if (campaigns != null)
+                    this.campaigns = campaigns;
                 updateFlagshipStatus();
             }
         } catch (Exception e) {
@@ -92,5 +79,29 @@ public class BucketingManager extends DecisionManager {
     public void stopPolling() {
         if (executor != null && !executor.isShutdown())
             executor.shutdownNow();
+    }
+
+    @Override
+    public HashMap<String, Modification> getCampaignsModifications(Visitor visitor) {
+        try {
+            if (campaigns != null) {
+                HashMap<String, Modification> campaignsModifications = new HashMap<>();
+                for (Campaign campaign : campaigns) {
+                    for (VariationGroup variationGroup : campaign.getVariationGroups()) {
+                        if (variationGroup.isTargetingValid(new HashMap<>(visitor.getContext()))) {
+                            Variation variation = variationGroup.selectVariation(visitor);
+                            HashMap<String, Modification> modificationsValues = variation.getModificationsValues();
+                            if (modificationsValues != null)
+                                campaignsModifications.putAll(modificationsValues);
+                            break;
+                        }
+                    }
+                }
+                return campaignsModifications;
+            }
+        } catch (Exception e) {
+            FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, LogManager.Level.ERROR, e.getMessage());
+        }
+        return null;
     }
 }

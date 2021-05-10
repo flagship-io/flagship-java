@@ -5,10 +5,15 @@ import com.abtasty.flagship.api.HttpManager;
 import com.abtasty.flagship.api.Response;
 import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.main.FlagshipConfig;
+import com.abtasty.flagship.main.visitor.Visitor;
 import com.abtasty.flagship.model.Campaign;
+import com.abtasty.flagship.model.Modification;
+import com.abtasty.flagship.model.Variation;
+import com.abtasty.flagship.model.VariationGroup;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
 import org.json.JSONObject;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -25,36 +30,45 @@ public class ApiManager extends DecisionManager {
             statusListener.onStatusChanged(Flagship.Status.READY);
     }
 
-    @Override
-    public ArrayList<Campaign> getCampaigns(String visitorId, HashMap<String, Object> context) {
-
-        HashMap<String, String> headers = new HashMap<String, String>();
-        headers.put("x-api-key", config.getApiKey());
-        headers.put("x-sdk-client", "java");
-        headers.put("x-sdk-version", BuildConfig.flagship_version_name);
+    private ArrayList<Campaign> sendCampaignRequest(Visitor visitor) throws IOException {
         JSONObject json = new JSONObject();
-        JSONObject jsonContext = new JSONObject();
-        for (HashMap.Entry<String, Object> e : context.entrySet()) {
-            jsonContext.put(e.getKey(), e.getValue());
-        }
-        json.put("visitorId", visitorId);
+        HashMap<String, String> headers = new HashMap<String, String>() {{
+            put("x-api-key", config.getApiKey());
+            put("x-sdk-client", "java");
+            put("x-sdk-version", BuildConfig.flagship_version_name);
+        }};
+        json.put("visitorId", visitor.getId());
         json.put("trigger_hit", false);
-        json.put("context", jsonContext);
-        ArrayList<Campaign> campaigns = new ArrayList<Campaign>();
+        json.put("context", visitor.getContextAsJson());
+        Response response = HttpManager.getInstance().sendHttpRequest(HttpManager.RequestType.POST,
+                DECISION_API + config.getEnvId() + CAMPAIGNS,
+                headers,
+                json.toString(),
+                config.getTimeout());
+        logResponse(response);
+        return (response.isSuccess()) ? parseCampaignsResponse(response.getResponseContent()) : null;
+    }
+
+    @Override
+    public HashMap<String, Modification> getCampaignsModifications(Visitor visitor) {
         try {
-            Response response = HttpManager.getInstance().sendHttpRequest(HttpManager.RequestType.POST,
-                    DECISION_API + config.getEnvId() + CAMPAIGNS,
-                    headers,
-                    json.toString(),
-                    config.getTimeout());
-            logResponse(response);
-            ArrayList<Campaign> newCampaigns = parseCampaignsResponse(response.getResponseContent());
-            if (newCampaigns != null)
-                campaigns.addAll(newCampaigns);
+            ArrayList<Campaign> campaigns = sendCampaignRequest(visitor);
+            if (campaigns != null) {
+                HashMap<String, Modification> campaignsModifications = new HashMap<>();
+                for (Campaign campaign : campaigns) {
+                    for (VariationGroup variationGroup : campaign.getVariationGroups()) {
+                        for (Variation variation : variationGroup.getVariations().values()) {
+                            HashMap<String, Modification> modificationsValues = variation.getModificationsValues();
+                            if (modificationsValues != null)
+                                campaignsModifications.putAll(modificationsValues);
+                        }
+                    }
+                }
+                return campaignsModifications;
+            }
         } catch (Exception e) {
-            e.printStackTrace();
             FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, LogManager.Level.ERROR, e.getMessage());
         }
-        return campaigns;
+        return null;
     }
 }

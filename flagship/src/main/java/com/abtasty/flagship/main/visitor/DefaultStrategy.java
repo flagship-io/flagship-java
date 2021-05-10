@@ -6,14 +6,12 @@ import com.abtasty.flagship.decision.DecisionManager;
 import com.abtasty.flagship.hits.Activate;
 import com.abtasty.flagship.hits.Hit;
 import com.abtasty.flagship.main.ConfigManager;
-import com.abtasty.flagship.model.Campaign;
 import com.abtasty.flagship.model.Modification;
 import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 
@@ -52,11 +50,11 @@ class DefaultStrategy extends VisitorStrategy {
         DecisionManager decisionManager = visitor.getManagerConfig().getDecisionManager();
         return CompletableFuture.supplyAsync(() -> {
             try {
-                ArrayList<Campaign> campaigns = decisionManager.getCampaigns(visitor.visitorId, new HashMap<String, Object>(visitor.context));
-                visitor.modifications.clear();
-                HashMap<String, Modification> modifications = decisionManager.getModifications(campaigns);
-                if (modifications != null)
+                HashMap<String, Modification> modifications = decisionManager.getCampaignsModifications(visitor);
+                if (modifications != null) {
+                    visitor.modifications.clear();
                     visitor.modifications.putAll(modifications);
+                }
                 sendContextRequest(visitor);
             } catch (Exception e) {
                 FlagshipLogManager.exception(e);

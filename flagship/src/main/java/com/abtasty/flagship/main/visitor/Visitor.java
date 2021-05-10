@@ -49,7 +49,7 @@ public class Visitor extends AbstractVisitor {
         return this.context;
     }
 
-    protected void logVisitor(FlagshipLogManager.Tag tag) {
+    void logVisitor(FlagshipLogManager.Tag tag) {
         String visitorStr = String.format(FlagshipConstants.Errors.VISITOR, visitorId, this);
         FlagshipLogManager.log(tag, LogManager.Level.DEBUG, visitorStr);
     }
@@ -67,7 +67,11 @@ public class Visitor extends AbstractVisitor {
         return json.toString(2);
     }
 
-    private JSONObject getContextAsJson() {
+    public String getId() {
+        return visitorId;
+    }
+
+    public JSONObject getContextAsJson() {
         JSONObject contextJson = new JSONObject();
         for (HashMap.Entry<String, Object> e : context.entrySet()) {
             contextJson.put(e.getKey(), e.getValue());
@@ -85,9 +89,7 @@ public class Visitor extends AbstractVisitor {
     }
 
     @Override
-    void clearVisitorData() {
+    public void clearVisitorData() {
         //clear all visitor data.
     }
-
-
 }

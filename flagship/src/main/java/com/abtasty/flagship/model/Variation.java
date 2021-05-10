@@ -5,6 +5,7 @@ import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
 import org.json.JSONObject;
 import java.io.Serializable;
+import java.util.HashMap;
 
 public class Variation implements Serializable {
 
@@ -14,9 +15,6 @@ public class Variation implements Serializable {
     private final boolean           isReference;
     private final Modifications     modifications;
     private int                     allocation = 100;
-    private boolean                 isSelected = false;
-
-
 
     Variation(String campaignId, String variationGroupId, String variationId, boolean isReference, Modifications modifications, int allocation) {
         this.campaignId = campaignId;
@@ -47,16 +45,12 @@ public class Variation implements Serializable {
         return modifications;
     }
 
+    public HashMap<String, Modification> getModificationsValues() {
+        return (modifications != null) ? modifications.getValues() : null;
+    }
+
     public int getAllocation() {
         return allocation;
-    }
-
-    public boolean isSelected() {
-        return isSelected;
-    }
-
-    public void setSelected(boolean selected) {
-        isSelected = selected;
     }
 
     public static Variation parse(String campaignId, String variationGroupId, JSONObject variationObj) {
@@ -81,7 +75,6 @@ public class Variation implements Serializable {
                 ", isReference=" + isReference +
                 ", modifications=" + modifications +
                 ", allocation=" + allocation +
-                ", isSelected=" + isSelected +
                 '}';
     }
 }

@@ -9,7 +9,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Only for Visitor
  */
-abstract class AbstractVisitor {
+public abstract class AbstractVisitor {
 
     private  Boolean    hasConsented = true;
 
@@ -128,5 +128,5 @@ abstract class AbstractVisitor {
             clearVisitorData();
     }
 
-    abstract void clearVisitorData();
+    public abstract void clearVisitorData();
 }

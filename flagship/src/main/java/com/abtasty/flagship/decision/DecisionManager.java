@@ -9,7 +9,6 @@ import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
 
 public abstract class DecisionManager implements IDecisionManager, IFlagshipEndpoints {
@@ -44,17 +43,6 @@ public abstract class DecisionManager implements IDecisionManager, IFlagshipEndp
     public boolean isPanic() {
         return panic;
     }
-
-    //    public HashMap<String, Modification> getModifications(ArrayList<Campaign> campaigns) {
-//        if (panic)
-//            return null;
-//        else {
-//            HashMap<String, Modification> modifications = new HashMap<String, Modification>();
-//            if (campaigns != null)
-//                campaigns.forEach(campaign -> modifications.putAll(campaign.getModifications()));
-//            return modifications;
-//        }
-//    }
 
     protected void logResponse(Response response) {
 

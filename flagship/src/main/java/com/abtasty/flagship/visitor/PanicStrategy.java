@@ -1,4 +1,4 @@
-package com.abtasty.flagship.main.visitor;
+package com.abtasty.flagship.visitor;
 
 
 import com.abtasty.flagship.hits.Hit;
@@ -11,46 +11,51 @@ import java.util.HashMap;
  */
 class PanicStrategy extends DefaultStrategy {
 
+
+    public PanicStrategy(VisitorDelegate visitor) {
+        super(visitor);
+    }
+
     @Override
-    public void updateContext(Visitor visitor, HashMap<String, Object> context) {
+    public void updateContext(HashMap<String, Object> context) {
         logMethodDeactivatedError(FlagshipLogManager.Tag.UPDATE_CONTEXT, "updateContext()");
     }
 
     @Override
-    public <T> void updateContext(Visitor visitor, String key, T value) {
+    public <T> void updateContext(String key, T value) {
         logMethodDeactivatedError(FlagshipLogManager.Tag.UPDATE_CONTEXT, "updateContext()");
     }
 
     // Call default strategy synchronizeModifications
 
     @Override
-    public <T> T getModification(Visitor visitor, String key, T defaultValue) {
+    public <T> T getModification(String key, T defaultValue) {
         logMethodDeactivatedError(FlagshipLogManager.Tag.GET_MODIFICATION, "getModification()");
         return defaultValue;
     }
 
     @Override
-    public <T> T getModification(Visitor visitor, String key, T defaultValue, boolean activate) {
+    public <T> T getModification(String key, T defaultValue, boolean activate) {
         logMethodDeactivatedError(FlagshipLogManager.Tag.GET_MODIFICATION, "getModification()");
         return defaultValue;
     }
 
     @Override
-    public JSONObject getModificationInfo(Visitor visitor, String key) {
+    public JSONObject getModificationInfo(String key) {
         logMethodDeactivatedError(FlagshipLogManager.Tag.GET_MODIFICATION_INFO, "getModificationInfo()");
         return null;
     }
 
     @Override
-    public void activateModification(Visitor visitor, String key) {
+    public void activateModification(String key) {
         logMethodDeactivatedError(FlagshipLogManager.Tag.ACTIVATE, "activateModification()");
     }
 
     @Override
-    public <T> void sendHit(Visitor visitor, Hit<T> hit) {
+    public <T> void sendHit(Hit<T> hit) {
         logMethodDeactivatedError(FlagshipLogManager.Tag.TRACKING, "sendHit()");
     }
 
     @Override
-    protected void sendContextRequest(Visitor visitor) { }       //do nothing
+    protected void sendContextRequest() { }       //do nothing
 }

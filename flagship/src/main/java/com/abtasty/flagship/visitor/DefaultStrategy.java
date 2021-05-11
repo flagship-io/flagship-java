@@ -1,4 +1,4 @@
-package com.abtasty.flagship.main.visitor;
+package com.abtasty.flagship.visitor;
 
 import com.abtasty.flagship.api.HttpManager;
 import com.abtasty.flagship.api.TrackingManager;
@@ -14,73 +14,76 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Visitor default method strategy
  */
 class DefaultStrategy extends VisitorStrategy {
 
-    @Override
-    public void updateContext(Visitor visitor, HashMap<String, Object> context) {
-        if (context != null) {
-            for (HashMap.Entry<String, Object> e : context.entrySet()) {
-                this.updateContext(visitor, e.getKey(), e.getValue());
-            }
-        }
-        visitor.logVisitor(FlagshipLogManager.Tag.UPDATE_CONTEXT);
+    public DefaultStrategy(VisitorDelegate visitor) {
+        super(visitor);
     }
 
     @Override
-    public <T> void updateContext(Visitor visitor, String key, T value) {
+    public void updateContext(HashMap<String, Object> context) {
+        if (context != null) {
+            for (HashMap.Entry<String, Object> e : context.entrySet()) {
+                this.updateContext(e.getKey(), e.getValue());
+            }
+        }
+        visitorDelegate.logVisitor(FlagshipLogManager.Tag.UPDATE_CONTEXT);
+    }
+
+    @Override
+    public <T> void updateContext(String key, T value) {
         if (key != null && (value instanceof String || value instanceof Number || value instanceof Boolean ||
                 value instanceof JSONObject || value instanceof JSONArray)) {
-            visitor.context.put(key, value);
+            visitorDelegate.getVisitorContext().put(key, value);
         } else
             FlagshipLogManager.log(FlagshipLogManager.Tag.UPDATE_CONTEXT, LogManager.Level.WARNING, FlagshipConstants.Errors.CONTEXT_PARAM_ERROR);
     }
 
-    protected void sendContextRequest(Visitor visitor) {
-        ConfigManager configManager = visitor.getManagerConfig();
+    protected void sendContextRequest() {
+        ConfigManager configManager = visitorDelegate.getConfigManager();
         TrackingManager trackingManager = configManager.getTrackingManager();
-        trackingManager.sendContextRequest(configManager.getFlagshipConfig().getEnvId(), visitor.visitorId, visitor.getContext());
+        trackingManager.sendContextRequest(configManager.getFlagshipConfig().getEnvId(), visitorDelegate.getId(), visitorDelegate.getContext());
     }
 
     @Override
-    public CompletableFuture<Visitor> synchronizeModifications(Visitor visitor) {
-        DecisionManager decisionManager = visitor.getManagerConfig().getDecisionManager();
+    public CompletableFuture<Visitor> synchronizeModifications() {
+
+        DecisionManager decisionManager = visitorDelegate.getConfigManager().getDecisionManager();
         return CompletableFuture.supplyAsync(() -> {
             try {
-                HashMap<String, Modification> modifications = decisionManager.getCampaignsModifications(visitor);
-                if (modifications != null) {
-                    visitor.modifications.clear();
-                    visitor.modifications.putAll(modifications);
-                }
-                sendContextRequest(visitor);
+                visitorDelegate.updateModifications(decisionManager.getCampaignsModifications(visitorDelegate));
+                sendContextRequest();
             } catch (Exception e) {
                 FlagshipLogManager.exception(e);
             }
-            return visitor;
-        }, HttpManager.getInstance().getThreadPoolExecutor()).whenCompleteAsync((instance, error) -> visitor.logVisitor(FlagshipLogManager.Tag.SYNCHRONIZE));
+            return visitorDelegate.getOriginalVisitor();
+        }, HttpManager.getInstance().getThreadPoolExecutor()).whenCompleteAsync((instance, error) -> visitorDelegate.logVisitor(FlagshipLogManager.Tag.SYNCHRONIZE));
     }
 
     @Override
-    public <T> T getModification(Visitor visitor, String key, T defaultValue) {
-        return getModification(visitor, key, defaultValue, false);
+    public <T> T getModification(String key, T defaultValue) {
+        return getModification(key, defaultValue, false);
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T getModification(Visitor visitor, String key, T defaultValue, boolean activate) {
+    public <T> T getModification(String key, T defaultValue, boolean activate) {
+        ConcurrentMap<String, Modification> visitorModifications = visitorDelegate.getVisitorModifications();
         try {
             if (key == null) {
                 FlagshipLogManager.log(FlagshipLogManager.Tag.GET_MODIFICATION, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_KEY_ERROR, "null"));
-            } else if (!visitor.modifications.containsKey(key)) {
+            } else if (!visitorModifications.containsKey(key)) {
                 FlagshipLogManager.log(FlagshipLogManager.Tag.GET_MODIFICATION, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_MISSING_ERROR, key));
             } else {
-                Modification modification = visitor.modifications.get(key);
+                Modification modification = visitorModifications.get(key);
                 T castValue = (T) ((modification.getValue() != null) ? modification.getValue() : defaultValue);
                 if (defaultValue == null || castValue == null || castValue.getClass().equals(defaultValue.getClass())) {
                     if (activate)
-                        this.activateModification(visitor, modification);
+                        this.activateModification(modification);
                     return castValue;
                 } else
                     FlagshipLogManager.log(FlagshipLogManager.Tag.GET_MODIFICATION, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_CAST_ERROR, key));
@@ -92,13 +95,14 @@ class DefaultStrategy extends VisitorStrategy {
     }
 
     @Override
-    public JSONObject getModificationInfo(Visitor visitor, String key) {
-        if (key == null || !visitor.modifications.containsKey(key)) {
+    public JSONObject getModificationInfo(String key) {
+        ConcurrentMap<String, Modification> visitorModifications = visitorDelegate.getVisitorModifications();
+        if (key == null || !visitorModifications.containsKey(key)) {
             FlagshipLogManager.log(FlagshipLogManager.Tag.GET_MODIFICATION_INFO, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_INFO_ERROR, key));
             return null;
         } else {
             JSONObject obj = new JSONObject();
-            Modification modification = visitor.modifications.get(key);
+            Modification modification = visitorModifications.get(key);
             obj.put("campaignId", modification.getCampaignId());
             obj.put("variationGroupId", modification.getVariationGroupId());
             obj.put("variationId", modification.getVariationId());
@@ -107,25 +111,25 @@ class DefaultStrategy extends VisitorStrategy {
         }
     }
 
-    private void activateModification(Visitor visitor, Modification modification) {
+    private void activateModification(Modification modification) {
         if (modification != null)
-            this.sendHit(visitor, new Activate(modification));
+            this.sendHit(new Activate(modification));
     }
 
     @Override
-    public void activateModification(Visitor visitor, String key) {
-        this.getModification(visitor, key, null, true);
+    public void activateModification(String key) {
+        this.getModification(key, null, true);
     }
 
     @Override
-    public <T> void sendHit(Visitor visitor, Hit<T> hit) {
-        TrackingManager trackingManager = visitor.getManagerConfig().getTrackingManager();
+    public <T> void sendHit(Hit<T> hit) {
+        TrackingManager trackingManager = visitorDelegate.getConfigManager().getTrackingManager();
         if (trackingManager != null) {
             if (hit != null && hit.checkData()) {
                 if (hit instanceof Activate)
-                    trackingManager.sendActivation(visitor.visitorId, (Activate) hit);
+                    trackingManager.sendActivation(visitorDelegate.getId(), (Activate) hit);
                 else
-                    trackingManager.sendHit(visitor.visitorId, hit);
+                    trackingManager.sendHit(visitorDelegate.getId(), hit);
             }
         }
     }

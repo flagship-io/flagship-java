@@ -1,7 +1,7 @@
 package com.abtasty.flagship.main;
 
 import com.abtasty.flagship.BuildConfig;
-import com.abtasty.flagship.main.visitor.Visitor;
+import com.abtasty.flagship.visitor.Visitor;
 import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;

@@ -13,7 +13,7 @@ import com.abtasty.flagship.hits.Item;
 import com.abtasty.flagship.hits.Page;
 import com.abtasty.flagship.hits.Screen;
 import com.abtasty.flagship.hits.Transaction;
-import com.abtasty.flagship.main.visitor.Visitor;
+import com.abtasty.flagship.visitor.Visitor;
 
 @RestController
 public class HitController {

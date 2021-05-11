@@ -2,9 +2,8 @@ package com.abtasty.demo;
 
 import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.main.FlagshipConfig;
-import com.abtasty.flagship.main.visitor.Visitor;
+import com.abtasty.flagship.visitor.Visitor;
 import com.abtasty.flagship.utils.LogManager;
-
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;

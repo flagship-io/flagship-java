@@ -4,7 +4,6 @@ import com.abtasty.flagship.api.HttpManager;
 import com.abtasty.flagship.api.Response;
 import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.main.FlagshipConfig;
-import com.abtasty.flagship.main.visitor.Visitor;
 import com.abtasty.flagship.model.Campaign;
 import com.abtasty.flagship.model.Modification;
 import com.abtasty.flagship.model.Variation;
@@ -12,6 +11,8 @@ import com.abtasty.flagship.model.VariationGroup;
 import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
+import com.abtasty.flagship.visitor.VisitorDelegate;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.Executors;
@@ -82,7 +83,7 @@ public class BucketingManager extends DecisionManager {
     }
 
     @Override
-    public HashMap<String, Modification> getCampaignsModifications(Visitor visitor) {
+    public HashMap<String, Modification> getCampaignsModifications(VisitorDelegate visitor) {
         try {
             if (campaigns != null) {
                 HashMap<String, Modification> campaignsModifications = new HashMap<>();

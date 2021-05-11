@@ -10,7 +10,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.abtasty.flagship.main.Flagship;
-import com.abtasty.flagship.main.visitor.Visitor;
+import com.abtasty.flagship.visitor.Visitor;
 
 @Component
 public class HitControllerInterceptor implements HandlerInterceptor {

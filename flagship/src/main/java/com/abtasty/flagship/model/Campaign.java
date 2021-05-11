@@ -62,7 +62,7 @@ public class Campaign implements Serializable {
             }
             return new Campaign(id, variationGroups);
         }
-        catch (Exception e){
+        catch (Exception e)  {
             FlagshipLogManager.log(FlagshipLogManager.Tag.PARSING, LogManager.Level.ERROR, FlagshipConstants.Errors.PARSING_CAMPAIGN_ERROR);
             return null;
         }

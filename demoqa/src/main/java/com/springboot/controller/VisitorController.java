@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.abtasty.flagship.main.Flagship;
-import com.abtasty.flagship.main.visitor.Visitor;
+import com.abtasty.flagship.visitor.Visitor;
 
 import java.util.concurrent.ExecutionException;
 

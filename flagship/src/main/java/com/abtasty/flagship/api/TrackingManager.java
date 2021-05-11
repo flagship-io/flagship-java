@@ -48,7 +48,7 @@ public class TrackingManager implements IFlagshipEndpoints {
         FlagshipLogManager.log(tag, level, log);
     }
 
-    public void sendContextRequest(String envId, String visitorId, ConcurrentMap<String, Object> context) {
+    public void sendContextRequest(String envId, String visitorId, HashMap<String, Object> context) {
         try {
             String endpoint = DECISION_API + envId + EVENTS;
             JSONObject body = new JSONObject();

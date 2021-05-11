@@ -1,17 +1,14 @@
-package com.abtasty.flagship.main.visitor;
+package com.abtasty.flagship.visitor;
 
 import com.abtasty.flagship.hits.Hit;
-import com.abtasty.flagship.main.Flagship;
 import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Only for Visitor
+ * Interface for public visitor methods.
  */
-public abstract class AbstractVisitor {
-
-    private  Boolean    hasConsented = true;
+public interface IVisitor {
 
     /**
      * Update the visitor context values, matching the given keys, used for targeting.
@@ -21,9 +18,7 @@ public abstract class AbstractVisitor {
      *
      * @param context: HashMap of keys, values.
      */
-    public void updateContext(HashMap<String, Object> context) {
-        getStrategy().updateContext((Visitor) this, context);
-    }
+    void updateContext(HashMap<String, Object> context);
 
     /**
      * Update the visitor context values, matching the given keys, used for targeting.
@@ -34,18 +29,14 @@ public abstract class AbstractVisitor {
      * @param key:  context key.
      * @param value context value.
      */
-    public <T> void updateContext(String key, T value) {
-        getStrategy().updateContext((Visitor) this, key, value);
-    }
+    <T> void updateContext(String key, T value);
 
     /**
      * This function will call the decision api and update all the campaigns modifications from the server according to the visitor context.
      *
      * @return a CompletableFuture for this synchronization
      */
-    public CompletableFuture<Visitor> synchronizeModifications() {
-        return getStrategy().synchronizeModifications((Visitor) this);
-    }
+    CompletableFuture<Visitor> synchronizeModifications();
 
     /**
      * Retrieve a modification value by its key. If no modification match the given key, default value will be returned.
@@ -54,9 +45,7 @@ public abstract class AbstractVisitor {
      * @param defaultValue default value to return.
      * @return modification value or default value.
      */
-    public <T> T getModification(String key, T defaultValue) {
-        return getStrategy().getModification((Visitor) this, key, defaultValue);
-    }
+    <T> T getModification(String key, T defaultValue);
 
     /**
      * Retrieve a modification value by its key. If no modification match the given key or if the stored value type and default value type do not match, default value will be returned.
@@ -67,9 +56,7 @@ public abstract class AbstractVisitor {
      *                     current visitor has seen this modification. It is possible to call activateModification() later.
      * @return modification value or default value.
      */
-    public <T> T getModification(String key, T defaultValue, boolean activate) {
-        return getStrategy().getModification((Visitor) this, key, defaultValue, activate);
-    }
+    <T> T getModification(String key, T defaultValue, boolean activate);
 
     /**
      * Get the campaign modification information value matching the given key.
@@ -77,56 +64,20 @@ public abstract class AbstractVisitor {
      * @param key key which identify the modification.
      * @return JSONObject containing the modification information.
      */
-    public JSONObject getModificationInfo(String key) {
-        return getStrategy().getModificationInfo((Visitor) this, key);
-    }
+    JSONObject getModificationInfo(String key);
 
     /**
      * Report this user has seen this modification.
      *
      * @param key key which identify the modification to activate.
      */
-    public void activateModification(String key) {
-        getStrategy().activateModification((Visitor) this, key);
-    }
+    void activateModification(String key);
 
     /**
      * Send a Hit to Flagship servers for reporting.
      *
      * @param hit hit to track.
      */
-    public <T> void sendHit(Hit<T> hit) {
-        getStrategy().sendHit((Visitor) this, hit);
-    }
+    <T> void sendHit(Hit<T> hit);
 
-    protected VisitorStrategy getStrategy() {
-        if (Flagship.getStatus().lessThan(Flagship.Status.READY_PANIC_ON))
-            return new NotReadyStrategy();
-        else if (Flagship.getStatus() == Flagship.Status.READY_PANIC_ON)
-            return new PanicStrategy();
-        else if (!hasConsented)
-            return new NoConsentStrategy();
-        else
-            return new DefaultStrategy();
-    }
-
-    /**
-     * Return if the visitor has given his consent for private data usage.
-     * @return return a true if the visitor has given consent, false otherwise.
-     */
-    public Boolean hasConsented() {
-        return hasConsented;
-    }
-
-    /**
-     * Set visitor consent for private data usage. When false some features will be deactivated, cache will be deactivated and cleared.
-     * @param hasConsented Set to true when the visitor has consented, false otherwise.
-     */
-    public void setConsent(Boolean hasConsented) {
-        this.hasConsented = hasConsented;
-        if (!hasConsented)
-            clearVisitorData();
-    }
-
-    public abstract void clearVisitorData();
 }

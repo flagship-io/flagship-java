@@ -5,14 +5,15 @@ import com.abtasty.flagship.api.HttpManager;
 import com.abtasty.flagship.api.Response;
 import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.main.FlagshipConfig;
-import com.abtasty.flagship.main.visitor.Visitor;
 import com.abtasty.flagship.model.Campaign;
 import com.abtasty.flagship.model.Modification;
 import com.abtasty.flagship.model.Variation;
 import com.abtasty.flagship.model.VariationGroup;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
+import com.abtasty.flagship.visitor.VisitorDelegate;
 import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,7 +31,7 @@ public class ApiManager extends DecisionManager {
             statusListener.onStatusChanged(Flagship.Status.READY);
     }
 
-    private ArrayList<Campaign> sendCampaignRequest(Visitor visitor) throws IOException {
+    private ArrayList<Campaign> sendCampaignRequest(VisitorDelegate visitor) throws IOException {
         JSONObject json = new JSONObject();
         HashMap<String, String> headers = new HashMap<String, String>() {{
             put("x-api-key", config.getApiKey());
@@ -50,7 +51,7 @@ public class ApiManager extends DecisionManager {
     }
 
     @Override
-    public HashMap<String, Modification> getCampaignsModifications(Visitor visitor) {
+    public HashMap<String, Modification> getCampaignsModifications(VisitorDelegate visitor) {
         try {
             ArrayList<Campaign> campaigns = sendCampaignRequest(visitor);
             if (campaigns != null) {

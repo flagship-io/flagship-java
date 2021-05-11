@@ -1,10 +1,10 @@
 package com.abtasty.flagship.model;
 
-import com.abtasty.flagship.main.visitor.Visitor;
 import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
 import com.abtasty.flagship.utils.MurmurHash;
+import com.abtasty.flagship.visitor.VisitorDelegate;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.Serializable;
@@ -42,7 +42,7 @@ public class VariationGroup implements Serializable {
         return targetingGroups;
     }
 
-    public Variation selectVariation(Visitor visitor) {
+    public Variation selectVariation(VisitorDelegate visitor) {
         if (variations != null) {
             //todo load variation from cache except if no consent
             int p = 0;

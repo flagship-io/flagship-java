@@ -4,7 +4,7 @@ import com.abtasty.flagship.api.Response;
 import com.abtasty.flagship.hits.*;
 import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.main.FlagshipConfig;
-import com.abtasty.flagship.main.visitor.Visitor;
+import com.abtasty.flagship.visitor.Visitor;
 import com.abtasty.flagship.utils.ETargetingComp;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
@@ -218,7 +218,7 @@ public class FlagshipIntegrationTests {
         visitor1.updateContext("wrong2", new Response(0, "", "", null));
         visitor1.updateContext("key1", "value1");
         visitor1.updateContext("key2", 2);
-        ConcurrentMap<String, Object> context = visitor1.getContext();
+        HashMap<String, Object> context = visitor1.getContext();
         assertEquals(context.size(), 9);
         assertEquals(context.get("boolean"), true);
         assertEquals(context.get("int"), 32);

@@ -1,6 +1,5 @@
 package com.abtasty.flagship.visitor;
 
-
 import com.abtasty.flagship.hits.Hit;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import org.json.JSONObject;

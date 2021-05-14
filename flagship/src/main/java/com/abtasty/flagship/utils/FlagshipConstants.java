@@ -13,6 +13,7 @@ public final class FlagshipConstants {
         public static final String VISITOR_ID_NULL_OR_EMPTY = "Visitor identifier must not be null or empty. A UUID has been generated.";
         public static final String VISITOR_STATUS_NOT_READY = "New visitor '%s' has been created while SDK status is %s. Feature management will only be possible when SDK status is READY.";
         public static final String PANIC = "Panic mode is on.";
+        public static final String CONTEXT_VALUE_OVERRIDING = "key '%s' is overriding a predefined flagship value";
     }
 
     public static class Errors {
@@ -20,8 +21,10 @@ public final class FlagshipConstants {
         public static String INITIALIZATION_PARAM_ERROR_CONFIG = "Param 'config' must not be null.";
         public static String ERROR = "error";
         public static final String VISITOR = "'%s' \n%s";
-        public static final String CONTEXT_PARAM_ERROR = "params 'key' must be a non null String, and 'value' must be one of the " +
-                "following types : String, Number, Boolean, JsonObject, JsonArray.";
+        public static final String CONTEXT_KEY_ERROR = "param 'key' must be a non null String.";
+        public static final String CONTEXT_VALUE_ERROR = "'value' for '%s', must be one of the following types : String, Number, Boolean";
+//        public static final String CONTEXT_VALUE_ERROR = "param 'value' must be one of the following types : String, Number, Boolean, JsonObject, JsonArray";
+        public static final String CONTEXT_RESERVED_KEY_ERROR = "key '%s' is reserved by flagship and can't be modified.";
         public static final String PARSING_ERROR = "an error occurred while parsing ";
         public static final String PARSING_CAMPAIGN_ERROR = PARSING_ERROR + " campaign.";
         public static final String PARSING_VARIATION_GROUP_ERROR = PARSING_ERROR + " variation group.";

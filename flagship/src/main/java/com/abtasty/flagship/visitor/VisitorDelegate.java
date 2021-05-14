@@ -4,6 +4,7 @@ import com.abtasty.flagship.hits.Hit;
 import com.abtasty.flagship.main.ConfigManager;
 import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.model.Modification;
+import com.abtasty.flagship.utils.FlagshipContext;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import org.json.JSONObject;
 import java.util.HashMap;
@@ -48,6 +49,16 @@ public class VisitorDelegate extends AbstractVisitor implements IVisitor {
     @Override
     public <T> void updateContext(String key, T value) {
         getStrategy().updateContext(key, value);
+    }
+
+    @Override
+    public <T> void updateContext(FlagshipContext<T> flagshipContext, T value) {
+        getStrategy().updateContext(flagshipContext, value);
+    }
+
+    @Override
+    public void clearContext() {
+        getStrategy().clearContext();
     }
 
     @Override

@@ -7,10 +7,10 @@ import com.abtasty.flagship.hits.Activate;
 import com.abtasty.flagship.hits.Hit;
 import com.abtasty.flagship.main.ConfigManager;
 import com.abtasty.flagship.model.Modification;
+import com.abtasty.flagship.utils.FlagshipContext;
 import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
@@ -32,16 +32,30 @@ class DefaultStrategy extends VisitorStrategy {
                 this.updateContext(e.getKey(), e.getValue());
             }
         }
-        visitorDelegate.logVisitor(FlagshipLogManager.Tag.UPDATE_CONTEXT);
     }
 
     @Override
     public <T> void updateContext(String key, T value) {
-        if (key != null && (value instanceof String || value instanceof Number || value instanceof Boolean ||
-                value instanceof JSONObject || value instanceof JSONArray)) {
+        if (key == null)
+            FlagshipLogManager.log(FlagshipLogManager.Tag.UPDATE_CONTEXT, LogManager.Level.ERROR, FlagshipConstants.Errors.CONTEXT_KEY_ERROR);
+//        else if (((value instanceof String) || (value instanceof Number) || (value instanceof Boolean) || (value instanceof JSONObject) || (value instanceof JSONArray)))
+        else if (!((value instanceof String) || (value instanceof Number) || (value instanceof Boolean)))
+            FlagshipLogManager.log(FlagshipLogManager.Tag.UPDATE_CONTEXT, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.CONTEXT_VALUE_ERROR, key));
+        else if (FlagshipContext.isReserved(key))
+            FlagshipLogManager.log(FlagshipLogManager.Tag.UPDATE_CONTEXT, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.CONTEXT_RESERVED_KEY_ERROR, key));
+        else
             visitorDelegate.getVisitorContext().put(key, value);
-        } else
-            FlagshipLogManager.log(FlagshipLogManager.Tag.UPDATE_CONTEXT, LogManager.Level.WARNING, FlagshipConstants.Errors.CONTEXT_PARAM_ERROR);
+    }
+
+    @Override
+    public <T> void updateContext(FlagshipContext<T> flagshipContext, T value) {
+        if (flagshipContext.verify(value))
+            visitorDelegate.getVisitorContext().put(flagshipContext.key(), value);
+    }
+
+    @Override
+    public void clearContext() {
+        visitorDelegate.getVisitorContext().clear();
     }
 
     protected void sendContextRequest() {

@@ -108,7 +108,7 @@
         <button type="submit" class="btn btn-success">Submit</button>
     </form>
 
-    <h2 class="mt-5">Then, set your Visitor ID and context</h2>
+    <h2 class="mt-5">Then, set your Visitor ID and flagshipContext</h2>
     <form v-on:submit.prevent="setVisitor()">
         <div class="form-group">
             <label>Visitor ID</label>
@@ -128,7 +128,7 @@
             <textarea
                     class="form-control"
                     placeholder="Visitor Context"
-                    v-model="context"
+                    v-model="flagshipContext"
                     required
                     style="height: 200px;"
             ></textarea>
@@ -141,7 +141,7 @@
             {{visitorError.error}}
         </div>
         <div class="alert alert-success" v-if="visitorOk">
-            Visitor ID and context set successfully
+            Visitor ID and flagshipContext set successfully
         </div>
 
         <button type="submit" class="btn btn-primary">Submit</button>
@@ -152,7 +152,7 @@
         <pre class="mt-3" v-if="data && data.visitor">{{JSON.stringify(data.visitor, null, 4)}}</pre>
     </form>
 
-    <h2 class="mt-5">Stand alone update context</h2>
+    <h2 class="mt-5">Stand alone update flagshipContext</h2>
     <small class="form-text text-muted">(Will also call synchronize)</small>
     <br/>
     <form v-on:submit.prevent="getUpdateContext()">

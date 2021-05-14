@@ -3,6 +3,7 @@ package com.abtasty.flagship.visitor;
 import com.abtasty.flagship.hits.Hit;
 import com.abtasty.flagship.main.ConfigManager;
 import com.abtasty.flagship.model.Modification;
+import com.abtasty.flagship.utils.FlagshipContext;
 import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
@@ -34,6 +35,7 @@ public class Visitor extends AbstractVisitor implements IVisitor {
     public Visitor(ConfigManager managers, String visitorId, HashMap<String, Object> context) {
         this.configManager = managers;
         this.visitorId = (visitorId == null || visitorId.length() <= 0) ? genVisitorId() : visitorId;
+        this.loadContext();
         this.updateContext(context);
     }
 
@@ -44,11 +46,25 @@ public class Visitor extends AbstractVisitor implements IVisitor {
     @Override
     public void updateContext(HashMap<String, Object> context) {
         new VisitorDelegate(this).updateContext(context);
+        logVisitor(FlagshipLogManager.Tag.UPDATE_CONTEXT);
     }
 
     @Override
     public <T> void updateContext(String key, T value) {
         new VisitorDelegate(this).updateContext(key, value);
+        logVisitor(FlagshipLogManager.Tag.UPDATE_CONTEXT);
+    }
+
+    @Override
+    public <T> void updateContext(FlagshipContext<T> flagshipContext, T value) {
+        new VisitorDelegate(this).updateContext(flagshipContext, value);
+        logVisitor(FlagshipLogManager.Tag.UPDATE_CONTEXT);
+    }
+
+    @Override
+    public void clearContext() {
+        new VisitorDelegate(this).clearContext();
+        logVisitor(FlagshipLogManager.Tag.CLEAR_CONTEXT);
     }
 
     @Override
@@ -81,6 +97,10 @@ public class Visitor extends AbstractVisitor implements IVisitor {
         new VisitorDelegate(this).sendHit(hit);
     }
 
+    /*
+     *   Visitor private methods
+     */
+
     /**
      * Generated a visitor id in a form of UUID
      * @return a unique identifier
@@ -89,6 +109,21 @@ public class Visitor extends AbstractVisitor implements IVisitor {
         FlagshipLogManager.log(FlagshipLogManager.Tag.VISITOR, LogManager.Level.WARNING, FlagshipConstants.Warnings.VISITOR_ID_NULL_OR_EMPTY);
         return UUID.randomUUID().toString();
     }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private <T> void loadContext() {
+        if (FlagshipContext.autoLoading) {
+            VisitorDelegate delegate = new VisitorDelegate(this);
+            for (FlagshipContext flagshipContext : FlagshipContext.ALL) {
+                delegate.updateContext(flagshipContext, flagshipContext.load());
+            }
+        }
+    }
+
+
+    /*
+     *   Visitor abstract methods
+     */
 
     /**
      * Return the visitor unique identifier.

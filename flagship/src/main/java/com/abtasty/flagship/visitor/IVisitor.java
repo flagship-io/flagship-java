@@ -1,6 +1,7 @@
 package com.abtasty.flagship.visitor;
 
 import com.abtasty.flagship.hits.Hit;
+import com.abtasty.flagship.utils.FlagshipContext;
 import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
@@ -30,6 +31,22 @@ public interface IVisitor {
      * @param value context value.
      */
     <T> void updateContext(String key, T value);
+
+    /**
+     * Update the visitor context values, matching the given predefined key, used for targeting.
+     * <p>
+     * A new context value associated with this key will be created if there is no previous matching value.
+     * Context key must be String, and value type must be one of the following : Number, Boolean, String.
+     *
+     * @param flagshipContext:  Predefined context key.
+     * @param value context value.
+     */
+    <T> void updateContext(FlagshipContext<T> flagshipContext, T value);
+
+    /**
+     * Clear all the visitor context values used for targeting.
+     */
+    public void clearContext();
 
     /**
      * This function will call the decision api and update all the campaigns modifications from the server according to the visitor context.

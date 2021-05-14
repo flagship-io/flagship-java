@@ -1,6 +1,7 @@
 package com.abtasty.flagship.visitor;
 
 import com.abtasty.flagship.hits.Hit;
+import com.abtasty.flagship.utils.FlagshipContext;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import org.json.JSONObject;
 import java.util.HashMap;
@@ -9,7 +10,6 @@ import java.util.HashMap;
  * Visitor method strategy to use when the SDK status is READY_PANIC_ON.
  */
 class PanicStrategy extends DefaultStrategy {
-
 
     public PanicStrategy(VisitorDelegate visitor) {
         super(visitor);
@@ -23,6 +23,16 @@ class PanicStrategy extends DefaultStrategy {
     @Override
     public <T> void updateContext(String key, T value) {
         logMethodDeactivatedError(FlagshipLogManager.Tag.UPDATE_CONTEXT, "updateContext()");
+    }
+
+    @Override
+    public <T> void updateContext(FlagshipContext<T> flagshipContext, T value) {
+        logMethodDeactivatedError(FlagshipLogManager.Tag.UPDATE_CONTEXT, "updateContext()");
+    }
+
+    @Override
+    public void clearContext() {
+        logMethodDeactivatedError(FlagshipLogManager.Tag.CLEAR_CONTEXT, "clearContext()");
     }
 
     // Call default strategy synchronizeModifications

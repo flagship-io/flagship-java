@@ -17,6 +17,7 @@ public class FlagshipLogManager extends LogManager {
         CONFIGURATION("CONFIGURATION"),
         BUCKETING("BUCKETING"),
         UPDATE_CONTEXT("UPDATE_CONTEXT"),
+        CLEAR_CONTEXT("CLEAR_CONTEXT"),
         SYNCHRONIZE("SYNCHRONIZE"),
         CAMPAIGNS("CAMPAIGNS"),
         PARSING("PARSING"),

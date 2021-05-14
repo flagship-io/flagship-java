@@ -10,10 +10,11 @@ import com.abtasty.flagship.utils.LogManager;
  */
 class NoConsentStrategy extends DefaultStrategy {
 
-
     public NoConsentStrategy(VisitorDelegate visitor) {
         super(visitor);
     }
+
+    // Call default updateContext
 
     protected void logMethodDeactivatedError(FlagshipLogManager.Tag tag, String visitorId, String methodName) {
         FlagshipLogManager.log(tag, LogManager.Level.ERROR,

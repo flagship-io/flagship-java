@@ -2,8 +2,8 @@ package com.abtasty.demo;
 
 import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.main.FlagshipConfig;
-import com.abtasty.flagship.visitor.Visitor;
 import com.abtasty.flagship.utils.LogManager;
+import com.abtasty.flagship.visitor.Visitor;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -14,6 +14,7 @@ public class DemoFlagship {
     public static void main(String[] args) throws InterruptedException, ExecutionException {
 
         Visitor visitor1 = Flagship.newVisitor("toto");
+
         visitor1.synchronizeModifications().get();
 
         CountDownLatch flagshipReadyLatch = new CountDownLatch(1);
@@ -31,6 +32,11 @@ public class DemoFlagship {
                         })
         );
         flagshipReadyLatch.await();
+//        PresetContext.DEVICE_LOCALE.set()
+//        Context.update(Context.DEVICE_LOCALE, "E");
+//        Context.update(Context.DEVICE_TYPE, Context.DeviceType.PC);
+        visitor1.updateContext("fs_client", "pas java");
+
 
 //        Visitor visitor1 = Flagship.newVisitor("toto");
         visitor1.updateContext("coucou", 1);

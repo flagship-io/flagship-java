@@ -3,7 +3,7 @@ package com.springboot.controller;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-//import com.springboot.service.LogHelper;
+
 import com.springboot.service.LogHelper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +18,8 @@ import com.abtasty.flagship.main.FlagshipConfig;
 import com.abtasty.flagship.utils.LogManager;
 import com.springboot.model.Environment;
 
+import java.util.concurrent.TimeUnit;
+
 @RestController
 public class EnvironmentController {
 
@@ -31,14 +33,47 @@ public class EnvironmentController {
         return new ResponseEntity<Environment>(environmentAttribute, HttpStatus.OK);
     }
 
+    private TimeUnit getTimeUnit(String unit) {
+
+        if (unit != null) {
+            switch (unit) {
+                case "nanoseconds":
+                    return TimeUnit.NANOSECONDS;
+
+                case "microseconds":
+                    return TimeUnit.MICROSECONDS;
+
+                case "milliseconds":
+                    return TimeUnit.MILLISECONDS;
+
+                case "seconds":
+                    return TimeUnit.SECONDS;
+
+                case "minutes":
+                    return TimeUnit.MINUTES;
+
+                case "hours":
+                    return TimeUnit.HOURS;
+
+                case "days":
+                    return TimeUnit.DAYS;
+            }
+        }
+        return TimeUnit.MILLISECONDS;
+
+
+    }
+
     @RequestMapping(method = RequestMethod.PUT, value = "/env")
     public Environment setEnvironment(@RequestBody Environment environmentModel, final HttpServletRequest request) {
 
         request.getSession().setAttribute(EnvironmentConstant, environmentModel);
 
         LogHelper.clearLogFile();
+
         Flagship.start(environmentModel.getEnvironment_id(), environmentModel.getApi_key(), new FlagshipConfig()
-                .withFlagshipMode(Flagship.Mode.DECISION_API)
+                .withFlagshipMode(environmentModel.getFlagship_mode().equals("api") ? Flagship.Mode.DECISION_API : Flagship.Mode.BUCKETING)
+                .withBucketingPollingIntervals(environmentModel.getPolling_interval(), getTimeUnit(environmentModel.getPolling_interval_unit()))
                 .withLogLevel(LogManager.Level.ALL)
                 .withTimeout(environmentModel.getTimeout())
                 .withLogManager(new LogManager() {

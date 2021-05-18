@@ -120,7 +120,6 @@ public class Visitor extends AbstractVisitor implements IVisitor {
         }
     }
 
-
     /*
      *   Visitor abstract methods
      */

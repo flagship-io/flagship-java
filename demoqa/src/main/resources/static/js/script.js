@@ -4,7 +4,7 @@ var app = new Vue({
         envId: "",
         apiKey: "",
         timeout: 2000,
-        pollingInterval: 60000,
+        pollingInterval: 2000,
         pollingIntervalUnit: "milliseconds",
         bucketing: true,
         visitorId: "test-visitor",
@@ -51,7 +51,7 @@ var app = new Vue({
                     api_key: this.apiKey,
                     timeout: this.timeout || 0,
                     flagship_mode: this.flagshipMode || "api",
-                    ...(this.flagshipMode === "bucketing" ? {polling_interval: this.pollingInterval || 0} : {}),
+                    ...(this.flagshipMode === "bucketing" ? {polling_interval: this.pollingInterval || 2000} : {}),
                     ...(this.flagshipMode === "bucketing" ? {polling_interval_unit: this.pollingIntervalUnit || "milliseconds"} : {})
                 })
                 .then(

@@ -37,26 +37,12 @@ public class EnvironmentController {
 
         if (unit != null) {
             switch (unit) {
-                case "nanoseconds":
-                    return TimeUnit.NANOSECONDS;
-
-                case "microseconds":
-                    return TimeUnit.MICROSECONDS;
-
                 case "milliseconds":
                     return TimeUnit.MILLISECONDS;
-
                 case "seconds":
                     return TimeUnit.SECONDS;
-
                 case "minutes":
                     return TimeUnit.MINUTES;
-
-                case "hours":
-                    return TimeUnit.HOURS;
-
-                case "days":
-                    return TimeUnit.DAYS;
             }
         }
         return TimeUnit.MILLISECONDS;

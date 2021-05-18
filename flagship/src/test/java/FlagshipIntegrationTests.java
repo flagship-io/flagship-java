@@ -178,7 +178,7 @@ public class FlagshipIntegrationTests {
     @Test
     public void updateContext() {
 
-        CountDownLatch logLatch = new CountDownLatch(2);
+        CountDownLatch logLatch = new CountDownLatch(4);
         class CustomLogManager extends LogManager {
 
             public CustomLogManager(LogManager.Level level) {
@@ -187,7 +187,7 @@ public class FlagshipIntegrationTests {
 
             @Override
             public void onLog(Level level, String tag, String message) {
-                if (level == Level.WARNING)
+                if (level == Level.ERROR)
                     logLatch.countDown();
             }
         }
@@ -200,8 +200,11 @@ public class FlagshipIntegrationTests {
         assertNotNull(visitor0);
 
         visitor0 = Flagship.newVisitor("visitor_0", null);
+        HashMap<String, Object> context0 = visitor0.getContext();
         assertNotNull(visitor0);
-        assertEquals(visitor0.getContext().size(), 0);
+        assertEquals(2, context0.size());
+        assertEquals(context0.get("fs_client"), "java");
+        assertEquals(context0.get("fs_version"), BuildConfig.flagship_version_name);
 
         Visitor finalVisitor = visitor0;
         Visitor visitor1 = Flagship.newVisitor("visitor_1", new HashMap<String, Object>() {{
@@ -228,10 +231,12 @@ public class FlagshipIntegrationTests {
         assertEquals(context.get("key1"), "value1");
         assertEquals(context.get("key2"), 2);
         assertNull(context.get("wrong2"));
-        JSONObject json_object = (JSONObject) context.get("json_object");
-        JSONArray json_array = (JSONArray) context.get("json_array");
-        assertEquals(json_object.get("key"), "value");
-        assertEquals(json_array.get(0), "key");
+        JSONObject json_object = (JSONObject) context.getOrDefault("json_object", null);
+        JSONArray json_array = (JSONArray) context.getOrDefault("json_array", null);
+//        assertEquals(json_object.get("key"), "value");
+//        assertEquals(json_array.get(0), "key");
+        assertNull(json_object);
+        assertNull(json_array);
 
         try {
             if (!logLatch.await(1, TimeUnit.SECONDS))

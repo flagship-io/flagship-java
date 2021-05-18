@@ -2,6 +2,7 @@ package com.abtasty.demo;
 
 import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.main.FlagshipConfig;
+import com.abtasty.flagship.utils.FlagshipContext;
 import com.abtasty.flagship.utils.LogManager;
 import com.abtasty.flagship.visitor.Visitor;
 import java.util.concurrent.CountDownLatch;
@@ -36,7 +37,7 @@ public class DemoFlagship {
 //        Context.update(Context.DEVICE_LOCALE, "E");
 //        Context.update(Context.DEVICE_TYPE, Context.DeviceType.PC);
         visitor1.updateContext("fs_client", "pas java");
-
+        visitor1.updateContext(FlagshipContext.LOCATION_LAT, 3.2);
 
 //        Visitor visitor1 = Flagship.newVisitor("toto");
         visitor1.updateContext("coucou", 1);

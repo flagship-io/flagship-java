@@ -63,6 +63,7 @@ public class FlagshipConfig {
         return this;
     }
 
+
     /**
      * Specify a custom implementation of LogManager in order to receive logs from the SDK.
      * @param logManager custom implementation of LogManager.

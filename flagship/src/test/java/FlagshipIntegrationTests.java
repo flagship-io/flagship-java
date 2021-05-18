@@ -202,9 +202,10 @@ public class FlagshipIntegrationTests {
         visitor0 = Flagship.newVisitor("visitor_0", null);
         HashMap<String, Object> context0 = visitor0.getContext();
         assertNotNull(visitor0);
-        assertEquals(2, context0.size());
+        assertEquals(3, context0.size());
         assertEquals(context0.get("fs_client"), "java");
         assertEquals(context0.get("fs_version"), BuildConfig.flagship_version_name);
+        assertEquals(context0.get("fs_users"), "visitor_0");
 
         Visitor finalVisitor = visitor0;
         Visitor visitor1 = Flagship.newVisitor("visitor_1", new HashMap<String, Object>() {{
@@ -222,7 +223,7 @@ public class FlagshipIntegrationTests {
         visitor1.updateContext("key1", "value1");
         visitor1.updateContext("key2", 2);
         HashMap<String, Object> context = visitor1.getContext();
-        assertEquals(context.size(), 9);
+        assertEquals(context.size(), 10);
         assertEquals(context.get("boolean"), true);
         assertEquals(context.get("int"), 32);
         assertEquals(context.get("float"), 3.14);
@@ -786,7 +787,7 @@ public class FlagshipIntegrationTests {
                 .withFlagshipMode(Flagship.Mode.BUCKETING)
                 .withBucketingPollingIntervals(2, TimeUnit.SECONDS));
         Thread.sleep(10500);
-        assertEquals(7, nbBucketingCall.get());
+        assertEquals(6, nbBucketingCall.get());
     }
 
     @Test

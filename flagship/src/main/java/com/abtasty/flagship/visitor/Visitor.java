@@ -115,7 +115,7 @@ public class Visitor extends AbstractVisitor implements IVisitor {
         if (FlagshipContext.autoLoading) {
             VisitorDelegate delegate = new VisitorDelegate(this);
             for (FlagshipContext flagshipContext : FlagshipContext.ALL) {
-                delegate.updateContext(flagshipContext, flagshipContext.load());
+                delegate.updateContext(flagshipContext, flagshipContext.load(delegate));
             }
         }
     }

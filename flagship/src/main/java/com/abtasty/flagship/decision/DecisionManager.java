@@ -61,4 +61,6 @@ public abstract class DecisionManager implements IDecisionManager, IFlagshipEndp
     public void setStatusListener(Flagship.StatusListener statusListener) {
         this.statusListener = statusListener;
     }
+
+    public abstract void stop();
 }

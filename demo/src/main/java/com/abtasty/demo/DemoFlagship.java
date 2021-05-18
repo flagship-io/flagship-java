@@ -25,7 +25,7 @@ public class DemoFlagship {
                         .withLogLevel(LogManager.Level.ALL)
 //                        .withFlagshipMode(Flagship.Mode.DECISION_API)
                         .withFlagshipMode(Flagship.Mode.BUCKETING)
-                        .withBucketingPollingIntervals(5, TimeUnit.SECONDS)
+                        .withBucketingPollingIntervals(0, TimeUnit.SECONDS)
                         .withStatusListener(newStatus -> {
                             System.out.println("NEW STATUS = " + newStatus.name());
                             if (newStatus == Flagship.Status.READY)
@@ -33,9 +33,7 @@ public class DemoFlagship {
                         })
         );
         flagshipReadyLatch.await();
-//        PresetContext.DEVICE_LOCALE.set()
-//        Context.update(Context.DEVICE_LOCALE, "E");
-//        Context.update(Context.DEVICE_TYPE, Context.DeviceType.PC);
+
         visitor1.updateContext("fs_client", "pas java");
         visitor1.updateContext(FlagshipContext.LOCATION_LAT, 3.2);
 

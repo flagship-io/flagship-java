@@ -41,6 +41,8 @@ public class ConfigManager {
     }
 
     public void reset() {
+        if (this.decisionManager != null)
+            this.decisionManager.stop();
         this.flagshipConfig = FlagshipConfig.emptyConfig();
         this.decisionManager = null;
     }

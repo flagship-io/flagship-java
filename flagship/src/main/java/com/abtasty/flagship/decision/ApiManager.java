@@ -72,4 +72,7 @@ public class ApiManager extends DecisionManager {
         }
         return null;
     }
+
+    @Override
+    public void stop() { }
 }

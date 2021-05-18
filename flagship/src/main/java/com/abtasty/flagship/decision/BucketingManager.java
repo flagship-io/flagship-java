@@ -12,11 +12,11 @@ import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
 import com.abtasty.flagship.visitor.VisitorDelegate;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class BucketingManager extends DecisionManager {
 
@@ -43,12 +43,24 @@ public class BucketingManager extends DecisionManager {
                 t.setDaemon(true);
                 return t;
             });
-            executor.scheduleAtFixedRate(() -> {
-                FlagshipLogManager.log(FlagshipLogManager.Tag.BUCKETING,
-                        LogManager.Level.DEBUG,
+            Runnable runnable = () -> {
+                FlagshipLogManager.log(FlagshipLogManager.Tag.BUCKETING, LogManager.Level.DEBUG,
                         FlagshipConstants.Info.BUCKETING_INTERVAL);
                 updateBucketingCampaigns();
-            }, 0, config.getPollingTime(), config.getPollingUnit());
+            };
+            long time = config.getPollingTime();
+            TimeUnit unit = config.getPollingUnit();
+            if (time == 0)
+                executor.execute(runnable);
+            else
+                executor.scheduleAtFixedRate(runnable, 0, time, unit);
+
+//            executor.scheduleAtFixedRate(() -> {
+//                FlagshipLogManager.log(FlagshipLogManager.Tag.BUCKETING,
+//                        LogManager.Level.DEBUG,
+//                        FlagshipConstants.Info.BUCKETING_INTERVAL);
+//                updateBucketingCampaigns();
+//            }, 0, config.getPollingTime(), config.getPollingUnit());
         }
     }
 
@@ -77,7 +89,7 @@ public class BucketingManager extends DecisionManager {
             statusListener.onStatusChanged(Flagship.Status.READY);
     }
 
-    public void stopPolling() {
+    public void stop() {
         if (executor != null && !executor.isShutdown())
             executor.shutdownNow();
     }

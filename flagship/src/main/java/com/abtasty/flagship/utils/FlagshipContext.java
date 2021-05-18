@@ -1,6 +1,9 @@
 package com.abtasty.flagship.utils;
 
 import com.abtasty.flagship.BuildConfig;
+import com.abtasty.flagship.visitor.Visitor;
+import com.abtasty.flagship.visitor.VisitorDelegate;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -54,7 +57,7 @@ public class FlagshipContext<T> {
 
     protected boolean verifyValue(T value) { return true; }
 
-    public T load() { return null; }
+    public T load(VisitorDelegate visitor) { return null; }
 
     public enum DeviceType {
         @SuppressWarnings("unused") MOBILE("mobile"),
@@ -201,7 +204,7 @@ public class FlagshipContext<T> {
     private static final FlagshipContext<String> FLAGSHIP_CLIENT = new FlagshipContext<String>("FLAGSHIP_CLIENT", "fs_client", true) {
 
         @Override
-        public String load() {
+        public String load(VisitorDelegate visitorDelegate) {
             return "java";
         }
     };
@@ -213,13 +216,28 @@ public class FlagshipContext<T> {
     private static final FlagshipContext<String> FLAGSHIP_VERSION = new FlagshipContext<String>("FLAGSHIP_VERSION", "fs_version", true) {
 
         @Override
-        public String load() {
+        public String load(VisitorDelegate visitorDelegate) {
             return BuildConfig.flagship_version_name;
         }
     };
 
+    /**
+     * Define the flagship current visitor in the visitor context. Must be a String.
+     */
+    @SuppressWarnings("unused")
+    private static final FlagshipContext<String> FLAGSHIP_VISITOR = new FlagshipContext<String>("FLAGSHIP_VISITOR", "fs_users", true) {
+
+        @Override
+        public String load(VisitorDelegate visitorDelegate) {
+            return visitorDelegate.getId();
+        }
+    };
+
+
+
+
     public static final List<FlagshipContext<?>> ALL = Arrays.asList(DEVICE_LOCALE, DEVICE_TYPE, DEVICE_MODEL, LOCATION_CITY,
             LOCATION_REGION, LOCATION_COUNTRY, LOCATION_LAT, LOCATION_LONG, IP, OS_NAME, OS_VERSION_NAME,
             OS_VERSION_CODE, CARRIER_NAME, INTERNET_CONNECTION, APP_VERSION_NAME, APP_VERSION_CODE,
-            INTERFACE_NAME, FLAGSHIP_CLIENT, FLAGSHIP_VERSION);
+            INTERFACE_NAME, FLAGSHIP_CLIENT, FLAGSHIP_VERSION, FLAGSHIP_VISITOR);
 }

@@ -18,14 +18,6 @@ public class Flagship {
     private Status                      status          = Status.NOT_INITIALIZED;
 
     /**
-     * Flagship running Mode
-     */
-    public enum Mode {
-        DECISION_API,
-        BUCKETING,
-    }
-
-    /**
      * Status listener to implement in order to get a call back when the SDK status has changed.
      */
     public interface StatusListener {
@@ -51,7 +43,7 @@ public class Flagship {
         /**
          * Flagship SDK is ready but is running in Panic mode: All features are disabled except the one which refresh this status.
          */
-        READY_PANIC_ON(0x20),
+        PANIC_ON(0x20),
         /**
          * Flagship SDK is ready to use.
          */
@@ -103,7 +95,7 @@ public class Flagship {
      * @param apiKey : Secure api key provided by Flagship.
      * @param config : SDK configuration. @see FlagshipConfig
      */
-    public static void start(String envId, String apiKey, FlagshipConfig config) {
+    public static void start(String envId, String apiKey, FlagshipConfig<?> config) {
         instance()._start(envId, apiKey, config);
     }
 
@@ -148,7 +140,7 @@ public class Flagship {
      * Private instance implementations.
      */
 
-    private void _start(String envId, String apiKey, FlagshipConfig config) {
+    private void _start(String envId, String apiKey, FlagshipConfig<?> config) {
         updateStatus(Status.STARTING);
         this.configManager.reset();
         this.configManager.init(envId, apiKey, config);

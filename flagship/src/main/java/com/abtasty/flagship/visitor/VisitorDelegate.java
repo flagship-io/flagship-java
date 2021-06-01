@@ -27,9 +27,9 @@ public class VisitorDelegate extends AbstractVisitor implements IVisitor {
     }
 
     private VisitorStrategy getStrategy() {
-        if (Flagship.getStatus().lessThan(Flagship.Status.READY_PANIC_ON))
+        if (Flagship.getStatus().lessThan(Flagship.Status.PANIC_ON))
             return new NotReadyStrategy(this);
-        else if (Flagship.getStatus() == Flagship.Status.READY_PANIC_ON)
+        else if (Flagship.getStatus() == Flagship.Status.PANIC_ON)
             return new PanicStrategy(this);
         else if (!visitor.hasConsented())
             return new NoConsentStrategy(this);

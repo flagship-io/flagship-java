@@ -10,17 +10,17 @@ import com.abtasty.flagship.decision.DecisionManager;
  */
 public class ConfigManager {
 
-    private FlagshipConfig          flagshipConfig  = FlagshipConfig.emptyConfig();
-    private DecisionManager         decisionManager = null;
-    private final TrackingManager   trackingManager = new TrackingManager();
+    private FlagshipConfig<?>                   flagshipConfig  = new FlagshipConfig.DecisionApi(); //todo check is null ok
+    private DecisionManager                     decisionManager = null;
+    private final TrackingManager               trackingManager = new TrackingManager();
 
-    public void init(String envId, String apiKey, FlagshipConfig config) {
+    public void init(String envId, String apiKey, FlagshipConfig<?> config) {
         if (config == null)
-            config = new FlagshipConfig(envId, apiKey);
+            config = new FlagshipConfig.DecisionApi(envId, apiKey);
         config.withEnvId(envId);
         config.withApiKey(apiKey);
         this.flagshipConfig = config;
-        this.decisionManager = (config.getDecisionMode() == Flagship.Mode.DECISION_API) ? new ApiManager(config) : new BucketingManager(config);
+        this.decisionManager = (config.getDecisionMode() == FlagshipConfig.DecisionMode.API) ? new ApiManager(config) : new BucketingManager(config);
     }
 
     public DecisionManager getDecisionManager() {
@@ -31,7 +31,7 @@ public class ConfigManager {
         return trackingManager;
     }
 
-    public FlagshipConfig getFlagshipConfig() {
+    public FlagshipConfig<?> getFlagshipConfig() {
         return flagshipConfig;
     }
 
@@ -43,7 +43,7 @@ public class ConfigManager {
     public void reset() {
         if (this.decisionManager != null)
             this.decisionManager.stop();
-        this.flagshipConfig = FlagshipConfig.emptyConfig();
+        this.flagshipConfig = new FlagshipConfig.DecisionApi(); //todo check is null ok
         this.decisionManager = null;
     }
 }

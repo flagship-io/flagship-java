@@ -7,11 +7,11 @@ import java.util.concurrent.TimeUnit;
 /**
  * Flagship SDK configuration class to provide at initialization.
  */
-public class FlagshipConfig {
+public abstract class FlagshipConfig<T> {
 
     private String                              envId               = null;
     private String                              apiKey              = null;
-    private Flagship.Mode                       decisionMode        = Flagship.Mode.DECISION_API;
+    private FlagshipConfig.DecisionMode         decisionMode        = DecisionMode.API;
     private int                                 timeout             = 2000;
     private LogManager.Level                    logLevel            = LogManager.Level.ALL;
     private LogManager                          logManager          = new FlagshipLogManager(logLevel);
@@ -57,10 +57,11 @@ public class FlagshipConfig {
      * @param mode mode.
      * @return FlagshipConfig
      */
-    public FlagshipConfig withFlagshipMode(Flagship.Mode mode) {
+    @SuppressWarnings("unchecked")
+    protected T withDecisionMode(DecisionMode mode) {
         if (mode != null)
             this.decisionMode = mode;
-        return this;
+        return (T) this;
     }
 
 
@@ -69,9 +70,10 @@ public class FlagshipConfig {
      * @param logManager custom implementation of LogManager.
      * @return FlagshipConfig
      */
-    public FlagshipConfig withLogManager(LogManager logManager) {
+    @SuppressWarnings("unchecked")
+    public T withLogManager(LogManager logManager) {
         this.logManager = logManager;
-        return this;
+        return (T) this;
     }
 
     /**
@@ -79,12 +81,13 @@ public class FlagshipConfig {
      * @param level level of log priority.
      * @return FlagshipConfig
      */
-    public FlagshipConfig withLogLevel(LogManager.Level level) {
+    @SuppressWarnings("unchecked")
+    public T withLogLevel(LogManager.Level level) {
         if (level != null) {
             this.logLevel = level;
             this.logManager.setLevel(this.logLevel);
         }
-        return this;
+        return (T) this;
     }
 
     /**
@@ -92,24 +95,26 @@ public class FlagshipConfig {
      * @param timeout milliseconds for connect and read timeouts. Default is 2000.
      * @return FlagshipConfig
      */
-    public FlagshipConfig withTimeout(int timeout) {
+    @SuppressWarnings("unchecked")
+    public T withTimeout(int timeout) {
         if (timeout > 0)
             this.timeout = timeout;
-        return this;
+        return (T) this;
     }
 
     /**
-     * Define time interval between two bucketing updates. Default is 60 seconds.
+     * Define time interval between two bucketing updates. Default is 60 seconds. MICROSECONDS and NANOSECONDS Unit are ignored.
      * @param time time value.
      * @param timeUnit time unit.
      * @return FlagshipConfig
      */
-    public FlagshipConfig withBucketingPollingIntervals(long time, TimeUnit timeUnit) {
-        if (time >= 0 && timeUnit != null) {
+    @SuppressWarnings("unchecked")
+    protected T withBucketingPollingIntervals(long time, TimeUnit timeUnit) {
+        if (time >= 0 && timeUnit != null && timeUnit != TimeUnit.MICROSECONDS && timeUnit != TimeUnit.NANOSECONDS) {
             this.pollingTime = time;
             this.pollingUnit = timeUnit;
         }
-        return this;
+        return (T) this;
     }
 
     /**
@@ -117,10 +122,11 @@ public class FlagshipConfig {
      * @param listener new listener.
      * @return FlagshipConfig
      */
-    public FlagshipConfig withStatusListener(Flagship.StatusListener listener) {
+    @SuppressWarnings("unchecked")
+    public T withStatusListener(Flagship.StatusListener listener) {
         if (listener != null)
             statusListener = listener;
-        return this;
+        return (T) this;
     }
 
     public Flagship.StatusListener getStatusListener() {
@@ -139,7 +145,7 @@ public class FlagshipConfig {
         return apiKey;
     }
 
-    public Flagship.Mode getDecisionMode() {
+    public FlagshipConfig.DecisionMode getDecisionMode() {
         return decisionMode;
     }
 
@@ -165,11 +171,49 @@ public class FlagshipConfig {
                 '}';
     }
 
-    protected static FlagshipConfig emptyConfig() {
-        return new FlagshipConfig("_YOUR_ENV_ID_", "_YOUR_API_KEY_");
-    }
-
     protected boolean isSet() {
         return (envId != null && apiKey != null);
+    }
+
+    /**
+     * Flagship running Mode
+     */
+    protected enum DecisionMode {
+        API,
+        BUCKETING,
+    }
+
+//    public static FlagshipConfig<Bucketing> bucketing() {
+//        return new Bucketing("_YOUR_ENV_ID_", "_YOUR_API_KEY_");
+//    }
+//
+//    public static FlagshipConfig<DecisionApi> decisionApi() {
+//        return new DecisionApi("_YOUR_ENV_ID_", "_YOUR_API_KEY_");
+//    }
+
+    public static class Bucketing extends FlagshipConfig<Bucketing> {
+        public Bucketing() {
+            super();
+        }
+
+        public Bucketing(String envId, String apiKey) {
+            super(envId, apiKey);
+            super.withDecisionMode(FlagshipConfig.DecisionMode.BUCKETING);
+        }
+
+        public Bucketing withPollingIntervals(long time, TimeUnit timeUnit) {
+            return super.withBucketingPollingIntervals(time, timeUnit);
+        }
+    }
+
+    public static class DecisionApi extends FlagshipConfig<DecisionApi> {
+        public DecisionApi() {
+            super();
+            super.withDecisionMode(DecisionMode.API);
+        }
+
+        public DecisionApi(String envId, String apiKey) {
+            super(envId, apiKey);
+        }
     }
 }

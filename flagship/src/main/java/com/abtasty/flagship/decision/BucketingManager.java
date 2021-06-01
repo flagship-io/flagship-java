@@ -24,7 +24,7 @@ public class BucketingManager extends DecisionManager {
     private ArrayList<Campaign>             campaigns = new ArrayList<>();
     private ScheduledExecutorService        executor;
 
-    public BucketingManager(FlagshipConfig config) {
+    public BucketingManager(FlagshipConfig<?> config) {
         super(config);
         startPolling();
     }
@@ -54,13 +54,6 @@ public class BucketingManager extends DecisionManager {
                 executor.execute(runnable);
             else
                 executor.scheduleAtFixedRate(runnable, 0, time, unit);
-
-//            executor.scheduleAtFixedRate(() -> {
-//                FlagshipLogManager.log(FlagshipLogManager.Tag.BUCKETING,
-//                        LogManager.Level.DEBUG,
-//                        FlagshipConstants.Info.BUCKETING_INTERVAL);
-//                updateBucketingCampaigns();
-//            }, 0, config.getPollingTime(), config.getPollingUnit());
         }
     }
 

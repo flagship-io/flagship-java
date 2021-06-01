@@ -13,11 +13,11 @@ import java.util.ArrayList;
 
 public abstract class DecisionManager implements IDecisionManager, IFlagshipEndpoints {
 
-    protected final     FlagshipConfig                      config;
+    protected final     FlagshipConfig<?>              config;
     private             boolean                             panic           = false;
     protected           Flagship.StatusListener             statusListener  = null;
 
-    public DecisionManager(FlagshipConfig config) {
+    public DecisionManager(FlagshipConfig<?> config) {
         this.config = config;
     }
 
@@ -30,7 +30,7 @@ public abstract class DecisionManager implements IDecisionManager, IFlagshipEndp
                     return Campaign.parse(json.getJSONArray("campaigns"));
                 else {
                     if (statusListener != null)
-                        statusListener.onStatusChanged(Flagship.Status.READY_PANIC_ON);
+                        statusListener.onStatusChanged(Flagship.Status.PANIC_ON);
                     FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, LogManager.Level.WARNING, FlagshipConstants.Warnings.PANIC);
                 }
             } catch (Exception e) {

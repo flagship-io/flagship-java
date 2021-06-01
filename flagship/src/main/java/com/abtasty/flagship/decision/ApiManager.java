@@ -13,21 +13,20 @@ import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
 import com.abtasty.flagship.visitor.VisitorDelegate;
 import org.json.JSONObject;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class ApiManager extends DecisionManager {
 
-    public ApiManager(FlagshipConfig config) {
+    public ApiManager(FlagshipConfig<?> config) {
         super(config);
     }
 
     @Override
     public void setStatusListener(Flagship.StatusListener statusListener) {
         super.setStatusListener(statusListener);
-        if (Flagship.getStatus().lessThan(Flagship.Status.READY))
+        if (Flagship.getStatus().lessThan(Flagship.Status.READY)) //todo check condition
             statusListener.onStatusChanged(Flagship.Status.READY);
     }
 

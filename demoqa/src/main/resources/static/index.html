@@ -83,8 +83,23 @@
             />
             <small class="form-text text-muted">Set your timeout.</small>
         </div>
+
         <div class="form-group">
-            <label>Polling interval (milliseconds)</label>
+            <label>Flagship Mode</label>
+            <select
+                    type="text"
+                    class="form-control"
+                    placeholder="Flagship Mode"
+                    v-model="flagshipMode"
+            >
+                <option value="api">API</option>
+                <option value="bucketing">Bucketing</option>
+
+            </select>
+        </div>
+
+        <div v-if="flagshipMode == 'bucketing'" class="form-group">
+            <label>Polling time interval</label>
             <input
                     type="text"
                     class="form-control"
@@ -92,6 +107,21 @@
                     v-model.number="pollingInterval"
             />
             <small class="form-text text-muted">Set your polling interval.</small>
+        </div>
+
+        <div v-if="flagshipMode == 'bucketing'" class="form-group">
+            <label>Polling time interval unit</label>
+            <select
+                    type="text"
+                    class="form-control"
+                    placeholder="Flagship Mode"
+                    v-model="pollingIntervalUnit"
+            >
+
+                <option value="milliseconds">Milliseconds</option>
+                <option value="seconds">Second</option>
+                <option value="minutes">Minutes</option>
+            </select>
         </div>
         <!--
         <div class="form-check mb-3">

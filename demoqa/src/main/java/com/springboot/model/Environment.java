@@ -10,7 +10,8 @@ public class Environment {
     @JsonProperty(value = "api_key")
     private String api_key;
 
-    //private Boolean Bucketing;
+    @JsonProperty(value = "flagship_mode")
+    private String flagship_mode;
 
     @JsonProperty(value = "timeout")
     private int timeout;
@@ -18,15 +19,20 @@ public class Environment {
     @JsonProperty(value = "polling_interval")
     private int polling_interval;
 
+    @JsonProperty(value = "polling_interval_unit")
+    private String polling_interval_unit;
+
     public Environment() {
 
     }
 
-    public Environment(String environment_id, String api_key, int timeout, int polling_interval) {
+    public Environment(String environment_id, String api_key, int timeout, String flagship_mode, int polling_interval, String polling_interval_unit) {
         this.environment_id = environment_id;
         this.api_key = api_key;
         this.timeout = timeout;
+        this.flagship_mode = flagship_mode;
         this.polling_interval = polling_interval;
+        this.polling_interval_unit = polling_interval_unit;
     }
 
     public String getEnvironment_id() {
@@ -53,6 +59,14 @@ public class Environment {
         this.timeout = timeout;
     }
 
+    public String getFlagship_mode() {
+        return flagship_mode;
+    }
+
+    public void setFlagship_mode(String flagship_mode) {
+        this.flagship_mode = flagship_mode;
+    }
+
     public int getPolling_interval() {
         return polling_interval;
     }
@@ -61,10 +75,18 @@ public class Environment {
         this.polling_interval = polling_interval;
     }
 
+    public String getPolling_interval_unit() {
+        return polling_interval_unit;
+    }
+
+    public void setPolling_interval_unit(String polling_interval_unit) {
+        this.polling_interval_unit = polling_interval_unit;
+    }
+
     @Override
     public String toString() {
-        return "Environment [environment_id=" + environment_id + ", api_key=" + api_key + ", timeout=" + timeout
-                + ", polling_interval=" + polling_interval + "]";
+        return "Environment [environment_id=" + getEnvironment_id() + ", api_key=" + getApi_key() + ", timeout=" + getTimeout()
+                + ", flagship_mode=" + getFlagship_mode() + ", if bucketing polling interval " + getPolling_interval() + ", and polling interval unit " + getPolling_interval_unit() + "]";
     }
 
 

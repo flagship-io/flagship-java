@@ -4,7 +4,8 @@ var app = new Vue({
         envId: "",
         apiKey: "",
         timeout: 2000,
-        pollingInterval: 60000,
+        pollingInterval: 2000,
+        pollingIntervalUnit: "milliseconds",
         bucketing: true,
         visitorId: "test-visitor",
         context: "{\n}",
@@ -15,7 +16,7 @@ var app = new Vue({
         eventOk: false,
         eventError: null,
         data: null,
-        hit: { t: "EVENT" },
+        hit: { t: "EVENT", ec:"at" },
         hitTypes: ["EVENT", "TRANSACTION", "ITEM", "PAGE", "SCREEN"],
         flag: { name: "", type: "bool", defaultValue: "", activate: true },
         flagOk: false,
@@ -25,6 +26,7 @@ var app = new Vue({
         flagModification: { name: "" },
         flagUpdateContext: { name: "", type: "bool", value: "" },
         flagInfoOk: false,
+        flagshipMode: "api"
     },
     methods: {
         getEnv() {
@@ -35,7 +37,9 @@ var app = new Vue({
                 this.envId = response.body.environment_id;
                 this.apiKey = response.body.api_key;
                 this.timeout = response.body.timeout;
+                this.flagshipMode= response.body.flagship_mode || "api";
                 this.pollingInterval = response.body.polling_interval;
+                this.pollingIntervalUnit = response.body.polling_interval_unit || "milliseconds"
             });
         },
         setEnv() {
@@ -45,9 +49,10 @@ var app = new Vue({
                 .put("/env", {
                     environment_id: this.envId,
                     api_key: this.apiKey,
-                    bucketing: this.bucketing,
                     timeout: this.timeout || 0,
-                    polling_interval: this.pollingInterval || 0,
+                    flagship_mode: this.flagshipMode || "api",
+                    ...(this.flagshipMode === "bucketing" ? {polling_interval: this.pollingInterval || 2000} : {}),
+                    ...(this.flagshipMode === "bucketing" ? {polling_interval_unit: this.pollingIntervalUnit || "milliseconds"} : {})
                 })
                 .then(
                     (response) => {

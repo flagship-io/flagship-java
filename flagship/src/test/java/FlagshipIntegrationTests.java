@@ -140,7 +140,7 @@ public class FlagshipIntegrationTests {
         Flagship.start(null, null, null);
         assertEquals(Flagship.getStatus(), Flagship.Status.NOT_INITIALIZED);
 
-        Flagship.start("null", "null", new FlagshipConfig().withFlagshipMode(null));
+        Flagship.start("null", "null", new FlagshipConfig.DecisionApi());
         assertEquals(Flagship.getStatus(), Flagship.Status.READY);
 
         Flagship.start("my_env_id", "my_api_key");
@@ -159,8 +159,7 @@ public class FlagshipIntegrationTests {
                     logLatch.countDown();
             }
         }
-        Flagship.start("my_env_id_2", "my_api_key_2", new FlagshipConfig()
-                .withFlagshipMode(Flagship.Mode.DECISION_API)
+        Flagship.start("my_env_id_2", "my_api_key_2", new FlagshipConfig.DecisionApi()
                 .withLogManager(new CustomLogManager()));
         assertNotNull(Flagship.getConfig());
         assertEquals(Flagship.getStatus(), Flagship.Status.READY);
@@ -192,8 +191,7 @@ public class FlagshipIntegrationTests {
             }
         }
 
-        Flagship.start("my_env_id", "my_api_key", new FlagshipConfig()
-                .withFlagshipMode(Flagship.Mode.DECISION_API)
+        Flagship.start("my_env_id", "my_api_key", new FlagshipConfig.DecisionApi()
                 .withLogManager(new CustomLogManager(LogManager.Level.ALL)));
 
         Visitor visitor0 = Flagship.newVisitor(null);
@@ -777,15 +775,13 @@ public class FlagshipIntegrationTests {
                     nbBucketingCall.incrementAndGet();
             }
         });
-        Flagship.start("my_env_id", "my_api_key", new FlagshipConfig()
-                .withFlagshipMode(Flagship.Mode.BUCKETING)
-                .withBucketingPollingIntervals(8, TimeUnit.SECONDS));
+        Flagship.start("my_env_id", "my_api_key", new FlagshipConfig.Bucketing()
+                .withPollingIntervals(8, TimeUnit.SECONDS));
         Thread.sleep(10000);
         assertEquals(2, nbBucketingCall.get());
         nbBucketingCall.set(0);
-        Flagship.start("my_env_id", "my_api_key", new FlagshipConfig()
-                .withFlagshipMode(Flagship.Mode.BUCKETING)
-                .withBucketingPollingIntervals(2, TimeUnit.SECONDS));
+        Flagship.start("my_env_id", "my_api_key", new FlagshipConfig.Bucketing()
+                .withPollingIntervals(2, TimeUnit.SECONDS));
         Thread.sleep(10500);
         assertEquals(6, nbBucketingCall.get());
     }
@@ -804,9 +800,8 @@ public class FlagshipIntegrationTests {
             }
         });
         CountDownLatch readyLatch = new CountDownLatch(1);
-        Flagship.start("my_env_id", "my_api_key", new FlagshipConfig()
-                .withFlagshipMode(Flagship.Mode.BUCKETING)
-                .withBucketingPollingIntervals(1, TimeUnit.MINUTES)
+        Flagship.start("my_env_id", "my_api_key", new FlagshipConfig.Bucketing()
+                .withPollingIntervals(1, TimeUnit.MINUTES)
                 .withStatusListener(newStatus -> {
                     if (newStatus == Flagship.Status.READY)
                         readyLatch.countDown();
@@ -865,9 +860,8 @@ public class FlagshipIntegrationTests {
         CountDownLatch consentDeactivatedLog = new CountDownLatch(1);
 
         assertEquals(Flagship.Status.NOT_INITIALIZED, Flagship.getStatus());
-        Flagship.start("my_env_id", "my_api_key", new FlagshipConfig()
-                .withFlagshipMode(Flagship.Mode.BUCKETING)
-                .withBucketingPollingIntervals(1, TimeUnit.MINUTES)
+        Flagship.start("my_env_id", "my_api_key", new FlagshipConfig.Bucketing()
+                .withPollingIntervals(1, TimeUnit.MINUTES)
                 .withStatusListener(newStatus -> {
                     if (newStatus == Flagship.Status.READY)
                         readyLatch.countDown();

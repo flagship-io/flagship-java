@@ -10,7 +10,7 @@ import com.abtasty.flagship.decision.DecisionManager;
  */
 public class ConfigManager {
 
-    private FlagshipConfig<?>                   flagshipConfig  = new FlagshipConfig.DecisionApi(); //todo check is null ok
+    private FlagshipConfig<?>                   flagshipConfig  = new FlagshipConfig.DecisionApi();
     private DecisionManager                     decisionManager = null;
     private final TrackingManager               trackingManager = new TrackingManager();
 
@@ -43,7 +43,7 @@ public class ConfigManager {
     public void reset() {
         if (this.decisionManager != null)
             this.decisionManager.stop();
-        this.flagshipConfig = new FlagshipConfig.DecisionApi(); //todo check is null ok
+//        this.flagshipConfig = new FlagshipConfig.DecisionApi();
         this.decisionManager = null;
     }
 }

@@ -183,17 +183,10 @@ public abstract class FlagshipConfig<T> {
         BUCKETING,
     }
 
-//    public static FlagshipConfig<Bucketing> bucketing() {
-//        return new Bucketing("_YOUR_ENV_ID_", "_YOUR_API_KEY_");
-//    }
-//
-//    public static FlagshipConfig<DecisionApi> decisionApi() {
-//        return new DecisionApi("_YOUR_ENV_ID_", "_YOUR_API_KEY_");
-//    }
-
     public static class Bucketing extends FlagshipConfig<Bucketing> {
         public Bucketing() {
             super();
+            super.withDecisionMode(FlagshipConfig.DecisionMode.BUCKETING);
         }
 
         public Bucketing(String envId, String apiKey) {
@@ -214,6 +207,7 @@ public abstract class FlagshipConfig<T> {
 
         public DecisionApi(String envId, String apiKey) {
             super(envId, apiKey);
+            super.withDecisionMode(DecisionMode.API);
         }
     }
 }

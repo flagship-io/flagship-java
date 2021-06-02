@@ -80,7 +80,7 @@ var app = new Vue({
             this.$http
                 .put("/visitor", {
                     visitor_id: this.visitorId,
-                    context: this.context ? JSON.parse(this.context) : "{}",
+                    context: this.context ? this.context : {},
                 })
                 .then(
                     (response) => {

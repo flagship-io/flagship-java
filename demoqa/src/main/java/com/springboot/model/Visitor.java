@@ -1,7 +1,6 @@
 package com.springboot.model;
 
 import java.util.HashMap;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Visitor {

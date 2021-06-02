@@ -50,6 +50,32 @@ public class EnvironmentController {
 
     }
 
+    private FlagshipConfig<?> getFlagshipConfig(Environment environmentModel) {
+        if (environmentModel.getFlagship_mode().equals("api")) {
+            return new FlagshipConfig.DecisionApi()
+                    .withLogLevel(LogManager.Level.ALL)
+                    .withTimeout(environmentModel.getTimeout())
+                    .withLogManager(new LogManager() {
+                        @Override
+                        public void onLog(Level level, String tag, String message) {
+                            LogHelper.appendToLogFile(level, tag, message);
+                        }
+                    });
+
+        } else {
+            return new FlagshipConfig.Bucketing()
+                    .withLogLevel(LogManager.Level.ALL)
+                    .withTimeout(environmentModel.getTimeout())
+                    .withLogManager(new LogManager() {
+                        @Override
+                        public void onLog(Level level, String tag, String message) {
+                            LogHelper.appendToLogFile(level, tag, message);
+                        }
+                    })
+                    .withPollingIntervals(environmentModel.getPolling_interval(), getTimeUnit(environmentModel.getPolling_interval_unit()));
+        }
+    }
+
     @RequestMapping(method = RequestMethod.PUT, value = "/env")
     public Environment setEnvironment(@RequestBody Environment environmentModel, final HttpServletRequest request) {
 
@@ -57,17 +83,7 @@ public class EnvironmentController {
 
         LogHelper.clearLogFile();
 
-        Flagship.start(environmentModel.getEnvironment_id(), environmentModel.getApi_key(), new FlagshipConfig()
-                .withFlagshipMode(environmentModel.getFlagship_mode().equals("api") ? Flagship.Mode.DECISION_API : Flagship.Mode.BUCKETING)
-                .withBucketingPollingIntervals(environmentModel.getPolling_interval(), getTimeUnit(environmentModel.getPolling_interval_unit()))
-                .withLogLevel(LogManager.Level.ALL)
-                .withTimeout(environmentModel.getTimeout())
-                .withLogManager(new LogManager() {
-                    @Override
-                    public void onLog(Level level, String tag, String message) {
-                        LogHelper.appendToLogFile(level, tag, message);
-                    }
-                }));
+        Flagship.start(environmentModel.getEnvironment_id(), environmentModel.getApi_key(), getFlagshipConfig(environmentModel));
 
         return environmentModel;
 

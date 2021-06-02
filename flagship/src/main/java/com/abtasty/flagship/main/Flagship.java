@@ -18,6 +18,14 @@ public class Flagship {
     private Status                      status          = Status.NOT_INITIALIZED;
 
     /**
+     * Flagship running Mode
+     */
+    public enum DecisionMode {
+        API,
+        BUCKETING,
+    }
+
+    /**
      * Status listener to implement in order to get a call back when the SDK status has changed.
      */
     public interface StatusListener {
@@ -106,7 +114,7 @@ public class Flagship {
      * @return Visitor
      */
     public static Visitor newVisitor(String visitorId) {
-        return newVisitor(visitorId, null);
+        return newVisitor(visitorId, false, null);
     }
 
     /**
@@ -114,17 +122,18 @@ public class Flagship {
      *
      * @param visitorId : Unique visitor identifier.
      * @param context   : visitor context.
+     * @param isAuthenticated : Boolean to specify if the visitor is authenticated or anonymous.
      * @return Visitor
      */
-    public static Visitor newVisitor(String visitorId, HashMap<String, Object> context) {
-        return instance()._newVisitor(visitorId, context);
+    public static Visitor newVisitor(String visitorId, boolean isAuthenticated, HashMap<String, Object> context) {
+        return instance()._newVisitor(visitorId, isAuthenticated, context);
     }
 
     /**
      * Return the current used configuration.
      * @return FlagshipConfig
      */
-    public static FlagshipConfig getConfig() {
+    public static FlagshipConfig<?> getConfig() {
         return instance().configManager.getFlagshipConfig();
     }
 
@@ -151,10 +160,10 @@ public class Flagship {
         }
     }
 
-    private Visitor _newVisitor(String visitorId, HashMap<String, Object> context) {
+    private Visitor _newVisitor(String visitorId, boolean isAuthenticated, HashMap<String, Object> context) {
         if (!status.greaterThan(Flagship.Status.POLLING))
             FlagshipLogManager.log(FlagshipLogManager.Tag.VISITOR, LogManager.Level.WARNING, String.format(FlagshipConstants.Warnings.VISITOR_STATUS_NOT_READY, visitorId, status));
-        return new Visitor(configManager, visitorId, (context != null) ? context : new HashMap<String, Object>());
+        return new Visitor(configManager, visitorId, isAuthenticated, (context != null) ? context : new HashMap<String, Object>());
     }
 
     private void updateStatus(Status status) {

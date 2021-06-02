@@ -38,6 +38,7 @@ public class ApiManager extends DecisionManager {
             put("x-sdk-version", BuildConfig.flagship_version_name);
         }};
         json.put("visitorId", visitor.getId());
+        json.put("anonymousId", visitor.getAnonymousId());
         json.put("trigger_hit", false);
         json.put("context", visitor.getContextAsJson());
         Response response = HttpManager.getInstance().sendHttpRequest(HttpManager.RequestType.POST,

@@ -46,7 +46,7 @@ public interface IVisitor {
     /**
      * Clear all the visitor context values used for targeting.
      */
-    public void clearContext();
+    void clearContext();
 
     /**
      * This function will call the decision api and update all the campaigns modifications from the server according to the visitor context.
@@ -96,5 +96,17 @@ public interface IVisitor {
      * @param hit hit to track.
      */
     <T> void sendHit(Hit<T> hit);
+
+    /**
+     * Tag the current visitor as authenticated, This will insure to keep the same experience after synchronization.
+     * @param visitorId visitorId id of the current authenticated visitor.
+     */
+    void authenticate(String visitorId);
+
+    /**
+     * Tag the current visitor as unauthenticated, This will insure to get back to the initial experience after synchronization.
+     */
+    @SuppressWarnings("SpellCheckingInspection")
+    void unauthenticate();
 
 }

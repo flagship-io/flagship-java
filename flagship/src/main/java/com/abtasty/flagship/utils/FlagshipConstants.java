@@ -18,8 +18,8 @@ public final class FlagshipConstants {
 
     public static class Errors {
         public static final String INITIALIZATION_PARAM_ERROR = "Params 'envId' and 'apiKey' must not be null.";
-        public static String INITIALIZATION_PARAM_ERROR_CONFIG = "Param 'config' must not be null.";
-        public static String ERROR = "error";
+        public static final String INITIALIZATION_PARAM_ERROR_CONFIG = "Param 'config' must not be null.";
+        public static final String ERROR = "error";
         public static final String VISITOR = "'%s' \n%s";
         public static final String CONTEXT_KEY_ERROR = "param 'key' must be a non null String.";
         public static final String CONTEXT_VALUE_ERROR = "'value' for '%s', must be one of the following types : String, Number, Boolean";
@@ -31,8 +31,8 @@ public final class FlagshipConstants {
         public static final String PARSING_VARIATION_ERROR = PARSING_ERROR + " variation.";
         public static final String PARSING_MODIFICATION_ERROR = PARSING_ERROR + " modification.";
         public static final String PARSING_TARGETING_ERROR = PARSING_ERROR + " targeting.";
-        public static String TARGETING_COMPARISON_ERROR = "Targeting %s %s %s has failed.";
-        public static String PARSING_VALUE_ERROR = PARSING_ERROR + " modification.";
+        public static final String TARGETING_COMPARISON_ERROR = "Targeting %s %s %s has failed.";
+        public static final String PARSING_VALUE_ERROR = PARSING_ERROR + " modification.";
         public static final String GET_MODIFICATION_CAST_ERROR = "Modification for key '%s' has a different type. Default value is returned.";
         public static final String GET_MODIFICATION_MISSING_ERROR = "No modification for key '%s'. Default value is returned.";
         public static final String GET_MODIFICATION_KEY_ERROR = "Key '%s' must not be null. Default value is returned.";
@@ -41,14 +41,16 @@ public final class FlagshipConstants {
         public static final String HIT_INVALID_DATA_ERROR = "'%s' hit invalid format error. \n %s";
         public static final String METHOD_DEACTIVATED_ERROR = "Method '%s' is deactivated while SDK status is: %s.";
         public static final String METHOD_DEACTIVATED_CONSENT_ERROR = "Method '%s' is deactivated for visitor '%s': visitor did not consent.";
-        public static String CONFIGURATION_POLLING_ERROR = "Setting a polling interval is only available for Bucketing Mode.";
+        public static final String CONFIGURATION_POLLING_ERROR = "Setting a polling interval is only available for Bucketing configuration.";
+        public static final String AUTHENTICATION_BUCKETING_ERROR = "'%s' method will be ignored in Bucketing configuration.";
     }
 
     public static class HitKeyMap {
         public static final String TYPE= "t";
         public static final String CLIENT_ID= "cid";
         public static final String VISITOR_ID= "vid";
-        public static String CUSTOM_VISITOR_ID= "cvid";
+        public static final String ANONYMOUS_ID= "aid";
+        public static final String CUSTOM_VISITOR_ID= "cuid";
         public static final String DATA_SOURCE= "ds";
         public static final String APP= "APP";
 

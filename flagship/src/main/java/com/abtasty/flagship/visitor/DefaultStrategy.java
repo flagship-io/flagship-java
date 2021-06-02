@@ -6,6 +6,7 @@ import com.abtasty.flagship.decision.DecisionManager;
 import com.abtasty.flagship.hits.Activate;
 import com.abtasty.flagship.hits.Hit;
 import com.abtasty.flagship.main.ConfigManager;
+import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.model.Modification;
 import com.abtasty.flagship.utils.FlagshipContext;
 import com.abtasty.flagship.utils.FlagshipConstants;
@@ -56,6 +57,7 @@ class DefaultStrategy extends VisitorStrategy {
     @Override
     public void clearContext() {
         visitorDelegate.getVisitorContext().clear();
+        visitorDelegate.loadContext();
     }
 
     protected void sendContextRequest() {
@@ -138,13 +140,33 @@ class DefaultStrategy extends VisitorStrategy {
     @Override
     public <T> void sendHit(Hit<T> hit) {
         TrackingManager trackingManager = visitorDelegate.getConfigManager().getTrackingManager();
-        if (trackingManager != null) {
-            if (hit != null && hit.checkData()) {
-                if (hit instanceof Activate)
-                    trackingManager.sendActivation(visitorDelegate.getId(), (Activate) hit);
-                else
-                    trackingManager.sendHit(visitorDelegate.getId(), hit);
+        if (trackingManager != null && hit != null)
+            trackingManager.sendHit(visitorDelegate, hit);
+    }
+
+    @Override
+    public void authenticate(String visitorId) {
+        if (visitorDelegate.getConfigManager().isDecisionMode(Flagship.DecisionMode.API)) {
+            if (visitorDelegate.getAnonymousId() == null)
+                visitorDelegate.setAnonymousId(visitorDelegate.getId());
+            visitorDelegate.setId(visitorId);
+        } else {
+            FlagshipLogManager.log(FlagshipLogManager.Tag.AUTHENTICATE, LogManager.Level.ERROR,
+                    String.format(FlagshipConstants.Errors.AUTHENTICATION_BUCKETING_ERROR, "authenticate"));
+        }
+    }
+
+    @Override
+    @SuppressWarnings("SpellCheckingInspection")
+    public void unauthenticate() {
+        if (visitorDelegate.getConfigManager().isDecisionMode(Flagship.DecisionMode.API)) {
+            if (visitorDelegate.getAnonymousId() != null) {
+                visitorDelegate.setId(visitorDelegate.getAnonymousId());
+                visitorDelegate.setAnonymousId(null);
             }
+        } else {
+            FlagshipLogManager.log(FlagshipLogManager.Tag.UNAUTHENTICATE, LogManager.Level.ERROR,
+                    String.format(FlagshipConstants.Errors.AUTHENTICATION_BUCKETING_ERROR, "unauthenticate"));
         }
     }
 }

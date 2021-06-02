@@ -27,6 +27,9 @@ public class FlagshipLogManager extends LogManager {
         GET_MODIFICATION_INFO("GET_MODIFICATION_INFO"),
         TRACKING("HIT"),
         ACTIVATE("ACTIVATE"),
+        AUTHENTICATE("AUTHENTICATE"),
+        @SuppressWarnings("SpellCheckingInspection")
+        UNAUTHENTICATE("UNAUTHENTICATE"),
         EXCEPTION("EXCEPTION");
 
         String name;

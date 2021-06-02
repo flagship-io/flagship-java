@@ -91,6 +91,17 @@ public class VisitorDelegate extends AbstractVisitor implements IVisitor {
         getStrategy().sendHit(hit);
     }
 
+    @Override
+    public void authenticate(String visitorId) {
+        getStrategy().authenticate(visitorId);
+    }
+
+    @Override
+    @SuppressWarnings("SpellCheckingInspection")
+    public void unauthenticate() {
+        getStrategy().unauthenticate();
+    }
+
     /*
      *  Delegate methods
      */
@@ -121,6 +132,21 @@ public class VisitorDelegate extends AbstractVisitor implements IVisitor {
     @Override
     public String getId() {
         return visitor.getId();
+    }
+
+    @Override
+    public void setId(String id) {
+       visitor.setId(id);
+    }
+
+    @Override
+    public String getAnonymousId() {
+        return visitor.getAnonymousId();
+    }
+
+    @Override
+    public void setAnonymousId(String anonymousId) {
+        visitor.setAnonymousId(anonymousId);
     }
 
     @Override
@@ -159,7 +185,7 @@ public class VisitorDelegate extends AbstractVisitor implements IVisitor {
     }
 
     @Override
-    public void clearVisitorData() {
-        visitor.clearVisitorData();
+    protected void loadContext() {
+        this.visitor.loadContext();
     }
 }

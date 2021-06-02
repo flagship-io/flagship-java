@@ -1,5 +1,6 @@
 package com.abtasty.demo;
 
+import com.abtasty.flagship.hits.Page;
 import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.main.FlagshipConfig;
 import com.abtasty.flagship.utils.FlagshipContext;
@@ -12,12 +13,6 @@ import java.util.concurrent.TimeUnit;
 public class DemoFlagship {
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
-
-        Flagship.start("envId", "apiKey", new FlagshipConfig.Bucketing()
-                .withTimeout(3)
-                .withPollingIntervals(3, TimeUnit.SECONDS)
-                .withLogLevel(LogManager.Level.ALL));
-
 
         Visitor visitor1 = Flagship.newVisitor("toto");
 
@@ -43,10 +38,11 @@ public class DemoFlagship {
         visitor1.updateContext("coucou", 1);
         visitor1.synchronizeModifications().get();
         visitor1.activateModification("activate");
-        visitor1.setConsent(false);
+        visitor1.setConsent(true);
         visitor1.synchronizeModifications().get();
-        visitor1.activateModification("activate2");
 
+        visitor1.activateModification("isref");
+        visitor1.sendHit(new Page("https://www.page.com"));
         Thread.sleep(10000);
     }
 }

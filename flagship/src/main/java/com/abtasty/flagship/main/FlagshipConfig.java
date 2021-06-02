@@ -11,7 +11,7 @@ public abstract class FlagshipConfig<T> {
 
     private String                              envId               = null;
     private String                              apiKey              = null;
-    private FlagshipConfig.DecisionMode         decisionMode        = DecisionMode.API;
+    private Flagship.DecisionMode               decisionMode        = Flagship.DecisionMode.API;
     private int                                 timeout             = 2000;
     private LogManager.Level                    logLevel            = LogManager.Level.ALL;
     private LogManager                          logManager          = new FlagshipLogManager(logLevel);
@@ -58,7 +58,7 @@ public abstract class FlagshipConfig<T> {
      * @return FlagshipConfig
      */
     @SuppressWarnings("unchecked")
-    protected T withDecisionMode(DecisionMode mode) {
+    protected T withDecisionMode(Flagship.DecisionMode mode) {
         if (mode != null)
             this.decisionMode = mode;
         return (T) this;
@@ -145,7 +145,7 @@ public abstract class FlagshipConfig<T> {
         return apiKey;
     }
 
-    public FlagshipConfig.DecisionMode getDecisionMode() {
+    public Flagship.DecisionMode getDecisionMode() {
         return decisionMode;
     }
 
@@ -175,23 +175,15 @@ public abstract class FlagshipConfig<T> {
         return (envId != null && apiKey != null);
     }
 
-    /**
-     * Flagship running Mode
-     */
-    protected enum DecisionMode {
-        API,
-        BUCKETING,
-    }
-
     public static class Bucketing extends FlagshipConfig<Bucketing> {
         public Bucketing() {
             super();
-            super.withDecisionMode(FlagshipConfig.DecisionMode.BUCKETING);
+            super.withDecisionMode(Flagship.DecisionMode.BUCKETING);
         }
 
         public Bucketing(String envId, String apiKey) {
             super(envId, apiKey);
-            super.withDecisionMode(FlagshipConfig.DecisionMode.BUCKETING);
+            super.withDecisionMode(Flagship.DecisionMode.BUCKETING);
         }
 
         public Bucketing withPollingIntervals(long time, TimeUnit timeUnit) {
@@ -202,12 +194,12 @@ public abstract class FlagshipConfig<T> {
     public static class DecisionApi extends FlagshipConfig<DecisionApi> {
         public DecisionApi() {
             super();
-            super.withDecisionMode(DecisionMode.API);
+            super.withDecisionMode(Flagship.DecisionMode.API);
         }
 
         public DecisionApi(String envId, String apiKey) {
             super(envId, apiKey);
-            super.withDecisionMode(DecisionMode.API);
+            super.withDecisionMode(Flagship.DecisionMode.API);
         }
     }
 }

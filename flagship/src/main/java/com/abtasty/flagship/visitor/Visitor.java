@@ -2,9 +2,10 @@ package com.abtasty.flagship.visitor;
 
 import com.abtasty.flagship.hits.Hit;
 import com.abtasty.flagship.main.ConfigManager;
+import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.model.Modification;
-import com.abtasty.flagship.utils.FlagshipContext;
 import com.abtasty.flagship.utils.FlagshipConstants;
+import com.abtasty.flagship.utils.FlagshipContext;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
 import org.json.JSONObject;
@@ -20,7 +21,8 @@ import java.util.concurrent.ConcurrentMap;
 public class Visitor extends AbstractVisitor implements IVisitor {
 
     private   final ConfigManager                           configManager;
-    protected final String                                  visitorId;
+    protected       String                                  visitorId;
+    protected       String                                  anonymousId;
     protected       ConcurrentMap<String, Object>           context = new ConcurrentHashMap<>();
     protected       ConcurrentMap<String, Modification>     modifications = new ConcurrentHashMap<>();
     protected       Boolean                                 hasConsented = true;
@@ -32,11 +34,15 @@ public class Visitor extends AbstractVisitor implements IVisitor {
      * @param visitorId     visitor unique identifier.
      * @param context       visitor context.
      */
-    public Visitor(ConfigManager managers, String visitorId, HashMap<String, Object> context) {
+    public Visitor(ConfigManager managers, String visitorId, boolean isAuthenticated, HashMap<String, Object> context) {
         this.configManager = managers;
         this.visitorId = (visitorId == null || visitorId.length() <= 0) ? genVisitorId() : visitorId;
         this.loadContext();
         this.updateContext(context);
+        if (configManager.getFlagshipConfig().getDecisionMode() == Flagship.DecisionMode.API && isAuthenticated)
+            this.anonymousId = genVisitorId();
+        else
+            this.anonymousId = null;
     }
 
     /*
@@ -97,6 +103,18 @@ public class Visitor extends AbstractVisitor implements IVisitor {
         new VisitorDelegate(this).sendHit(hit);
     }
 
+    @Override
+    public void authenticate(String visitorId) {
+        new VisitorDelegate(this).authenticate(visitorId);
+        logVisitor(FlagshipLogManager.Tag.AUTHENTICATE);
+    }
+
+    @Override
+    public void unauthenticate() {
+        new VisitorDelegate(this).unauthenticate();
+        logVisitor(FlagshipLogManager.Tag.UNAUTHENTICATE);
+    }
+
     /*
      *   Visitor private methods
      */
@@ -111,7 +129,8 @@ public class Visitor extends AbstractVisitor implements IVisitor {
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    private <T> void loadContext() {
+    @Override
+    protected void loadContext() {
         if (FlagshipContext.autoLoading) {
             VisitorDelegate delegate = new VisitorDelegate(this);
             for (FlagshipContext flagshipContext : FlagshipContext.ALL) {
@@ -130,7 +149,22 @@ public class Visitor extends AbstractVisitor implements IVisitor {
      */
     @Override
     public String getId() {
-        return visitorId;
+        return this.visitorId;
+    }
+
+    @Override
+    public String getAnonymousId() {
+        return this.anonymousId;
+    }
+
+    @Override
+    protected void setId(String id) {
+        this.visitorId = id;
+    }
+
+    @Override
+    protected void setAnonymousId(String anonymousId) {
+        this.anonymousId = anonymousId;
     }
 
     @Override
@@ -167,8 +201,7 @@ public class Visitor extends AbstractVisitor implements IVisitor {
     @Override
     public void setConsent(Boolean hasConsented) {
         this.hasConsented = hasConsented;
-        if (!hasConsented)
-            clearVisitorData();
+        //clear visitor data if no consent.
     }
 
     @Override
@@ -181,6 +214,7 @@ public class Visitor extends AbstractVisitor implements IVisitor {
     public String toString() {
         JSONObject json = new JSONObject();
         json.put("visitorId", visitorId);
+        json.put("anonymousId", anonymousId);
         json.put("context", getContextAsJson());
         json.put("modifications", getModificationsAsJson());
         return json.toString(2);
@@ -203,9 +237,5 @@ public class Visitor extends AbstractVisitor implements IVisitor {
             modificationJson.put(flag, (value == null) ? JSONObject.NULL : value);
         });
         return modificationJson;
-    }
-
-    @Override
-    protected   void clearVisitorData() {
     }
 }

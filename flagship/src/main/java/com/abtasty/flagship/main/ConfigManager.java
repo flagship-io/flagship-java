@@ -20,7 +20,7 @@ public class ConfigManager {
         config.withEnvId(envId);
         config.withApiKey(apiKey);
         this.flagshipConfig = config;
-        this.decisionManager = (config.getDecisionMode() == FlagshipConfig.DecisionMode.API) ? new ApiManager(config) : new BucketingManager(config);
+        this.decisionManager = (config.getDecisionMode() == Flagship.DecisionMode.API) ? new ApiManager(config) : new BucketingManager(config);
     }
 
     public DecisionManager getDecisionManager() {
@@ -38,6 +38,10 @@ public class ConfigManager {
     public boolean isSet() {
         return  (this.flagshipConfig != null && this.flagshipConfig.isSet()) &&
                 (this.decisionManager != null);
+    }
+
+    public boolean isDecisionMode(Flagship.DecisionMode mode) {
+        return this.flagshipConfig.getDecisionMode() == mode;
     }
 
     public void reset() {

@@ -34,7 +34,7 @@ public class VisitorController {
 
         request.getSession().setAttribute(VisitorConstant, visitorModel);
 
-        visitor = Flagship.newVisitor(visitorModel.getVisitor_id(), visitorModel.getContext());
+        visitor = Flagship.newVisitor(visitorModel.getVisitor_id(), false, visitorModel.getContext());
 
         visitor.synchronizeModifications().get();
 

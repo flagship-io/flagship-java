@@ -27,7 +27,7 @@ public class FlagControllerInterceptor implements HandlerInterceptor {
 
         final com.springboot.model.Visitor visitorAttribute = (com.springboot.model.Visitor) request.getSession().getAttribute(Vis);
 
-        visitor = Flagship.newVisitor(visitorAttribute.getVisitor_id(), visitorAttribute.getContext());
+        visitor = Flagship.newVisitor(visitorAttribute.getVisitor_id(), false, visitorAttribute.getContext());
 
         visitor.synchronizeModifications().get();
 

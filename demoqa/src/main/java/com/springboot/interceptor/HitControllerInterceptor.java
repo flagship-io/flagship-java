@@ -27,7 +27,7 @@ public class HitControllerInterceptor implements HandlerInterceptor {
 
         final com.springboot.model.Visitor visitorAttribut = (com.springboot.model.Visitor) request.getSession().getAttribute(Vis);
 
-        visitor = Flagship.newVisitor(visitorAttribut.getVisitor_id(), visitorAttribut.getContext());
+        visitor = Flagship.newVisitor(visitorAttribut.getVisitor_id(), false, visitorAttribut.getContext());
 
         visitor.synchronizeModifications().get();
 

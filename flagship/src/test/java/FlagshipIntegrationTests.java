@@ -122,6 +122,11 @@ public class FlagshipIntegrationTests {
             entry.getValue().disconnect();
         }
         resetSingleton();
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void resetSingleton() {
@@ -197,7 +202,7 @@ public class FlagshipIntegrationTests {
         Visitor visitor0 = Flagship.newVisitor(null);
         assertNotNull(visitor0);
 
-        visitor0 = Flagship.newVisitor("visitor_0", null);
+        visitor0 = Flagship.newVisitor("visitor_0", false, null);
         HashMap<String, Object> context0 = visitor0.getContext();
         assertNotNull(visitor0);
         assertEquals(3, context0.size());
@@ -206,7 +211,7 @@ public class FlagshipIntegrationTests {
         assertEquals(context0.get("fs_users"), "visitor_0");
 
         Visitor finalVisitor = visitor0;
-        Visitor visitor1 = Flagship.newVisitor("visitor_1", new HashMap<String, Object>() {{
+        Visitor visitor1 = Flagship.newVisitor("visitor_1", false, new HashMap<String, Object>() {{
             put("boolean", true);
             put("int", 32);
             put("float", 3.14);
@@ -267,7 +272,7 @@ public class FlagshipIntegrationTests {
             CountDownLatch synchronizeLatch = new CountDownLatch(1);
             Flagship.start("my_env_id", "my_api_key");
             assertEquals(Flagship.getStatus(), Flagship.Status.READY);
-            Visitor visitor = Flagship.newVisitor("visitor_1", new HashMap<String, Object>() {{
+            Visitor visitor = Flagship.newVisitor("visitor_1", false, new HashMap<String, Object>() {{
                 put("vip", true);
                 put("age", 32);
             }});
@@ -297,7 +302,7 @@ public class FlagshipIntegrationTests {
         });
 
         Flagship.start("my_env_id", "my_api_key");
-        Visitor visitor = Flagship.newVisitor("visitor_1", new HashMap<String, Object>() {{
+        Visitor visitor = Flagship.newVisitor("visitor_1", false, new HashMap<String, Object>() {{
             put("isVIPUser", true);
             put("age", 32);
             put("daysSinceLastLaunch", 2);
@@ -316,8 +321,6 @@ public class FlagshipIntegrationTests {
             fail();
         }
 
-        visitor.activateModification("release");
-
         CountDownLatch nbHit1 = new CountDownLatch(1);
 
         verifyRequest("https://decision.flagship.io/v2/activate", (request) -> {
@@ -329,10 +332,11 @@ public class FlagshipIntegrationTests {
                 nbHit1.countDown();
             }
         });
+
+        visitor.activateModification("release");
+
         if (!nbHit1.await(1, TimeUnit.SECONDS))
             fail();
-
-        assertEquals(visitor.getModification("isref", "default", true), "not a all");
 
         CountDownLatch nbHit2 = new CountDownLatch(1);
         verifyRequest("https://decision.flagship.io/v2/activate", (request) -> {
@@ -344,17 +348,20 @@ public class FlagshipIntegrationTests {
                 nbHit2.countDown();
             }
         });
+
+        assertEquals(visitor.getModification("isref", "default", true), "not a all");
+
         if (!nbHit2.await(1, TimeUnit.SECONDS))
             fail();
 
 
-        visitor.activateModification("wrong");
         AtomicInteger call = new AtomicInteger(0);
         CountDownLatch nbHit3 = new CountDownLatch(1);
         verifyRequest("https://decision.flagship.io/v2/activate", (request) -> {
             nbHit3.countDown();
             call.getAndIncrement();
         });
+        visitor.activateModification("wrong");
         nbHit3.await(200, TimeUnit.MILLISECONDS);
         assertEquals(call.get(), 0);
     }
@@ -571,7 +578,7 @@ public class FlagshipIntegrationTests {
         });
 
         Flagship.start("my_env_id", "my_api_key");
-        Visitor visitor = Flagship.newVisitor("visitor_1", new HashMap<String, Object>() {{
+        Visitor visitor = Flagship.newVisitor("visitor_1", false, new HashMap<String, Object>() {{
             put("isVIPUser", true);
             put("age", 32);
             put("daysSinceLastLaunch", 2);
@@ -611,7 +618,7 @@ public class FlagshipIntegrationTests {
         });
 
         Flagship.start("my_env_id", "my_api_key");
-        Visitor visitor = Flagship.newVisitor("visitor_1", new HashMap<String, Object>() {{
+        Visitor visitor = Flagship.newVisitor("visitor_1", false, new HashMap<String, Object>() {{
             put("isVIPUser", true);
             put("age", 32);
             put("daysSinceLastLaunch", 2);
@@ -646,7 +653,7 @@ public class FlagshipIntegrationTests {
         });
 
         Flagship.start("my_env_id", "my_api_key");
-        Visitor visitor = Flagship.newVisitor("visitor_1", new HashMap<String, Object>() {{
+        Visitor visitor = Flagship.newVisitor("visitor_1", false, new HashMap<String, Object>() {{
             put("isVIPUser", true);
             put("age", 32);
             put("daysSinceLastLaunch", 2);
@@ -808,10 +815,10 @@ public class FlagshipIntegrationTests {
                 }));
         if (!readyLatch.await(1, TimeUnit.SECONDS))
             fail();
-        Visitor visitor1 = Flagship.newVisitor("visitor_1", new HashMap<String, Object>() {{
+        Visitor visitor1 = Flagship.newVisitor("visitor_1", false, new HashMap<String, Object>() {{
             put("ab10_enabled", true);
         }});
-        Visitor visitor2 = Flagship.newVisitor("visitor_2", new HashMap<String, Object>() {{
+        Visitor visitor2 = Flagship.newVisitor("visitor_2", false, new HashMap<String, Object>() {{
             put("ab10_enabled", true);
         }});
         visitor1.synchronizeModifications().get();
@@ -851,6 +858,9 @@ public class FlagshipIntegrationTests {
                 assert json.getString("type").equals("CONTEXT");
                 assert json.getString("visitorId").equals("visitor_1");
                 assert json.getJSONObject("data").getInt("age") == 32;
+                assert json.getJSONObject("data").getString("fs_users").equals("visitor_1");
+                assert json.getJSONObject("data").getString("fs_version").equals(BuildConfig.flagship_version_name);
+                assert json.getJSONObject("data").getString("fs_client").equals("java");
                 contextLatch.countDown();
             }
         });
@@ -893,5 +903,132 @@ public class FlagshipIntegrationTests {
         visitor_1.synchronizeModifications().get();
         Thread.sleep(1000);
         assertEquals(3, contextLatch.getCount());
+    }
+
+    @Test
+    public void authentication() throws InterruptedException, ExecutionException {
+
+        mockResponse("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", 200, FlagshipIntegrationConstants.synchronizeResponse2);
+        mockResponse("https://decision.flagship.io/v2/activate", 200, "");
+        mockResponse("https://ariane.abtasty.com", 200, "");
+
+        verifyRequest("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", (request) -> {
+            JSONObject content = new JSONObject(request.getRequestContent());
+            assertEquals(content.getString("visitorId"), "logged_out");
+            assertNull(content.optString("anonymousId", null));
+        });
+
+        //anonymous
+        Flagship.start("my_env_id", "my_api_key");
+        Visitor visitor = Flagship.newVisitor("logged_out", false, new HashMap<String, Object>() {{
+            put("isVIPUser", true);
+            put("age", 32);
+            put("daysSinceLastLaunch", 2);
+        }});
+        visitor.synchronizeModifications().get();
+
+
+        CountDownLatch anonymous_latch = new CountDownLatch(2);
+        verifyRequest("https://decision.flagship.io/v2/activate", (request) -> {
+            JSONObject content = new JSONObject(request.getRequestContent());
+            assertEquals(content.getString("vid"), "logged_out");
+            assertNull(content.optString("aid", null));
+            anonymous_latch.countDown();
+        });
+
+        verifyRequest("https://ariane.abtasty.com", (request) -> {
+            JSONObject content = new JSONObject(request.getRequestContent());
+            assertEquals(content.getString("vid"), "logged_out");
+            assertNull(content.optString("cuid", null));
+            anonymous_latch.countDown();
+        });
+
+        //logged in 1
+        CountDownLatch logged1_latch = new CountDownLatch(2);
+        visitor.authenticate("logged_in");
+        verifyRequest("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", (request) -> {
+            JSONObject content = new JSONObject(request.getRequestContent());
+            assertEquals(content.getString("anonymousId"), "logged_out");
+            assertEquals(content.getString("visitorId"), "logged_in");
+        });
+        verifyRequest("https://decision.flagship.io/v2/activate", (request) -> {
+            JSONObject content = new JSONObject(request.getRequestContent());
+            assertEquals(content.getString("vid"), "logged_in");
+            assertEquals(content.getString("aid"), "logged_out");
+            logged1_latch.countDown();
+        });
+
+        verifyRequest("https://ariane.abtasty.com", (request) -> {
+            JSONObject content = new JSONObject(request.getRequestContent());
+            assertEquals(content.getString("vid"), "logged_out");
+            assertEquals(content.getString("cuid"), "logged_in");
+            logged1_latch.countDown();
+        });
+        visitor.synchronizeModifications().get();
+        visitor.sendHit(new Screen("test"));
+        visitor.activateModification("isref");
+
+        if (!logged1_latch.await(1, TimeUnit.SECONDS))
+            fail();
+
+        //logged in 2
+        visitor.authenticate("logged_in_2");
+        verifyRequest("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", (request) -> {
+            JSONObject content = new JSONObject(request.getRequestContent());
+            assertEquals(content.getString("anonymousId"), "logged_out");
+            assertEquals(content.getString("visitorId"), "logged_in_2");
+        });
+
+        CountDownLatch logged2_latch = new CountDownLatch(2);
+        verifyRequest("https://decision.flagship.io/v2/activate", (request) -> {
+            JSONObject content = new JSONObject(request.getRequestContent());
+            assertEquals(content.getString("vid"), "logged_in_2");
+            assertEquals(content.getString("aid"), "logged_out");
+            logged2_latch.countDown();
+        });
+
+        verifyRequest("https://ariane.abtasty.com", (request) -> {
+            JSONObject content = new JSONObject(request.getRequestContent());
+            assertEquals(content.getString("vid"), "logged_out");
+            assertEquals(content.getString("cuid"), "logged_in_2");
+            logged2_latch.countDown();
+        });
+
+        visitor.synchronizeModifications().get();
+        visitor.sendHit(new Screen("test"));
+        visitor.activateModification("isref");
+
+        if (!logged2_latch.await(1, TimeUnit.SECONDS))
+            fail();
+
+        //back to anonymous
+        CountDownLatch anonymous2_latch = new CountDownLatch(2);
+        visitor.unauthenticate();
+        verifyRequest("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", (request) -> {
+            JSONObject content = new JSONObject(request.getRequestContent());
+            assertNull(content.optString("anonymousId", null));
+            assertEquals(content.getString("visitorId"), "logged_out");
+        });
+
+        verifyRequest("https://decision.flagship.io/v2/activate", (request) -> {
+            JSONObject content = new JSONObject(request.getRequestContent());
+            assertEquals(content.getString("vid"), "logged_out");
+            assertNull(content.optString("aid", null));
+            anonymous2_latch.countDown();
+        });
+
+        verifyRequest("https://ariane.abtasty.com", (request) -> {
+            JSONObject content = new JSONObject(request.getRequestContent());
+            assertEquals(content.getString("vid"), "logged_out");
+            assertNull(content.optString("cuid", null));
+            anonymous2_latch.countDown();
+        });
+
+        visitor.synchronizeModifications().get();
+        visitor.sendHit(new Screen("test"));
+        visitor.activateModification("isref");
+
+        if (!anonymous2_latch.await(1, TimeUnit.SECONDS))
+            fail();
     }
 }

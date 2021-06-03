@@ -51,5 +51,8 @@ class NotReadyStrategy extends DefaultStrategy {
     }
 
     @Override
-    protected void sendContextRequest() { }       //do nothing
+    protected void sendContextRequest() { }//do nothing
+
+    // call default authenticate
+    // call default unauthenticate
 }

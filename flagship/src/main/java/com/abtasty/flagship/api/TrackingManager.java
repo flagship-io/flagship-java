@@ -18,7 +18,7 @@ public class TrackingManager implements IFlagshipEndpoints {
     public TrackingManager() {
     }
 
-    public void sendHit(VisitorDelegate visitor, Activate hit) {
+    private void sendActivation(VisitorDelegate visitor, Activate hit) {
 
         HashMap<String, String> headers = new HashMap<>();
         headers.put("x-sdk-client", "java");
@@ -39,23 +39,26 @@ public class TrackingManager implements IFlagshipEndpoints {
     }
 
     public void sendHit(VisitorDelegate visitor, Hit<?> hit) {
-        if (hit.checkData()) {
-            JSONObject data = hit.getData();
-            if (!visitor.getId().isEmpty() && visitor.getAnonymousId() != null) {
-                data.put(FlagshipConstants.HitKeyMap.CUSTOM_VISITOR_ID, visitor.getId());
-                data.put(FlagshipConstants.HitKeyMap.VISITOR_ID, visitor.getAnonymousId());
-            }
-            else if (!visitor.getId().isEmpty() && visitor.getAnonymousId() == null) {
-                data.put(FlagshipConstants.HitKeyMap.VISITOR_ID, visitor.getId());
-                data.put(FlagshipConstants.HitKeyMap.CUSTOM_VISITOR_ID, JSONObject.NULL);
-            } else {
-                data.put(FlagshipConstants.HitKeyMap.VISITOR_ID, visitor.getAnonymousId());
-                data.put(FlagshipConstants.HitKeyMap.CUSTOM_VISITOR_ID, JSONObject.NULL);
-            }
-            CompletableFuture<Response> response = HttpManager.getInstance().sendAsyncHttpRequest(HttpManager.RequestType.POST, ARIANE, null, data.toString());
-            response.whenComplete((httpResponse, error) -> logHit(hit, httpResponse));
-        } else
-            FlagshipLogManager.log(FlagshipLogManager.Tag.TRACKING, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.HIT_INVALID_DATA_ERROR, hit.getType(), hit));
+        if (hit instanceof Activate)
+            sendActivation(visitor, (Activate) hit);
+        else {
+            if (hit.checkData()) {
+                JSONObject data = hit.getData();
+                if (!visitor.getId().isEmpty() && visitor.getAnonymousId() != null) {
+                    data.put(FlagshipConstants.HitKeyMap.CUSTOM_VISITOR_ID, visitor.getId());
+                    data.put(FlagshipConstants.HitKeyMap.VISITOR_ID, visitor.getAnonymousId());
+                } else if (!visitor.getId().isEmpty() && visitor.getAnonymousId() == null) {
+                    data.put(FlagshipConstants.HitKeyMap.VISITOR_ID, visitor.getId());
+                    data.put(FlagshipConstants.HitKeyMap.CUSTOM_VISITOR_ID, JSONObject.NULL);
+                } else {
+                    data.put(FlagshipConstants.HitKeyMap.VISITOR_ID, visitor.getAnonymousId());
+                    data.put(FlagshipConstants.HitKeyMap.CUSTOM_VISITOR_ID, JSONObject.NULL);
+                }
+                CompletableFuture<Response> response = HttpManager.getInstance().sendAsyncHttpRequest(HttpManager.RequestType.POST, ARIANE, null, data.toString());
+                response.whenComplete((httpResponse, error) -> logHit(hit, httpResponse));
+            } else
+                FlagshipLogManager.log(FlagshipLogManager.Tag.TRACKING, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.HIT_INVALID_DATA_ERROR, hit.getType(), hit));
+        }
     }
 
     private void logHit(Hit<?> h, Response response) {

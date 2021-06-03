@@ -67,4 +67,14 @@ class PanicStrategy extends DefaultStrategy {
 
     @Override
     protected void sendContextRequest() { }       //do nothing
+
+    @Override
+    public void authenticate(String visitorId) {
+        logMethodDeactivatedError(FlagshipLogManager.Tag.AUTHENTICATE, "authenticate()");
+    }
+
+    @Override
+    public void unauthenticate() {
+        logMethodDeactivatedError(FlagshipLogManager.Tag.UNAUTHENTICATE, "unauthenticate()");
+    }
 }

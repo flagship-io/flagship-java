@@ -8,7 +8,6 @@ import com.abtasty.flagship.utils.LogManager;
 import com.abtasty.flagship.visitor.Visitor;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 public class DemoFlagship {
 
@@ -20,9 +19,10 @@ public class DemoFlagship {
 
         CountDownLatch flagshipReadyLatch = new CountDownLatch(1);
         Flagship.start("bkk4s7gcmjcg07fke9dg", "Q6FDmj6F188nh75lhEato2MwoyXDS7y34VrAL4Aa",
-                new FlagshipConfig.Bucketing()
+//                new FlagshipConfig.Bucketing()
+                new FlagshipConfig.DecisionApi()
                         .withLogLevel(LogManager.Level.ALL)
-                        .withPollingIntervals(0, TimeUnit.SECONDS)
+//                        .withPollingIntervals(0, TimeUnit.SECONDS)
                         .withStatusListener(newStatus -> {
                             System.out.println("NEW STATUS = " + newStatus.name());
                             if (newStatus == Flagship.Status.READY)
@@ -39,10 +39,14 @@ public class DemoFlagship {
         visitor1.synchronizeModifications().get();
         visitor1.activateModification("activate");
         visitor1.setConsent(true);
+        visitor1.authenticate("connecté");
+//        visitor1.unauthenticate();
         visitor1.synchronizeModifications().get();
 
         visitor1.activateModification("isref");
         visitor1.sendHit(new Page("https://www.page.com"));
         Thread.sleep(10000);
     }
+
+
 }

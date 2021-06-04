@@ -15,6 +15,8 @@ import com.abtasty.flagship.hits.Screen;
 import com.abtasty.flagship.hits.Transaction;
 import com.abtasty.flagship.visitor.Visitor;
 
+import static com.springboot.controller.VisitorController.VisitorAttribute;
+
 @RestController
 public class HitController {
 
@@ -27,7 +29,8 @@ public class HitController {
         Item item;
         Transaction transaction;
 
-        Visitor visitor = (Visitor) request.getAttribute("HitVisitor");
+//        Visitor visitor = (Visitor) request.getAttribute("HitVisitor");
+        Visitor visitor = (Visitor) request.getSession().getAttribute(VisitorAttribute);
 
         switch (env.get("t").toString()) {
 

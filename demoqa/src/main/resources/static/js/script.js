@@ -8,7 +8,7 @@ var app = new Vue({
         pollingIntervalUnit: "milliseconds",
         bucketing: true,
         visitorId: "test-visitor",
-        context: "{\n}",
+        context: "{}",
         envOk: false,
         envError: null,
         visitorOk: false,
@@ -16,17 +16,17 @@ var app = new Vue({
         eventOk: false,
         eventError: null,
         data: null,
-        hit: { t: "EVENT", ec:"at" },
+        hit: {t: "EVENT", ec: "at"},
         hitTypes: ["EVENT", "TRANSACTION", "ITEM", "PAGE", "SCREEN"],
-        flag: { name: "", type: "bool", defaultValue: "", activate: true },
+        flag: {name: "", type: "bool", defaultValue: "", activate: true},
         flagOk: false,
         flagUpdateContextOk: false,
         flagModificationOk: false,
-        flagInfo: { name: "" },
-        flagModification: { name: "" },
-        flagUpdateContext: { name: "", type: "bool", value: "" },
+        flagInfo: {name: ""},
+        flagModification: {name: ""},
+        flagUpdateContext: {name: "", type: "bool", value: ""},
         flagInfoOk: false,
-        flagshipMode: "api"
+        flagshipMode: "api",
     },
     methods: {
         getEnv() {
@@ -37,7 +37,7 @@ var app = new Vue({
                 this.envId = response.body.environment_id;
                 this.apiKey = response.body.api_key;
                 this.timeout = response.body.timeout;
-                this.flagshipMode= response.body.flagship_mode || "api";
+                this.flagshipMode = response.body.flagship_mode || "api";
                 this.pollingInterval = response.body.polling_interval;
                 this.pollingIntervalUnit = response.body.polling_interval_unit || "milliseconds"
             });
@@ -65,12 +65,12 @@ var app = new Vue({
                 );
         },
         getVisitor() {
-            this.$http.get("/visitor").then((response) => {
-                // get body data
-                this.visitorId = response.body.visitor_id;
-                this.context = JSON.stringify(response.body.context);
-                
-            });
+            // this.$http.get("/visitor").then((response) => {
+            //     // get body data
+            //     this.visitorId = response.body.visitor_id;
+            //     this.context = JSON.stringify(response.body.context);
+            //
+            // });
         },
         setVisitor() {
             this.visitorOk = false;
@@ -80,7 +80,8 @@ var app = new Vue({
             this.$http
                 .put("/visitor", {
                     visitor_id: this.visitorId,
-                    context: this.context ? this.context : {},
+                    authenticated: this.authenticated ? this.authenticated : false,
+                    context: JSON.parse(this.context ? this.context : "{}"),
                 })
                 .then(
                     (response) => {
@@ -117,24 +118,24 @@ var app = new Vue({
         getFlag() {
             this.flagOk = false;
 
-            const { name, type, activate, defaultValue } = this.flag;
+            const {name, type, activate, defaultValue} = this.flag;
 
             if (!name || !type) {
-                this.flagOk = { err: "Missing flag name or type" };
+                this.flagOk = {err: "Missing flag name or type"};
                 return;
             }
             console.log(this.flag);
 
             this.$http
                 .get(
-                    `/flag/${name}`, 
+                    `/flag/${name}`,
                     {
                         params:
-                        {
-                            type,
-                            activate,
-                            defaultValue
-                        }
+                            {
+                                type,
+                                activate,
+                                defaultValue
+                            }
                     }
                 )
                 .then(
@@ -149,10 +150,10 @@ var app = new Vue({
         getFlagInfo() {
             this.flagInfoOk = false;
 
-            const { name } = this.flagInfo;
+            const {name} = this.flagInfo;
 
             if (!name) {
-                this.flagInfoOk = { err: "Missing flag name or type" };
+                this.flagInfoOk = {err: "Missing flag name or type"};
                 return;
             }
 
@@ -163,7 +164,7 @@ var app = new Vue({
                     this.flagInfoOk = response.body.value;
                 },
                 (response) => {
-                       this.flagInfoOk = response.body;
+                    this.flagInfoOk = response.body;
                 }
             );
         },
@@ -171,10 +172,10 @@ var app = new Vue({
             this.flagUpdateContextOk = false;
             this.data = null;
 
-            const { name, type, value } = this.flagUpdateContext;
+            const {name, type, value} = this.flagUpdateContext;
 
             if (!name || !type) {
-                this.flagUpdateContextOk = { err: "Missing flag name or type" };
+                this.flagUpdateContextOk = {err: "Missing flag name or type"};
                 return;
             }
             console.log(this.flagUpdateContext);
@@ -184,10 +185,10 @@ var app = new Vue({
                     `/flag/${name}/updateContext`,
                     {
                         params:
-                        {
-                            type,
-                            value
-                        }
+                            {
+                                type,
+                                value
+                            }
                     }
                 )
                 .then(
@@ -202,26 +203,26 @@ var app = new Vue({
                 );
         },
         getModification() {
-                    this.flagModificationOk = false;
+            this.flagModificationOk = false;
 
-                    const { name } = this.flagModification;
+            const {name} = this.flagModification;
 
-                    if (!name ) {
-                        this.flagModificationOk = { err: "Missing flag name or type" };
-                        return;
+            if (!name) {
+                this.flagModificationOk = {err: "Missing flag name or type"};
+                return;
+            }
+            console.log(this.flagModification);
+
+            this.$http
+                .get(`/flag/${name}/activate`)
+                .then(
+                    (response) => {
+                        this.flagModificationOk = response.body.activateValue;
+                    },
+                    (response) => {
+                        this.flagModificationOk = response.body.activateValue;
                     }
-                    console.log(this.flagModification);
-
-                    this.$http
-                        .get(`/flag/${name}/activate`)
-                        .then(
-                            (response) => {
-                                this.flagModificationOk = response.body.activateValue;
-                            },
-                            (response) => {
-                                this.flagModificationOk = response.body.activateValue;
-                            }
-                        );
+                );
         },
         getLogs() {
             this.$http
@@ -250,7 +251,51 @@ var app = new Vue({
                         this.data.logs = response.bodyText;
                     }
                 );
-        }
+        },
+        authenticate() {
+            this.visitorOk = false;
+            this.visitorError = null;
+            this.data = null;
+            this.$http
+                .get("/authenticate", {
+                    params:
+                        {
+                            newVisitorId: this.newVisitorId
+                        }
+                })
+                .then(
+                    (response) => {
+                        // get body data
+                        this.data = {}
+                        this.data.visitor = response.body;
+                        this.visitorOk = true;
+                    },
+                    (response) => {
+                        this.visitorOk = false;
+                        this.visitorError = response.body;
+                    }
+                );
+        },
+        unauthenticate() {
+            this.visitorOk = false;
+            this.visitorError = null;
+            this.data = null;
+            this.$http
+                .get("/unauthenticate", {
+                })
+                .then(
+                    (response) => {
+                        // get body data
+                        this.data = {}
+                        this.data.visitor = response.body;
+                        this.visitorOk = true;
+                    },
+                    (response) => {
+                        this.visitorOk = false;
+                        this.visitorError = response.body;
+                    }
+                );
+        },
     },
     mounted() {
         this.getEnv();

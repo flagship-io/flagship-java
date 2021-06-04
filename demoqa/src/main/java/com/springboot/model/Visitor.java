@@ -8,6 +8,9 @@ public class Visitor {
     @JsonProperty(value = "visitor_id")
     private String visitor_id;
 
+    @JsonProperty(value = "authenticated")
+    private Boolean isAuthenticated;
+
     @JsonProperty(value = "context")
     private HashMap<String, Object> context;
 
@@ -15,8 +18,9 @@ public class Visitor {
 
     }
 
-    public Visitor(String visitor_id, HashMap<String, Object> context) {
+    public Visitor(String visitor_id, Boolean isAuthenticated, HashMap<String, Object> context) {
         this.visitor_id = visitor_id;
+        this.isAuthenticated = isAuthenticated;
         this.context = context;
     }
 
@@ -36,9 +40,17 @@ public class Visitor {
         this.context = context;
     }
 
+    public Boolean getAuthenticated() {
+        return isAuthenticated;
+    }
+
+    public void setAuthenticated(Boolean authenticated) {
+        isAuthenticated = authenticated;
+    }
+
     @Override
     public String toString() {
-        return "Visitor [visitor_id=" + visitor_id + ", context=" + context + "]";
+        return "Visitor [visitor_id=" + visitor_id + ", isAuthenticated=" + isAuthenticated + ", context=" + context + "]";
     }
 
 }

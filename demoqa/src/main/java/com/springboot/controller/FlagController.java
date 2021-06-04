@@ -17,10 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.abtasty.flagship.visitor.Visitor;
 
+import static com.springboot.controller.VisitorController.VisitorAttribute;
+
 @RestController
 public class FlagController {
 
-    public Visitor visitor;
+//    public Visitor visitor;
 
     @RequestMapping(method = RequestMethod.GET, value = "/flag/{flag_key}")
     public Object getFlag(HttpServletRequest request, @PathVariable String flag_key, @RequestParam String type, @RequestParam Boolean activate, @RequestParam String defaultValue) {
@@ -29,7 +31,8 @@ public class FlagController {
         String error = "";
         Map<String, Object> obj = new HashMap<String, Object>();
 
-        visitor = (Visitor) request.getAttribute("Visitor");
+//        visitor = (Visitor) request.getAttribute("Visitor");
+        Visitor visitor = (Visitor) request.getSession().getAttribute(VisitorAttribute);
         switch (type) {
 
             case "bool":
@@ -74,7 +77,6 @@ public class FlagController {
 
         obj.put("value", flag != null ? flag.toString() : null);
         obj.put("error", error);
-        System.out.println(obj);
         return obj;
 
     }
@@ -85,7 +87,8 @@ public class FlagController {
         JSONObject flagInfo = null;
         Map<String, Object> objInfo = new HashMap<String, Object>();
         Map flagInfoContent = new HashMap<String, Object>();
-        visitor = (Visitor) request.getAttribute("Visitor");
+//        visitor = (Visitor) request.getAttribute("Visitor");
+        Visitor visitor = (Visitor) request.getSession().getAttribute(VisitorAttribute);
         flagInfo = visitor.getModificationInfo(flag_key);
 
         if (flagInfo == null) {
@@ -104,8 +107,8 @@ public class FlagController {
 
         JSONObject flagInfo = null;
         Map<String, Object> objInfo = new HashMap<String, Object>();
-        visitor = (Visitor) request.getAttribute("Visitor");
-//        visitor.synchronizeModifications().get();
+//        visitor = (Visitor) request.getAttribute("Visitor");
+        Visitor visitor = (Visitor) request.getSession().getAttribute(VisitorAttribute);
         flagInfo = visitor.getModificationInfo(flag_key);
 
         if (flagInfo != null) {
@@ -125,7 +128,8 @@ public class FlagController {
     @RequestMapping(method = RequestMethod.GET, value = "/flag/{flag_key}/updateContext")
     public String getFlagUpdateContext(HttpServletRequest request, @PathVariable String flag_key, @RequestParam String type, @RequestParam String value) throws ExecutionException, InterruptedException {
 
-        visitor = (Visitor) request.getAttribute("Visitor");
+//        visitor = (Visitor) request.getAttribute("Visitor");
+        Visitor visitor = (Visitor) request.getSession().getAttribute(VisitorAttribute);
 
         switch (type) {
 
@@ -151,10 +155,10 @@ public class FlagController {
         }
         visitor.synchronizeModifications().get();
 
-        com.springboot.model.Visitor visitorAttribute = (com.springboot.model.Visitor) request.getSession().getAttribute(FlagControllerInterceptor.Vis);
-        visitorAttribute.setContext(new HashMap<>(visitor.getContext()));
-        request.getSession().setAttribute(FlagControllerInterceptor.Vis, visitorAttribute);
-
+//        com.springboot.model.Visitor visitorAttribute = (com.springboot.model.Visitor) request.getSession().getAttribute(FlagControllerInterceptor.Vis);
+//        visitorAttribute.setContext(new HashMap<>(visitor.getContext()));
+//        request.getSession().setAttribute(FlagControllerInterceptor.Vis, visitorAttribute);
+        request.getSession().setAttribute(VisitorAttribute, visitor);
         return visitor.toString();
     }
 }

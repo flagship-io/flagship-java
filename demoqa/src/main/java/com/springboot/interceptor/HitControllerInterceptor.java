@@ -23,17 +23,17 @@ public class HitControllerInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
 
-        log.info("HitInterceptor - prehandler BEGIN");
-
-        final com.springboot.model.Visitor visitorAttribut = (com.springboot.model.Visitor) request.getSession().getAttribute(Vis);
-
-        visitor = Flagship.newVisitor(visitorAttribut.getVisitor_id(), false, visitorAttribut.getContext());
-
-        visitor.synchronizeModifications().get();
-
-        request.setAttribute("HitVisitor", visitor);
-
-        log.info("HitInterceptor - prehandler ENDS");
+//        log.info("HitInterceptor - prehandler BEGIN");
+//
+//        final com.springboot.model.Visitor visitorAttribut = (com.springboot.model.Visitor) request.getSession().getAttribute(Vis);
+//
+//        visitor = Flagship.newVisitor(visitorAttribut.getVisitor_id(), visitorAttribut.getAuthenticated(), visitorAttribut.getContext());
+//
+//        visitor.synchronizeModifications().get();
+//
+//        request.setAttribute("HitVisitor", visitor);
+//
+//        log.info("HitInterceptor - prehandler ENDS");
 
         return true;
     }
@@ -41,16 +41,16 @@ public class HitControllerInterceptor implements HandlerInterceptor {
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
                            ModelAndView modelAndView) throws Exception {
-
-        log.info("HitInterceptor - posthandler");
-        HandlerInterceptor.super.postHandle(request, response, handler, modelAndView);
+//
+//        log.info("HitInterceptor - posthandler");
+//        HandlerInterceptor.super.postHandle(request, response, handler, modelAndView);
     }
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
             throws Exception {
-
-        log.info("HitInterceptor - afterCompleting");
-        HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
+//
+//        log.info("HitInterceptor - afterCompleting");
+//        HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
     }
 }

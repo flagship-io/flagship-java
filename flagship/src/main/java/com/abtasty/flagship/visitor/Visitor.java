@@ -106,12 +106,14 @@ public class Visitor extends AbstractVisitor implements IVisitor {
     @Override
     public void authenticate(String visitorId) {
         new VisitorDelegate(this).authenticate(visitorId);
+        loadContext();
         logVisitor(FlagshipLogManager.Tag.AUTHENTICATE);
     }
 
     @Override
     public void unauthenticate() {
         new VisitorDelegate(this).unauthenticate();
+        loadContext();
         logVisitor(FlagshipLogManager.Tag.UNAUTHENTICATE);
     }
 
@@ -214,7 +216,7 @@ public class Visitor extends AbstractVisitor implements IVisitor {
     public String toString() {
         JSONObject json = new JSONObject();
         json.put("visitorId", visitorId);
-        json.put("anonymousId", anonymousId);
+        json.put("anonymousId", (anonymousId != null) ? anonymousId : JSONObject.NULL);
         json.put("context", getContextAsJson());
         json.put("modifications", getModificationsAsJson());
         return json.toString(2);
@@ -224,7 +226,7 @@ public class Visitor extends AbstractVisitor implements IVisitor {
     protected JSONObject getContextAsJson() {
         JSONObject contextJson = new JSONObject();
         for (HashMap.Entry<String, Object> e : context.entrySet()) {
-            contextJson.put(e.getKey(), e.getValue());
+            contextJson.put(e.getKey(), (e.getValue() != null) ? e.getValue() : JSONObject.NULL);
         }
         return contextJson;
     }

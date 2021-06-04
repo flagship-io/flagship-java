@@ -22,18 +22,18 @@ public class FlagControllerInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
-
-        log.info("FlagInterceptor - prehandler BEGIN");
-
-        final com.springboot.model.Visitor visitorAttribute = (com.springboot.model.Visitor) request.getSession().getAttribute(Vis);
-
-        visitor = Flagship.newVisitor(visitorAttribute.getVisitor_id(), false, visitorAttribute.getContext());
-
-        visitor.synchronizeModifications().get();
-
-        request.setAttribute("Visitor", visitor);
-
-        log.info("FlagInterceptor - prehandler ENDS");
+//
+//        log.info("FlagInterceptor - prehandler BEGIN");
+//
+//        final com.springboot.model.Visitor visitorAttribute = (com.springboot.model.Visitor) request.getSession().getAttribute(Vis);
+//
+//        visitor = Flagship.newVisitor(visitorAttribute.getVisitor_id(), visitorAttribute.getAuthenticated(), visitorAttribute.getContext());
+//
+//        visitor.synchronizeModifications().get();
+//
+//        request.setAttribute("Visitor", visitor);
+//
+//        log.info("FlagInterceptor - prehandler ENDS");
 
         return true;
     }
@@ -41,16 +41,16 @@ public class FlagControllerInterceptor implements HandlerInterceptor {
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
                            ModelAndView modelAndView) throws Exception {
-        log.info("FlagInterceptor - posthandler");
-
-        HandlerInterceptor.super.postHandle(request, response, handler, modelAndView);
+//        log.info("FlagInterceptor - posthandler");
+//
+//        HandlerInterceptor.super.postHandle(request, response, handler, modelAndView);
     }
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
             throws Exception {
 
-        log.info("FlagInterceptor - afterCompleting");
-        HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
+//        log.info("FlagInterceptor - afterCompleting");
+//        HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
     }
 }

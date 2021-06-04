@@ -148,9 +148,14 @@
                     placeholder="Visitor ID"
                     v-model="visitorId"
             />
-            <small id="emailHelp" class="form-text text-muted"
-            >Set your Flagship Visitor ID.</small
-            >
+            <small id="emailHelp" class="form-text text-muted">Set your Flagship Visitor ID.</small>
+
+
+        </div>
+
+        <div class="form-group">
+            <label for="checkbox">Is authenticated </label>
+            <input type="checkbox" v-model="authenticated">
         </div>
 
         <div class="form-group">
@@ -158,7 +163,7 @@
             <textarea
                     class="form-control"
                     placeholder="Visitor Context"
-                    v-model="flagshipContext"
+                    v-model="context"
                     required
                     style="height: 200px;"
             ></textarea>
@@ -381,6 +386,33 @@
         >
             {{flagInfoOk}}
         </div>
+    </form>
+
+    <h2 class="mt-5">Authenticate</h2>
+    <br/>
+    <form v-on:submit.prevent="authenticate()">
+        <div class="row" style="align-items: center">
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <label>Logged-in visitor Id : </label>
+                    <input
+                            type="text"
+                            class="form-control"
+                            placeholder="New visitor id"
+                            v-model="newVisitorId"
+                    />
+                </div>
+            </div>
+        </div>
+        <div>
+            <button type="submit" class="btn btn-primary">Authenticate</button>
+        </div>
+    </form>
+
+    <h2 class="mt-5">Unauthenticate</h2>
+    <br/>
+    <form v-on:submit.prevent="unauthenticate()">
+        <button type="submit" class="btn btn-primary">Unauthenticate</button>
     </form>
 </div>
 <script

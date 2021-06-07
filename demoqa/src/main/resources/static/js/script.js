@@ -27,6 +27,7 @@ var app = new Vue({
         flagUpdateContext: {name: "", type: "bool", value: ""},
         flagInfoOk: false,
         flagshipMode: "api",
+        consent: true
     },
     methods: {
         getEnv() {
@@ -81,6 +82,7 @@ var app = new Vue({
                 .put("/visitor", {
                     visitor_id: this.visitorId,
                     authenticated: this.authenticated ? this.authenticated : false,
+                    consent: this.consent ? this.consent : false,
                     context: JSON.parse(this.context ? this.context : "{}"),
                 })
                 .then(

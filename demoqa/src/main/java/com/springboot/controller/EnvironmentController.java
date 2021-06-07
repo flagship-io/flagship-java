@@ -20,6 +20,8 @@ import com.springboot.model.Environment;
 
 import java.util.concurrent.TimeUnit;
 
+import static com.springboot.controller.VisitorController.VisitorConstant;
+
 @RestController
 public class EnvironmentController {
 
@@ -80,6 +82,7 @@ public class EnvironmentController {
     public Environment setEnvironment(@RequestBody Environment environmentModel, final HttpServletRequest request) {
 
         request.getSession().setAttribute(EnvironmentConstant, environmentModel);
+        request.getSession().setAttribute(VisitorConstant, null);
         LogHelper.clearLogFile();
         Flagship.start(environmentModel.getEnvironment_id(), environmentModel.getApi_key(), getFlagshipConfig(environmentModel));
         return environmentModel;

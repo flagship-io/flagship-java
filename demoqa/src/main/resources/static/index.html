@@ -154,8 +154,11 @@
         </div>
 
         <div class="form-group">
-            <label for="checkbox">Is authenticated </label>
-            <input type="checkbox" v-model="authenticated">
+            <label for="checkbox">Is authenticated : </label>
+            <input type="checkbox" style="vertical-align: middle" v-model="authenticated">
+
+            <label for="checkbox" style="margin-left: 50px">Has consented : </label>
+            <input type="checkbox" v-model="consent" style="vertical-align: middle" checked>
         </div>
 
         <div class="form-group">

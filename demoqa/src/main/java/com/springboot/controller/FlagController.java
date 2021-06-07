@@ -1,28 +1,19 @@
 package com.springboot.controller;
 
+import com.abtasty.flagship.visitor.Visitor;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import javax.servlet.http.HttpServletRequest;
-
-import com.springboot.interceptor.FlagControllerInterceptor;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.abtasty.flagship.visitor.Visitor;
-
-import static com.springboot.controller.VisitorController.VisitorAttribute;
+import static com.springboot.controller.VisitorController.VisitorConstant;
 
 @RestController
 public class FlagController {
-
-//    public Visitor visitor;
 
     @RequestMapping(method = RequestMethod.GET, value = "/flag/{flag_key}")
     public Object getFlag(HttpServletRequest request, @PathVariable String flag_key, @RequestParam String type, @RequestParam Boolean activate, @RequestParam String defaultValue) {
@@ -31,10 +22,8 @@ public class FlagController {
         String error = "";
         Map<String, Object> obj = new HashMap<String, Object>();
 
-//        visitor = (Visitor) request.getAttribute("Visitor");
-        Visitor visitor = (Visitor) request.getSession().getAttribute(VisitorAttribute);
+        Visitor visitor = (Visitor) request.getSession().getAttribute(VisitorConstant);
         switch (type) {
-
             case "bool":
                 flag = visitor.getModification(flag_key, Boolean.parseBoolean(defaultValue), activate);
                 break;
@@ -87,8 +76,7 @@ public class FlagController {
         JSONObject flagInfo = null;
         Map<String, Object> objInfo = new HashMap<String, Object>();
         Map flagInfoContent = new HashMap<String, Object>();
-//        visitor = (Visitor) request.getAttribute("Visitor");
-        Visitor visitor = (Visitor) request.getSession().getAttribute(VisitorAttribute);
+        Visitor visitor = (Visitor) request.getSession().getAttribute(VisitorConstant);
         flagInfo = visitor.getModificationInfo(flag_key);
 
         if (flagInfo == null) {
@@ -97,9 +85,7 @@ public class FlagController {
             flagInfoContent = flagInfo.toMap();
             objInfo.put("value", flagInfoContent);
         }
-
         return objInfo;
-
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/flag/{flag_key}/activate")
@@ -107,30 +93,21 @@ public class FlagController {
 
         JSONObject flagInfo = null;
         Map<String, Object> objInfo = new HashMap<String, Object>();
-//        visitor = (Visitor) request.getAttribute("Visitor");
-        Visitor visitor = (Visitor) request.getSession().getAttribute(VisitorAttribute);
+        Visitor visitor = (Visitor) request.getSession().getAttribute(VisitorConstant);
         flagInfo = visitor.getModificationInfo(flag_key);
 
         if (flagInfo != null) {
-
             visitor.activateModification(flag_key);
             objInfo.put("activateValue", "Activation sent.");
-
-        } else {
-
+        } else
             objInfo.put("activateValue", "Key not found, no activation sent.");
-
-        }
-
         return objInfo;
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/flag/{flag_key}/updateContext")
     public String getFlagUpdateContext(HttpServletRequest request, @PathVariable String flag_key, @RequestParam String type, @RequestParam String value) throws ExecutionException, InterruptedException {
 
-//        visitor = (Visitor) request.getAttribute("Visitor");
-        Visitor visitor = (Visitor) request.getSession().getAttribute(VisitorAttribute);
-
+        Visitor visitor = (Visitor) request.getSession().getAttribute(VisitorConstant);
         switch (type) {
 
             case "bool":
@@ -154,11 +131,7 @@ public class FlagController {
 
         }
         visitor.synchronizeModifications().get();
-
-//        com.springboot.model.Visitor visitorAttribute = (com.springboot.model.Visitor) request.getSession().getAttribute(FlagControllerInterceptor.Vis);
-//        visitorAttribute.setContext(new HashMap<>(visitor.getContext()));
-//        request.getSession().setAttribute(FlagControllerInterceptor.Vis, visitorAttribute);
-        request.getSession().setAttribute(VisitorAttribute, visitor);
+        request.getSession().setAttribute(VisitorConstant, visitor);
         return visitor.toString();
     }
 }

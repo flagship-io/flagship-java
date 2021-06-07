@@ -80,12 +80,8 @@ public class EnvironmentController {
     public Environment setEnvironment(@RequestBody Environment environmentModel, final HttpServletRequest request) {
 
         request.getSession().setAttribute(EnvironmentConstant, environmentModel);
-
         LogHelper.clearLogFile();
-
         Flagship.start(environmentModel.getEnvironment_id(), environmentModel.getApi_key(), getFlagshipConfig(environmentModel));
-
         return environmentModel;
-
     }
 }

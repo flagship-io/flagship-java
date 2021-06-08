@@ -68,6 +68,7 @@ public class BucketingManager extends DecisionManager {
             if (response.isSuccess(false)) {
                 last_modified = response.getResponseHeader("Last-Modified");
                 ArrayList<Campaign> campaigns = parseCampaignsResponse(response.getResponseContent());
+                System.out.println("ok Campaigns " + campaigns);
                 if (campaigns != null)
                     this.campaigns = campaigns;
             }

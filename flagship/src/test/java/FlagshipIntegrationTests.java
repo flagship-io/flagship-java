@@ -123,7 +123,7 @@ public class FlagshipIntegrationTests {
         }
         resetSingleton();
         try {
-            Thread.sleep(50);
+            Thread.sleep(100);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -1030,5 +1030,6 @@ public class FlagshipIntegrationTests {
 
         if (!anonymous2_latch.await(1, TimeUnit.SECONDS))
             fail();
+        visitor.synchronizeModifications().get();
     }
 }

@@ -84,11 +84,15 @@ public class BucketingManager extends DecisionManager {
     @Override
     public HashMap<String, Modification> getCampaignsModifications(VisitorDelegate visitor) {
         try {
+            System.out.println(" ok  1 ");
             if (campaigns != null) {
                 HashMap<String, Modification> campaignsModifications = new HashMap<>();
+                System.out.println(" ok  2 ");
                 for (Campaign campaign : campaigns) {
                     for (VariationGroup variationGroup : campaign.getVariationGroups()) {
+                        System.out.println(" ok  3");
                         if (variationGroup.isTargetingValid(new HashMap<>(visitor.getContext()))) {
+                            System.out.println(" ok  4 ");
                             Variation variation = variationGroup.selectVariation(visitor);
                             HashMap<String, Modification> modificationsValues = variation.getModificationsValues();
                             if (modificationsValues != null)

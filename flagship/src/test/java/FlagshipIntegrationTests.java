@@ -343,6 +343,7 @@ public class FlagshipIntegrationTests {
             JSONObject content = new JSONObject(request.getRequestContent());
             assertEquals(content.getString("vid"), "visitor_1");
             assertEquals(content.getString("cid"), "my_env_id");
+            System.out.println(" == \n " + content.toString() + "\n == ");
             if (content.getString("vaid").contains("xxxxxx65k9h02cuc1ae0") &&
                     content.getString("caid").contains("xxxxxxjh6h101fk8lbsg")) {
                 nbHit2.countDown();

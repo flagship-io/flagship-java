@@ -90,6 +90,7 @@ public class BucketingManager extends DecisionManager {
                 HashMap<String, Modification> campaignsModifications = new HashMap<>();
                 System.out.println(" ok  2 ");
                 for (Campaign campaign : campaigns) {
+                    System.out.println(" ok  2.5 variationGroups =  " + campaign.getVariationGroups());
                     for (VariationGroup variationGroup : campaign.getVariationGroups()) {
                         System.out.println(" ok  3");
                         if (variationGroup.isTargetingValid(new HashMap<>(visitor.getContext()))) {

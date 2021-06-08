@@ -106,4 +106,14 @@ public class VariationGroup implements Serializable {
             return null;
         }
     }
+
+    @Override
+    public String toString() {
+        return "VariationGroup{" +
+                "campaignId='" + campaignId + '\'' +
+                ", variationGroupId='" + variationGroupId + '\'' +
+                ", variations=" + variations +
+                ", targetingGroups=" + targetingGroups +
+                '}';
+    }
 }

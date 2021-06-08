@@ -51,7 +51,7 @@ public class Flagship {
         /**
          * Flagship SDK is ready but is running in Panic mode: All features are disabled except the one which refresh this status.
          */
-        PANIC_ON(0x20),
+        PANIC(0x20),
         /**
          * Flagship SDK is ready to use.
          */

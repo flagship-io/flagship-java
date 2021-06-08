@@ -26,7 +26,7 @@ public class ApiManager extends DecisionManager {
     @Override
     public void setStatusListener(Flagship.StatusListener statusListener) {
         super.setStatusListener(statusListener);
-        if (Flagship.getStatus().lessThan(Flagship.Status.READY)) //todo check condition
+        if (Flagship.getStatus().lessThan(Flagship.Status.READY))
             statusListener.onStatusChanged(Flagship.Status.READY);
     }
 

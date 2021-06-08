@@ -12,7 +12,7 @@ public final class FlagshipConstants {
     public static class Warnings {
         public static final String VISITOR_ID_NULL_OR_EMPTY = "Visitor identifier must not be null or empty. A UUID has been generated.";
         public static final String VISITOR_STATUS_NOT_READY = "New visitor '%s' has been created while SDK status is %s. Feature management will only be possible when SDK status is READY.";
-        public static final String PANIC = "Panic mode is on.";
+        public static final String PANIC = "Panic mode is enabled : all feature are disabled except synchronization.";
         public static final String CONTEXT_VALUE_OVERRIDING = "key '%s' is overriding a predefined flagship value";
     }
 

@@ -16,7 +16,7 @@ public abstract class AbstractVisitor {
     public      abstract    String                      getAnonymousId();
     protected   abstract    void                        setAnonymousId(String anonymousId);
     public      abstract    HashMap<String, Object>     getContext();
-    protected   abstract    void                        loadContext();
+    protected   abstract    void                        loadContext(HashMap<String, Object> context);
     public      abstract    Boolean                     hasConsented();
     public      abstract    void                        setConsent(Boolean hasConsented);
     protected   abstract    void                        logVisitor(FlagshipLogManager.Tag tag);

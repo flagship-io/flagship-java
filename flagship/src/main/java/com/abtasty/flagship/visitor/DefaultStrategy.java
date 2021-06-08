@@ -57,9 +57,10 @@ class DefaultStrategy extends VisitorStrategy {
     @Override
     public void clearContext() {
         visitorDelegate.getVisitorContext().clear();
-        visitorDelegate.loadContext();
+        visitorDelegate.loadContext(null);
     }
 
+    @Override
     protected void sendContextRequest() {
         ConfigManager configManager = visitorDelegate.getConfigManager();
         TrackingManager trackingManager = configManager.getTrackingManager();
@@ -73,7 +74,6 @@ class DefaultStrategy extends VisitorStrategy {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 visitorDelegate.updateModifications(decisionManager.getCampaignsModifications(visitorDelegate));
-                sendContextRequest();
             } catch (Exception e) {
                 FlagshipLogManager.exception(e);
             }

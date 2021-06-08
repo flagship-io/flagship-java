@@ -16,4 +16,6 @@ abstract class VisitorStrategy implements IVisitor {
     protected void logMethodDeactivatedError(FlagshipLogManager.Tag tag, String methodName) {
         FlagshipLogManager.log(tag, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.METHOD_DEACTIVATED_ERROR, methodName, Flagship.getStatus()));
     }
+
+    abstract void sendContextRequest();
 }

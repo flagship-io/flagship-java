@@ -14,8 +14,8 @@ import java.util.ArrayList;
 public abstract class DecisionManager implements IDecisionManager, IFlagshipEndpoints {
 
     protected final     FlagshipConfig<?>              config;
-    private             boolean                             panic           = false;
-    protected           Flagship.StatusListener             statusListener  = null;
+    private             boolean                        panic           = false;
+    protected           Flagship.StatusListener        statusListener  = null;
 
     public DecisionManager(FlagshipConfig<?> config) {
         this.config = config;
@@ -26,11 +26,11 @@ public abstract class DecisionManager implements IDecisionManager, IFlagshipEndp
             try {
                 JSONObject json = new JSONObject(content);
                 panic = json.has("panic");
-                if (!panic)
+                if (!panic) {
+                    updateFlagshipStatus(Flagship.Status.READY);
                     return Campaign.parse(json.getJSONArray("campaigns"));
-                else {
-                    if (statusListener != null)
-                        statusListener.onStatusChanged(Flagship.Status.PANIC_ON);
+                } else {
+                    updateFlagshipStatus(Flagship.Status.PANIC);
                     FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, LogManager.Level.WARNING, FlagshipConstants.Warnings.PANIC);
                 }
             } catch (Exception e) {
@@ -38,6 +38,11 @@ public abstract class DecisionManager implements IDecisionManager, IFlagshipEndp
             }
         }
         return null;
+    }
+
+    private void updateFlagshipStatus(Flagship.Status newStatus) {
+        if (statusListener != null && Flagship.getStatus() != newStatus)
+            statusListener.onStatusChanged(newStatus);
     }
 
     public boolean isPanic() {

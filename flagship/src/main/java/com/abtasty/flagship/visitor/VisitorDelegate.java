@@ -27,9 +27,9 @@ public class VisitorDelegate extends AbstractVisitor implements IVisitor {
     }
 
     private VisitorStrategy getStrategy() {
-        if (Flagship.getStatus().lessThan(Flagship.Status.PANIC_ON))
+        if (Flagship.getStatus().lessThan(Flagship.Status.PANIC))
             return new NotReadyStrategy(this);
-        else if (Flagship.getStatus() == Flagship.Status.PANIC_ON)
+        else if (Flagship.getStatus() == Flagship.Status.PANIC)
             return new PanicStrategy(this);
         else if (!visitor.hasConsented())
             return new NoConsentStrategy(this);
@@ -125,6 +125,10 @@ public class VisitorDelegate extends AbstractVisitor implements IVisitor {
         }
     }
 
+    public void sendContextRequest() {
+        getStrategy().sendContextRequest();
+    }
+
     /*
      *  Visitor abstract methods.
      */
@@ -185,7 +189,7 @@ public class VisitorDelegate extends AbstractVisitor implements IVisitor {
     }
 
     @Override
-    protected void loadContext() {
-        this.visitor.loadContext();
+    protected void loadContext(HashMap<String, Object> newContext) {
+        this.visitor.loadContext(newContext);
     }
 }

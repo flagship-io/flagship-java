@@ -70,16 +70,10 @@ public class BucketingManager extends DecisionManager {
                 ArrayList<Campaign> campaigns = parseCampaignsResponse(response.getResponseContent());
                 if (campaigns != null)
                     this.campaigns = campaigns;
-                updateFlagshipStatus();
             }
         } catch (Exception e) {
             FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, LogManager.Level.ERROR, e.getMessage());
         }
-    }
-
-    private void updateFlagshipStatus() {
-        if (statusListener != null && Flagship.getStatus() != Flagship.Status.READY)
-            statusListener.onStatusChanged(Flagship.Status.READY);
     }
 
     public void stop() {
@@ -103,6 +97,7 @@ public class BucketingManager extends DecisionManager {
                         }
                     }
                 }
+                visitor.sendContextRequest();
                 return campaignsModifications;
             }
         } catch (Exception e) {

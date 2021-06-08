@@ -10,6 +10,7 @@ import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
 import org.json.JSONObject;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,8 +38,7 @@ public class Visitor extends AbstractVisitor implements IVisitor {
     public Visitor(ConfigManager managers, String visitorId, boolean isAuthenticated, HashMap<String, Object> context) {
         this.configManager = managers;
         this.visitorId = (visitorId == null || visitorId.length() <= 0) ? genVisitorId() : visitorId;
-        this.loadContext();
-        this.updateContext(context);
+        this.loadContext(context);
         if (configManager.getFlagshipConfig().getDecisionMode() == Flagship.DecisionMode.API && isAuthenticated)
             this.anonymousId = genVisitorId();
         else
@@ -106,14 +106,14 @@ public class Visitor extends AbstractVisitor implements IVisitor {
     @Override
     public void authenticate(String visitorId) {
         new VisitorDelegate(this).authenticate(visitorId);
-        loadContext();
+        loadContext(null);
         logVisitor(FlagshipLogManager.Tag.AUTHENTICATE);
     }
 
     @Override
     public void unauthenticate() {
         new VisitorDelegate(this).unauthenticate();
-        loadContext();
+        loadContext(null);
         logVisitor(FlagshipLogManager.Tag.UNAUTHENTICATE);
     }
 
@@ -132,9 +132,15 @@ public class Visitor extends AbstractVisitor implements IVisitor {
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
-    protected void loadContext() {
+    protected void loadContext(HashMap<String, Object> context) {
+        VisitorDelegate delegate = new VisitorDelegate(this);
+        if (context != null) {
+            for (Map.Entry<String, Object> e : context.entrySet()) {
+                delegate.updateContext(e.getKey(), e.getValue());
+            }
+        }
         if (FlagshipContext.autoLoading) {
-            VisitorDelegate delegate = new VisitorDelegate(this);
+
             for (FlagshipContext flagshipContext : FlagshipContext.ALL) {
                 delegate.updateContext(flagshipContext, flagshipContext.load(delegate));
             }

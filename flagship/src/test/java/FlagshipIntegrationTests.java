@@ -605,7 +605,7 @@ public class FlagshipIntegrationTests {
             campaignCall.getAndAdd(1);
         });
         visitor.synchronizeModifications();
-        Thread.sleep(200);
+        Thread.sleep(20);
         assertEquals(1, campaignCall.get());
     }
 
@@ -796,6 +796,7 @@ public class FlagshipIntegrationTests {
 
     @Test
     public void bucketing() throws InterruptedException, ExecutionException {
+        System.out.println(this.getClass().getPackage());
         mockResponse("https://cdn.flagship.io/my_env_id/bucketing.json", 200, FlagshipIntegrationConstants.bucketingResponse);
         verifyRequest("https://cdn.flagship.io/my_env_id/bucketing.json", new OnRequestValidation() {
             @Override
@@ -822,6 +823,7 @@ public class FlagshipIntegrationTests {
         Visitor visitor2 = Flagship.newVisitor("visitor_2", false, new HashMap<String, Object>() {{
             put("ab10_enabled", true);
         }});
+        System.out.println("SYNCHRONIZE");
         visitor1.synchronizeModifications().get();
         assertEquals(9, visitor1.getModification("ab10_variation", 0));
         assertEquals("xxxxxxc3fk9jdb020ukg", visitor1.getModificationInfo("ab10_variation").getString("campaignId"));

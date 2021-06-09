@@ -26,23 +26,28 @@ public abstract class DecisionManager implements IDecisionManager, IFlagshipEndp
             try {
                 JSONObject json = new JSONObject(content);
                 panic = json.has("panic");
-                if (!panic) {
-                    updateFlagshipStatus(Flagship.Status.READY);
+                System.out.println("ok C ");
+                if (!panic)
                     return Campaign.parse(json.getJSONArray("campaigns"));
-                } else {
-                    updateFlagshipStatus(Flagship.Status.PANIC);
-                    FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, LogManager.Level.WARNING, FlagshipConstants.Warnings.PANIC);
-                }
+//                else {
+//                    System.out.println("ok E ");
+//                    updateFlagshipStatus(Flagship.Status.PANIC);
+//                    FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, LogManager.Level.WARNING, FlagshipConstants.Warnings.PANIC);
+//                }
             } catch (Exception e) {
+                System.out.println("ok F ");
                 FlagshipLogManager.log(FlagshipLogManager.Tag.PARSING, LogManager.Level.ERROR, FlagshipConstants.Errors.PARSING_CAMPAIGN_ERROR);
             }
         }
+        System.out.println("ok G ");
         return null;
     }
 
-    private void updateFlagshipStatus(Flagship.Status newStatus) {
+    protected void updateFlagshipStatus(Flagship.Status newStatus) {
         if (statusListener != null && Flagship.getStatus() != newStatus)
             statusListener.onStatusChanged(newStatus);
+        if (newStatus == Flagship.Status.PANIC)
+            FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, LogManager.Level.WARNING, FlagshipConstants.Warnings.PANIC);
     }
 
     public boolean isPanic() {

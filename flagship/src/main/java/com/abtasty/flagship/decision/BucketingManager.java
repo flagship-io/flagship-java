@@ -65,12 +65,9 @@ public class BucketingManager extends DecisionManager {
             Response response = HttpManager.getInstance().sendHttpRequest(HttpManager.RequestType.GET,
                     String.format(BUCKETING, config.getEnvId()), headers, null, config.getTimeout());
             logResponse(response);
-            System.out.println("ok A ");
             if (response.isSuccess(false)) {
-                System.out.println("ok B");
                 last_modified = response.getResponseHeader("Last-Modified");
                 ArrayList<Campaign> campaigns = parseCampaignsResponse(response.getResponseContent());
-                System.out.println("ok Campaigns " + campaigns);
                 if (campaigns != null)
                     this.campaigns = campaigns;
                 updateFlagshipStatus(isPanic() ? Flagship.Status.PANIC : Flagship.Status.READY);
@@ -88,16 +85,11 @@ public class BucketingManager extends DecisionManager {
     @Override
     public HashMap<String, Modification> getCampaignsModifications(VisitorDelegate visitor) {
         try {
-            System.out.println(" ok  1 ");
             if (campaigns != null) {
                 HashMap<String, Modification> campaignsModifications = new HashMap<>();
-                System.out.println(" ok  2 ");
                 for (Campaign campaign : campaigns) {
-                    System.out.println(" ok  2.5 variationGroups =  " + campaign.getVariationGroups());
                     for (VariationGroup variationGroup : campaign.getVariationGroups()) {
-                        System.out.println(" ok  3");
                         if (variationGroup.isTargetingValid(new HashMap<>(visitor.getContext()))) {
-                            System.out.println(" ok  4 ");
                             Variation variation = variationGroup.selectVariation(visitor);
                             HashMap<String, Modification> modificationsValues = variation.getModificationsValues();
                             if (modificationsValues != null)

@@ -5,6 +5,8 @@ import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
 
+import java.util.HashMap;
+
 abstract class VisitorStrategy implements IVisitor {
 
     protected VisitorDelegate visitorDelegate;
@@ -18,4 +20,6 @@ abstract class VisitorStrategy implements IVisitor {
     }
 
     abstract void sendContextRequest();
+
+    abstract void loadContext(HashMap<String, Object> context);
 }

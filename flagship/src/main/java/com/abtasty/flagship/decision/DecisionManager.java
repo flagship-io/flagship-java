@@ -26,20 +26,12 @@ public abstract class DecisionManager implements IDecisionManager, IFlagshipEndp
             try {
                 JSONObject json = new JSONObject(content);
                 panic = json.has("panic");
-                System.out.println("ok C ");
                 if (!panic)
                     return Campaign.parse(json.getJSONArray("campaigns"));
-//                else {
-//                    System.out.println("ok E ");
-//                    updateFlagshipStatus(Flagship.Status.PANIC);
-//                    FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, LogManager.Level.WARNING, FlagshipConstants.Warnings.PANIC);
-//                }
             } catch (Exception e) {
-                System.out.println("ok F ");
                 FlagshipLogManager.log(FlagshipLogManager.Tag.PARSING, LogManager.Level.ERROR, FlagshipConstants.Errors.PARSING_CAMPAIGN_ERROR);
             }
         }
-        System.out.println("ok G ");
         return null;
     }
 

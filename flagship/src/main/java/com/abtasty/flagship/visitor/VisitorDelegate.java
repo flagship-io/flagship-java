@@ -190,6 +190,6 @@ public class VisitorDelegate extends AbstractVisitor implements IVisitor {
 
     @Override
     protected void loadContext(HashMap<String, Object> newContext) {
-        this.visitor.loadContext(newContext);
+        getStrategy().loadContext(newContext);
     }
 }

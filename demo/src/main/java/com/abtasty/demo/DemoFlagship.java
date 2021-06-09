@@ -16,7 +16,7 @@ public class DemoFlagship {
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
 
-        Visitor visitor1 = Flagship.newVisitor("toto", false, new HashMap<String, Object>() {{ put("age", 32);}});
+//        Visitor visitor1 = Flagship.newVisitor("toto", false, new HashMap<String, Object>() {{ put("age", 32);}});
 //
 //        visitor1.synchronizeModifications().get();
 //
@@ -33,7 +33,9 @@ public class DemoFlagship {
                         })
         );
         flagshipReadyLatch.await();
-
+        Visitor visitor1 = Flagship.newVisitor("toto", false, new HashMap<String, Object>() {{ put("age", 32);}});
+        Visitor visitor2 = Flagship.newVisitor("toto2", false, new HashMap<String, Object>() {{ put("age", 32);}});
+        visitor2.updateContext("haha", 4);
         visitor1.updateContext("fs_client", "pas java");
 //        visitor1.updateContext(FlagshipContext.LOCATION_LAT, 3.2);
         visitor1.updateContext("coucou", 1);

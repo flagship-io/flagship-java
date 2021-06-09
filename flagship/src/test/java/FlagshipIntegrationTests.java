@@ -343,7 +343,6 @@ public class FlagshipIntegrationTests {
             JSONObject content = new JSONObject(request.getRequestContent());
             assertEquals(content.getString("vid"), "visitor_1");
             assertEquals(content.getString("cid"), "my_env_id");
-            System.err.println(" == \n " + content.toString() + "\n == ");
             if (content.getString("vaid").contains("xxxxxx65k9h02cuc1ae0") &&
                     content.getString("caid").contains("xxxxxxjh6h101fk8lbsg")) {
                 nbHit2.countDown();
@@ -796,7 +795,6 @@ public class FlagshipIntegrationTests {
 
     @Test
     public void bucketing() throws InterruptedException, ExecutionException {
-        System.out.println(this.getClass().getPackage());
         mockResponse("https://cdn.flagship.io/my_env_id/bucketing.json", 200, FlagshipIntegrationConstants.bucketingResponse);
         verifyRequest("https://cdn.flagship.io/my_env_id/bucketing.json", new OnRequestValidation() {
             @Override
@@ -823,7 +821,6 @@ public class FlagshipIntegrationTests {
         Visitor visitor2 = Flagship.newVisitor("visitor_2", false, new HashMap<String, Object>() {{
             put("ab10_enabled", true);
         }});
-        System.out.println("SYNCHRONIZE");
         visitor1.synchronizeModifications().get();
         assertEquals(9, visitor1.getModification("ab10_variation", 0));
         assertEquals("xxxxxxc3fk9jdb020ukg", visitor1.getModificationInfo("ab10_variation").getString("campaignId"));

@@ -130,21 +130,9 @@ public class Visitor extends AbstractVisitor implements IVisitor {
         return UUID.randomUUID().toString();
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     protected void loadContext(HashMap<String, Object> context) {
-        VisitorDelegate delegate = new VisitorDelegate(this);
-        if (context != null) {
-            for (Map.Entry<String, Object> e : context.entrySet()) {
-                delegate.updateContext(e.getKey(), e.getValue());
-            }
-        }
-        if (FlagshipContext.autoLoading) {
-
-            for (FlagshipContext flagshipContext : FlagshipContext.ALL) {
-                delegate.updateContext(flagshipContext, flagshipContext.load(delegate));
-            }
-        }
+       new VisitorDelegate(this).loadContext(context);
     }
 
     /*

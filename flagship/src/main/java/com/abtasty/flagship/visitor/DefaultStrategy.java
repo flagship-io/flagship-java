@@ -14,6 +14,7 @@ import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
 import org.json.JSONObject;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentMap;
 
@@ -167,6 +168,21 @@ class DefaultStrategy extends VisitorStrategy {
         } else {
             FlagshipLogManager.log(FlagshipLogManager.Tag.UNAUTHENTICATE, LogManager.Level.ERROR,
                     String.format(FlagshipConstants.Errors.AUTHENTICATION_BUCKETING_ERROR, "unauthenticate"));
+        }
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    @Override
+    void loadContext(HashMap<String, Object> context) {
+        if (context != null) {
+            for (Map.Entry<String, Object> e : context.entrySet()) {
+                visitorDelegate.updateContext(e.getKey(), e.getValue());
+            }
+        }
+        if (FlagshipContext.autoLoading) {
+            for (FlagshipContext flagshipContext : FlagshipContext.ALL) {
+                visitorDelegate.updateContext(flagshipContext, flagshipContext.load(visitorDelegate));
+            }
         }
     }
 }

@@ -1,23 +1,18 @@
 package com.springboot.controller;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
-
+import com.abtasty.flagship.main.Flagship;
+import com.abtasty.flagship.main.FlagshipConfig;
+import com.abtasty.flagship.utils.LogManager;
+import com.springboot.model.Environment;
 import com.springboot.service.LogHelper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-
 import org.springframework.web.bind.annotation.RestController;
-
-import com.abtasty.flagship.main.Flagship;
-import com.abtasty.flagship.main.FlagshipConfig;
-import com.abtasty.flagship.utils.LogManager;
-import com.springboot.model.Environment;
-
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.concurrent.TimeUnit;
 
 import static com.springboot.controller.VisitorController.VisitorConstant;
@@ -31,7 +26,6 @@ public class EnvironmentController {
     public ResponseEntity<Environment> getEnvironment(final HttpSession session) {
 
         final Environment environmentAttribute = (Environment) session.getAttribute(EnvironmentConstant);
-
         return new ResponseEntity<Environment>(environmentAttribute, HttpStatus.OK);
     }
 

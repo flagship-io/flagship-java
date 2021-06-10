@@ -1,5 +1,5 @@
 plugins {
-	id 'org.springframework.boot' version '2.4.4'
+	id 'org.springframework.boot' version '2.5.0'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 	id 'java'
 }
@@ -14,10 +14,10 @@ repositories {
 dependencies {
 	implementation project(':flagship')
 	implementation group: 'org.json', name: 'json', version: '20201115'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.session:spring-session-core'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	implementation 'org.springframework.boot:spring-boot-starter-web:2.5.0'
+	implementation 'org.springframework.session:spring-session-core:2.5.0'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools:2.5.0'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test:2.5.0'
 }
 
 test {

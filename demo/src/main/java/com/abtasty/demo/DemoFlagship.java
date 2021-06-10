@@ -39,6 +39,7 @@ public class DemoFlagship {
         visitor1.updateContext("fs_client", "pas java");
 //        visitor1.updateContext(FlagshipContext.LOCATION_LAT, 3.2);
         visitor1.updateContext("coucou", 1);
+        visitor1.updateContext(FlagshipContext.OS_NAME, "Android");
 //
         visitor1.synchronizeModifications().get();
 //

@@ -103,35 +103,4 @@ public class FlagController {
             objInfo.put("activateValue", "Key not found, no activation sent.");
         return objInfo;
     }
-
-    @RequestMapping(method = RequestMethod.GET, value = "/flag/{flag_key}/updateContext")
-    public String getFlagUpdateContext(HttpServletRequest request, @PathVariable String flag_key, @RequestParam String type, @RequestParam String value) throws ExecutionException, InterruptedException {
-
-        Visitor visitor = (Visitor) request.getSession().getAttribute(VisitorConstant);
-        switch (type) {
-
-            case "bool":
-                visitor.updateContext(flag_key, Boolean.parseBoolean(value));
-                break;
-            case "string":
-                visitor.updateContext(flag_key, value);
-                break;
-            case "double":
-                visitor.updateContext(flag_key, Double.parseDouble(value));
-                break;
-            case "long":
-                visitor.updateContext(flag_key, Long.parseLong(value));
-                break;
-            case "int":
-                visitor.updateContext(flag_key, Integer.parseInt(value));
-                break;
-            case "float":
-                visitor.updateContext(flag_key, Float.parseFloat(value));
-                break;
-
-        }
-        visitor.synchronizeModifications().get();
-        request.getSession().setAttribute(VisitorConstant, visitor);
-        return visitor.toString();
-    }
 }

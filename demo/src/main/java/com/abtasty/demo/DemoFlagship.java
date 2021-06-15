@@ -6,6 +6,8 @@ import com.abtasty.flagship.main.FlagshipConfig;
 import com.abtasty.flagship.utils.FlagshipContext;
 import com.abtasty.flagship.utils.LogManager;
 import com.abtasty.flagship.visitor.Visitor;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
@@ -33,24 +35,13 @@ public class DemoFlagship {
                         })
         );
         flagshipReadyLatch.await();
-        Visitor visitor1 = Flagship.newVisitor("toto", false, new HashMap<String, Object>() {{ put("age", 32);}});
+        Visitor visitor1 = Flagship.newVisitor("taze", false, new HashMap<String, Object>() {{ put("age", 32);}});
         Visitor visitor2 = Flagship.newVisitor("toto2", false, new HashMap<String, Object>() {{ put("age", 32);}});
-        visitor2.updateContext("haha", 4);
-        visitor1.updateContext("fs_client", "pas java");
-//        visitor1.updateContext(FlagshipContext.LOCATION_LAT, 3.2);
-        visitor1.updateContext("coucou", 1);
-        visitor1.updateContext(FlagshipContext.OS_NAME, "Android");
-//
         visitor1.synchronizeModifications().get();
-//
-//        visitor1.activateModification("activate");
-//        visitor1.setConsent(true);
-//        visitor1.authenticate("connecté");
-//
-//        visitor1.synchronizeModifications().get();
-//
-//        visitor1.activateModification("isref");
-        visitor1.sendHit(new Page("https://www.page.com"));
+        JSONObject array = visitor1.getModification("json", new JSONObject(), true);
+//        System.out.println(visitor1.getModification("all_users", 0, true));
+        System.out.println("Json : " + array);
+        System.out.println("String : " +  visitor1.getModification("string", null, true));
         Thread.sleep(10000);
     }
 

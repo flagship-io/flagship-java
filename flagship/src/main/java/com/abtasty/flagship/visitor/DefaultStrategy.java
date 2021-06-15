@@ -8,11 +8,12 @@ import com.abtasty.flagship.hits.Hit;
 import com.abtasty.flagship.main.ConfigManager;
 import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.model.Modification;
-import com.abtasty.flagship.utils.FlagshipContext;
 import com.abtasty.flagship.utils.FlagshipConstants;
+import com.abtasty.flagship.utils.FlagshipContext;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
 import org.json.JSONObject;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -97,7 +98,7 @@ class DefaultStrategy extends VisitorStrategy {
                 FlagshipLogManager.log(FlagshipLogManager.Tag.GET_MODIFICATION, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_MISSING_ERROR, key));
             } else {
                 Modification modification = visitorModifications.get(key);
-                T castValue = (T) ((modification.getValue() != null) ? modification.getValue() : defaultValue);
+                T castValue = (T) ((modification.isReference() && modification.getValue() == null) ? defaultValue : modification.getValue());
                 if (defaultValue == null || castValue == null || castValue.getClass().equals(defaultValue.getClass())) {
                     if (activate)
                         this.activateModification(modification);

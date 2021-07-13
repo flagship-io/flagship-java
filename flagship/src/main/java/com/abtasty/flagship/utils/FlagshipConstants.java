@@ -3,6 +3,7 @@ package com.abtasty.flagship.utils;
 public final class FlagshipConstants {
 
     public static class Info {
+
         public static final String READY = "Flagship SDK (version: %s) READY";
         public static final String BUCKETING_INTERVAL = "Polling event.";
         public static final String NEW_ALLOCATION = "Variation %s selected with allocation %d.";
@@ -10,6 +11,7 @@ public final class FlagshipConstants {
     }
 
     public static class Warnings {
+
         public static final String VISITOR_ID_NULL_OR_EMPTY = "Visitor identifier must not be null or empty. A UUID has been generated.";
         public static final String VISITOR_STATUS_NOT_READY = "New visitor '%s' has been created while SDK status is %s. Feature management will only be possible when SDK status is READY.";
         public static final String PANIC = "Panic mode is enabled : all feature are disabled except synchronization.";
@@ -17,6 +19,7 @@ public final class FlagshipConstants {
     }
 
     public static class Errors {
+
         public static final String INITIALIZATION_PARAM_ERROR = "Params 'envId' and 'apiKey' must not be null.";
         public static final String INITIALIZATION_PARAM_ERROR_CONFIG = "Param 'config' must not be null.";
         public static final String ERROR = "error";
@@ -46,51 +49,54 @@ public final class FlagshipConstants {
     }
 
     public static class HitKeyMap {
-        public static final String TYPE= "t";
-        public static final String CLIENT_ID= "cid";
-        public static final String VISITOR_ID= "vid";
-        public static final String ANONYMOUS_ID= "aid";
-        public static final String CUSTOM_VISITOR_ID= "cuid";
-        public static final String DATA_SOURCE= "ds";
-        public static final String APP= "APP";
 
-        public static final String VARIATION_GROUP_ID= "caid";
-        public static final String VARIATION_ID= "vaid";
+        public static final String TYPE = "t";
+        public static final String CLIENT_ID = "cid";
+        public static final String VISITOR_ID = "vid";
+        public static final String ANONYMOUS_ID = "aid";
+        public static final String CUSTOM_VISITOR_ID = "cuid";
+        public static final String DATA_SOURCE = "ds";
+        public static final String APP = "APP";
 
-        public static final String DOCUMENT_LOCATION= "dl";
+        public static final String VARIATION_GROUP_ID = "caid";
+        public static final String VARIATION_ID = "vaid";
+
+        public static final String DOCUMENT_LOCATION = "dl";
         //        TITLE= "pt";
-        public static String DOCUMENT= "dr";
+        public static String DOCUMENT = "dr";
 
-        public static final String TRANSACTION_ID= "tid";
-        public static final String TRANSACTION_AFFILIATION= "ta";
-        public static final String TRANSACTION_REVENUE= "tr";
-        public static final String TRANSACTION_SHIPPING= "ts";
-        public static final String TRANSACTION_TAX= "tt";
-        public static final String TRANSACTION_CURRENCY= "tc";
-        public static final String TRANSACTION_PAYMENT_METHOD= "pm";
-        public static final String TRANSACTION_SHIPPING_METHOD= "sm";
-        public static final String TRANSACTION_ITEM_COUNT= "icn";
-        public static final String TRANSACTION_COUPON= "tcc";
+        public static final String TRANSACTION_ID = "tid";
+        public static final String TRANSACTION_AFFILIATION = "ta";
+        public static final String TRANSACTION_REVENUE = "tr";
+        public static final String TRANSACTION_SHIPPING = "ts";
+        public static final String TRANSACTION_TAX = "tt";
+        public static final String TRANSACTION_CURRENCY = "tc";
+        public static final String TRANSACTION_PAYMENT_METHOD = "pm";
+        public static final String TRANSACTION_SHIPPING_METHOD = "sm";
+        public static final String TRANSACTION_ITEM_COUNT = "icn";
+        public static final String TRANSACTION_COUPON = "tcc";
 
-        public static final String ITEM_NAME= "in";
-        public static final String ITEM_PRICE= "ip";
-        public static final String ITEM_QUANTITY= "iq";
-        public static final String ITEM_CODE= "ic";
-        public static final String ITEM_CATEGORY= "iv";
+        public static final String ITEM_NAME = "in";
+        public static final String ITEM_PRICE = "ip";
+        public static final String ITEM_QUANTITY = "iq";
+        public static final String ITEM_CODE = "ic";
+        public static final String ITEM_CATEGORY = "iv";
 
-        public static final String EVENT_CATEGORY= "ec";
-        public static final String EVENT_ACTION= "ea";
-        public static final String EVENT_LABEL= "el";
-        public static final String EVENT_VALUE= "ev";
+        public static final String EVENT_CATEGORY = "ec";
+        public static final String EVENT_ACTION = "ea";
+        public static final String EVENT_LABEL = "el";
+        public static final String EVENT_VALUE = "ev";
 
-        public static final String DEVICE_RESOLUTION= "sr";
-        public static final String DEVICE_LOCALE= "ul";
-        public static String TIMESTAMP= "cst";
-        public static final String SESSION_NUMBER= "sn";
-        public static final String IP= "uip";
-        public static String QUEUE_TIME= "qt";
+        public static final String DEVICE_RESOLUTION = "sr";
+        public static final String DEVICE_LOCALE = "ul";
+        public static String TIMESTAMP = "cst";
+        public static final String SESSION_NUMBER = "sn";
+        public static final String IP = "uip";
+        public static String QUEUE_TIME = "qt";
 
-        public static String HIT_BATCH= "h";
+        public static String HIT_BATCH = "h";
+
+        public static String CONSENT = "co";
+        public static String CONSENT_MECHANISM = "me";
     }
-
 }

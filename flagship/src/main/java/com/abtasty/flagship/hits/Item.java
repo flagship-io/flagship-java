@@ -22,16 +22,32 @@ public class Item extends Hit<Item> {
         }
     }
 
+    /**
+     * Specifies the item price (optional)
+     *
+     * @param price item price
+     *
+     */
     public Item withItemPrice(float price) {
         this.data.put(FlagshipConstants.HitKeyMap.ITEM_PRICE, price);
         return this;
     }
 
+    /**
+     * Specifies the number of item purchased (optional)
+     *
+     * @param quantity nb of item
+     */
     public Item withItemQuantity(int quantity) {
         this.data.put(FlagshipConstants.HitKeyMap.ITEM_QUANTITY, quantity);
         return this;
     }
 
+    /**
+     * Specifies the item category (optional)
+     *
+     * @param category name of the item category
+     */
     public Item withItemCategory(String category) {
         if (category != null)
             this.data.put(FlagshipConstants.HitKeyMap.ITEM_CATEGORY, category);

@@ -4,6 +4,7 @@ import com.abtasty.flagship.api.HttpManager;
 import com.abtasty.flagship.api.TrackingManager;
 import com.abtasty.flagship.decision.DecisionManager;
 import com.abtasty.flagship.hits.Activate;
+import com.abtasty.flagship.hits.Consent;
 import com.abtasty.flagship.hits.Hit;
 import com.abtasty.flagship.main.ConfigManager;
 import com.abtasty.flagship.main.Flagship;
@@ -137,6 +138,13 @@ class DefaultStrategy extends VisitorStrategy {
     @Override
     public void activateModification(String key) {
         this.getModification(key, null, true);
+    }
+
+    @Override
+    void sendConsent() {
+        TrackingManager trackingManager = visitorDelegate.getConfigManager().getTrackingManager();
+        if (trackingManager != null)
+            trackingManager.sendHit(visitorDelegate, new Consent(visitorDelegate.hasConsented()));
     }
 
     @Override

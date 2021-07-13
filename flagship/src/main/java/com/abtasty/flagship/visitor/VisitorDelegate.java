@@ -165,7 +165,7 @@ public class VisitorDelegate extends AbstractVisitor implements IVisitor {
 
     @Override
     public void setConsent(Boolean hasConsented) {
-        visitor.setConsent(hasConsented);
+        getStrategy().sendConsent();
     }
 
     @Override

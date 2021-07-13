@@ -34,12 +34,22 @@ public class Event extends Hit<Event> {
         }
     }
 
+    /**
+     * Specifies a label for this event (optional)
+     *
+     * @param label label of the event
+     */
     public Event withEventLabel(String label) {
         if (label != null)
             this.data.put(FlagshipConstants.HitKeyMap.EVENT_LABEL, label);
         return this;
     }
 
+    /**
+     * Specifies a value for this event. must be non-negative. (optional)
+     *
+     * @param value value of the event
+     */
     public Event withEventValue(Number value) {
         if (value != null)
             this.data.put(FlagshipConstants.HitKeyMap.EVENT_VALUE, value);

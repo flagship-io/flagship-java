@@ -118,11 +118,23 @@ public class Flagship {
     }
 
     /**
-     * Create a new visitor with a context.
+     * Create a new visitor without context.
      *
      * @param visitorId : Unique visitor identifier.
      * @param context   : visitor context.
+     * @return Visitor
+     */
+    public static Visitor newVisitor(String visitorId, HashMap<String, Object> context) {
+        return newVisitor(visitorId, false, context);
+    }
+
+
+    /**
+     * Create a new visitor with a context.
+     *
+     * @param visitorId : Unique visitor identifier.
      * @param isAuthenticated : Boolean to specify if the visitor is authenticated or anonymous.
+     * @param context   : visitor context.
      * @return Visitor
      */
     public static Visitor newVisitor(String visitorId, boolean isAuthenticated, HashMap<String, Object> context) {

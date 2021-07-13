@@ -6,7 +6,7 @@ import org.json.JSONObject;
 
 public abstract class Hit<T> {
 
-    enum Type { SCREENVIEW, PAGEVIEW, TRANSACTION, ITEM, EVENT, ACTIVATION, BATCH }
+    enum Type { SCREENVIEW, PAGEVIEW, TRANSACTION, ITEM, EVENT, ACTIVATION, BATCH, CONSENT }
 
     private         Type        type;
     protected final JSONObject  data = new JSONObject();

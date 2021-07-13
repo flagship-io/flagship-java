@@ -38,6 +38,7 @@ public class DemoFlagship {
         Visitor visitor1 = Flagship.newVisitor("taze", false, new HashMap<String, Object>() {{ put("age", 32);}});
         Visitor visitor2 = Flagship.newVisitor("toto2", false, new HashMap<String, Object>() {{ put("age", 32);}});
         visitor1.synchronizeModifications().get();
+        visitor1.setConsent(true);
         JSONObject array = visitor1.getModification("json", new JSONObject(), true);
 //        System.out.println(visitor1.getModification("all_users", 0, true));
         System.out.println("Json : " + array);

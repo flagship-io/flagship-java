@@ -197,6 +197,7 @@ public class Visitor extends AbstractVisitor implements IVisitor {
     @Override
     public void setConsent(Boolean hasConsented) {
         this.hasConsented = hasConsented;
+        new VisitorDelegate(this).setConsent(hasConsented);
         //clear visitor data if no consent.
     }
 

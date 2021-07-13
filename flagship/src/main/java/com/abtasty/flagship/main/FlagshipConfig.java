@@ -83,7 +83,7 @@ public abstract class FlagshipConfig<T> {
      */
     @SuppressWarnings("unchecked")
     public T withLogLevel(LogManager.Level level) {
-        if (level != null) {
+        if (level != null && logManager != null) {
             this.logLevel = level;
             this.logManager.setLevel(this.logLevel);
         }
@@ -186,6 +186,12 @@ public abstract class FlagshipConfig<T> {
             super.withDecisionMode(Flagship.DecisionMode.BUCKETING);
         }
 
+        /**
+         * Define time interval between two bucketing updates. Default is 60 seconds. MICROSECONDS and NANOSECONDS Unit are ignored.
+         * @param time time value.
+         * @param timeUnit time unit.
+         * @return FlagshipConfig
+         */
         public Bucketing withPollingIntervals(long time, TimeUnit timeUnit) {
             return super.withBucketingPollingIntervals(time, timeUnit);
         }

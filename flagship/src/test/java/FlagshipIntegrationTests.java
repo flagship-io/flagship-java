@@ -890,6 +890,7 @@ public class FlagshipIntegrationTests {
                 }));
         assertEquals(Flagship.getStatus(), Flagship.Status.POLLING);
         Visitor visitor_1 = Flagship.newVisitor("visitor_1");
+        visitor_1.setConsent(true);
         visitor_1.updateContext("age", 32);
         visitor_1.synchronizeModifications().get();
         assertEquals(0, latchNotInitialized.getCount());
@@ -899,9 +900,11 @@ public class FlagshipIntegrationTests {
         visitor_1.activateModification("key");
         visitor_1.synchronizeModifications().get();
         assertEquals(0, consentDeactivatedLog.getCount());
+        System.out.println("_ _ _ _ _");
         visitor_1.setConsent(true);
         visitor_1.synchronizeModifications().get();
-        Thread.sleep(1000);
+        boolean toZero = contextLatch.await(1500, TimeUnit.MILLISECONDS);
+        assertFalse(toZero);
         assertEquals(3, contextLatch.getCount());
     }
 

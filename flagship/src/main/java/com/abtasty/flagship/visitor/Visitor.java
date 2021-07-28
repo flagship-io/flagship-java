@@ -1,6 +1,7 @@
 package com.abtasty.flagship.visitor;
 
 import com.abtasty.flagship.hits.Hit;
+import com.abtasty.flagship.hits.Consent;
 import com.abtasty.flagship.main.ConfigManager;
 import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.model.Modification;
@@ -10,7 +11,6 @@ import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
 import org.json.JSONObject;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,18 +28,80 @@ public class Visitor extends AbstractVisitor implements IVisitor {
     protected       ConcurrentMap<String, Modification>     modifications = new ConcurrentHashMap<>();
     protected       Boolean                                 hasConsented = true;
 
+
+    /**
+     * This class represents a Visitor builder.
+     *
+     * Use Flagship.visitorBuilder() method to instantiate it.
+     */
+    public static class Builder {
+
+        private final ConfigManager         configManager;
+        private final String                visitorId;
+        private boolean                     isAuthenticated = false;
+        private boolean                     hasConsented = true;
+        private  HashMap<String, Object>    context = null;
+
+        public Builder(ConfigManager configManager, String visitorId) {
+            this.configManager = configManager;
+            this.visitorId = visitorId;
+        }
+
+        /**
+         * Specify if the visitor is authenticated or anonymous.
+         *
+         * @param isAuthenticated boolean, true for an authenticated visitor, false for an anonymous visitor.
+         * @return Builder
+         */
+        public Builder isAuthenticated(boolean isAuthenticated) {
+            this.isAuthenticated = isAuthenticated;
+            return this;
+        }
+
+        /**
+         * Specify if the visitor has consented for personal data usage. When false some features will be deactivated, cache will be deactivated and cleared.
+         *
+         * @param hasConsented @param hasConsented Set to true when the visitor has consented, false otherwise.
+         * @return Builder
+         */
+        public Builder hasConsented(boolean hasConsented) {
+            this.hasConsented = hasConsented;
+            return this;
+        }
+
+        /**
+         * Specify visitor initial context key / values used for targeting.
+         * Context keys must be String, and values types must be one of the following : Number, Boolean, String.
+         * @param context : Initial context.
+         * @return Builder
+         */
+        public Builder context(HashMap<String, Object> context) {
+            this.context = context;
+            return this;
+        }
+
+        /**
+         * Create a new visitor.
+         * @return Visitor
+         */
+        public Visitor build() {
+            return new Visitor(configManager, visitorId, isAuthenticated, hasConsented, context);
+        }
+    }
+
     /**
      * Create a new visitor.
      *
-     * @param managers      configured managers.
+     * @param configManager configured managers.
      * @param visitorId     visitor unique identifier.
      * @param context       visitor context.
      */
-    public Visitor(ConfigManager managers, String visitorId, boolean isAuthenticated, HashMap<String, Object> context) {
-        this.configManager = managers;
+    Visitor(ConfigManager configManager, String visitorId, boolean isAuthenticated, boolean hasConsented, HashMap<String, Object> context) {
+        this.configManager = configManager;
         this.visitorId = (visitorId == null || visitorId.length() <= 0) ? genVisitorId() : visitorId;
+        this.hasConsented = hasConsented;
         this.loadContext(context);
-        if (configManager.getFlagshipConfig().getDecisionMode() == Flagship.DecisionMode.API && isAuthenticated)
+        if (this.configManager.getFlagshipConfig().getDecisionMode() == Flagship.DecisionMode.API && isAuthenticated)
             this.anonymousId = genVisitorId();
         else
             this.anonymousId = null;
@@ -191,11 +253,12 @@ public class Visitor extends AbstractVisitor implements IVisitor {
     }
 
     /**
-     * Set visitor consent for private data usage. When false some features will be deactivated, cache will be deactivated and cleared.
+     * Specify if the visitor has consented for personal data usage. When false some features will be deactivated, cache will be deactivated and cleared.
      * @param hasConsented Set to true when the visitor has consented, false otherwise.
      */
     @Override
     public void setConsent(Boolean hasConsented) {
+        sendHit(new Consent(hasConsented));
         this.hasConsented = hasConsented;
         new VisitorDelegate(this).setConsent(hasConsented);
         //clear visitor data if no consent.

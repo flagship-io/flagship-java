@@ -229,7 +229,7 @@ public class FlagshipContext<T> {
 
         @Override
         public String load(VisitorDelegate visitorDelegate) {
-            return visitorDelegate.getId();
+            return visitorDelegate.getVisitorId();
         }
     };
 

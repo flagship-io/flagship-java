@@ -46,7 +46,7 @@ public class VariationGroup implements Serializable {
         if (variations != null) {
             //todo load variation from cache except if no consent
             int p = 0;
-            int murmurAllocation = MurmurHash.getAllocationFromMurmur(variationGroupId, visitor.getId());
+            int murmurAllocation = MurmurHash.getAllocationFromMurmur(variationGroupId, visitor.getVisitorId());
             for (Map.Entry<String, Variation> e : variations.entrySet()) {
                 Variation variation = e.getValue();
                 p += variation.getAllocation();

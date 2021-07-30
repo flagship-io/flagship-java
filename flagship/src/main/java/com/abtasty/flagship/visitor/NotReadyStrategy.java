@@ -19,7 +19,7 @@ class NotReadyStrategy extends DefaultStrategy {
     @Override
     public CompletableFuture<Visitor> synchronizeModifications() {
         logMethodDeactivatedError(FlagshipLogManager.Tag.SYNCHRONIZE, "synchronizeModifications()");
-        return CompletableFuture.completedFuture(visitorDelegate.getOriginalVisitor());
+        return CompletableFuture.completedFuture(visitorDelegate.getVisitor());
     }
 
     @Override
@@ -51,7 +51,7 @@ class NotReadyStrategy extends DefaultStrategy {
     }
 
     @Override
-    protected void sendContextRequest() { }//do nothing
+    public void sendContextRequest() { }//do nothing
 
     //call default sendConsent
 

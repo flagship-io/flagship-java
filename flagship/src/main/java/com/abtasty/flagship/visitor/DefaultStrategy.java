@@ -64,10 +64,10 @@ class DefaultStrategy extends VisitorStrategy {
     }
 
     @Override
-    protected void sendContextRequest() {
+    public void sendContextRequest() {
         ConfigManager configManager = visitorDelegate.getConfigManager();
         TrackingManager trackingManager = configManager.getTrackingManager();
-        trackingManager.sendContextRequest(configManager.getFlagshipConfig().getEnvId(), visitorDelegate.getId(), visitorDelegate.getContext());
+        trackingManager.sendContextRequest(configManager.getFlagshipConfig().getEnvId(), visitorDelegate.getVisitorId(), visitorDelegate.getContext());
     }
 
     @Override
@@ -80,7 +80,7 @@ class DefaultStrategy extends VisitorStrategy {
             } catch (Exception e) {
                 FlagshipLogManager.exception(e);
             }
-            return visitorDelegate.getOriginalVisitor();
+            return visitorDelegate.getVisitor();
         }, HttpManager.getInstance().getThreadPoolExecutor()).whenCompleteAsync((instance, error) -> visitorDelegate.logVisitor(FlagshipLogManager.Tag.SYNCHRONIZE));
     }
 
@@ -91,7 +91,7 @@ class DefaultStrategy extends VisitorStrategy {
 
     @SuppressWarnings("unchecked")
     public <T> T getModification(String key, T defaultValue, boolean activate) {
-        ConcurrentMap<String, Modification> visitorModifications = visitorDelegate.getVisitorModifications();
+        ConcurrentMap<String, Modification> visitorModifications = visitorDelegate.getModifications();
         try {
             if (key == null) {
                 FlagshipLogManager.log(FlagshipLogManager.Tag.GET_MODIFICATION, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_KEY_ERROR, "null"));
@@ -115,7 +115,7 @@ class DefaultStrategy extends VisitorStrategy {
 
     @Override
     public JSONObject getModificationInfo(String key) {
-        ConcurrentMap<String, Modification> visitorModifications = visitorDelegate.getVisitorModifications();
+        ConcurrentMap<String, Modification> visitorModifications = visitorDelegate.getModifications();
         if (key == null || !visitorModifications.containsKey(key)) {
             FlagshipLogManager.log(FlagshipLogManager.Tag.GET_MODIFICATION_INFO, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_INFO_ERROR, key));
             return null;
@@ -141,7 +141,7 @@ class DefaultStrategy extends VisitorStrategy {
     }
 
     @Override
-    void sendConsent() {
+    public void sendConsentRequest() {
         TrackingManager trackingManager = visitorDelegate.getConfigManager().getTrackingManager();
         if (trackingManager != null)
             trackingManager.sendHit(visitorDelegate, new Consent(visitorDelegate.hasConsented()));
@@ -158,8 +158,8 @@ class DefaultStrategy extends VisitorStrategy {
     public void authenticate(String visitorId) {
         if (visitorDelegate.getConfigManager().isDecisionMode(Flagship.DecisionMode.API)) {
             if (visitorDelegate.getAnonymousId() == null)
-                visitorDelegate.setAnonymousId(visitorDelegate.getId());
-            visitorDelegate.setId(visitorId);
+                visitorDelegate.setAnonymousId(visitorDelegate.getVisitorId());
+            visitorDelegate.setVisitorId(visitorId);
         } else {
             FlagshipLogManager.log(FlagshipLogManager.Tag.AUTHENTICATE, LogManager.Level.ERROR,
                     String.format(FlagshipConstants.Errors.AUTHENTICATION_BUCKETING_ERROR, "authenticate"));
@@ -171,7 +171,7 @@ class DefaultStrategy extends VisitorStrategy {
     public void unauthenticate() {
         if (visitorDelegate.getConfigManager().isDecisionMode(Flagship.DecisionMode.API)) {
             if (visitorDelegate.getAnonymousId() != null) {
-                visitorDelegate.setId(visitorDelegate.getAnonymousId());
+                visitorDelegate.setVisitorId(visitorDelegate.getAnonymousId());
                 visitorDelegate.setAnonymousId(null);
             }
         } else {
@@ -180,17 +180,28 @@ class DefaultStrategy extends VisitorStrategy {
         }
     }
 
+    @Override
+    public void setConsent(Boolean hasConsented) {
+        visitorDelegate.hasConsented = hasConsented;
+        sendConsentRequest();
+    }
+
+    @Override
+    public Boolean hasConsented() {
+        return visitorDelegate.hasConsented();
+    }
+
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     void loadContext(HashMap<String, Object> context) {
         if (context != null) {
             for (Map.Entry<String, Object> e : context.entrySet()) {
-                visitorDelegate.updateContext(e.getKey(), e.getValue());
+                this.updateContext(e.getKey(), e.getValue());
             }
         }
         if (FlagshipContext.autoLoading) {
             for (FlagshipContext flagshipContext : FlagshipContext.ALL) {
-                visitorDelegate.updateContext(flagshipContext, flagshipContext.load(visitorDelegate));
+                this.updateContext(flagshipContext, flagshipContext.load(visitorDelegate));
             }
         }
     }

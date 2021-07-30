@@ -24,20 +24,20 @@ class NoConsentStrategy extends DefaultStrategy {
     @Override
     public <T> T getModification(String key, T defaultValue, boolean activate) {
         if (activate)
-            logMethodDeactivatedError(FlagshipLogManager.Tag.ACTIVATE, visitorDelegate.getId(), "activateModification()");
+            logMethodDeactivatedError(FlagshipLogManager.Tag.ACTIVATE, visitorDelegate.getVisitorId(), "activateModification()");
         return super.getModification(key, defaultValue, false);
     }
 
     @Override
     public void activateModification(String key) {
-        logMethodDeactivatedError(FlagshipLogManager.Tag.ACTIVATE,  visitorDelegate.getId(),"activateModification()");
+        logMethodDeactivatedError(FlagshipLogManager.Tag.ACTIVATE,  visitorDelegate.getVisitorId(),"activateModification()");
     }
 
     @Override
     public <T> void sendHit(Hit<T> hit) {
-        logMethodDeactivatedError(FlagshipLogManager.Tag.TRACKING,  visitorDelegate.getId(),"sendHit()");
+        logMethodDeactivatedError(FlagshipLogManager.Tag.TRACKING,  visitorDelegate.getVisitorId(),"sendHit()");
     }
 
     @Override
-    protected void sendContextRequest() { }       //do nothing
+    public void sendContextRequest() { }       //do nothing
 }

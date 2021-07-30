@@ -34,7 +34,8 @@ public class VisitorController {
 
     @RequestMapping(method = RequestMethod.PUT, value = "/visitor")
     public String setVisitor(@RequestBody com.springboot.model.Visitor visitorModel, final HttpServletRequest request) throws InterruptedException, ExecutionException {
-        Visitor visitor = Flagship.newVisitor(visitorModel.getVisitor_id(), visitorModel.getAuthenticated(), visitorModel.getContext());
+        Visitor visitor = Flagship.visitorBuilder(visitorModel.getVisitor_id()).isAuthenticated( visitorModel.getAuthenticated()).context( visitorModel.getContext()).build();
+//        Visitor visitor = Flagship.newVisitor(visitorModel.getVisitor_id(), visitorModel.getAuthenticated(), visitorModel.getContext());
         visitor.setConsent(visitorModel.isConsent());
         visitor.synchronizeModifications().get();
         request.getSession().setAttribute(VisitorConstant, visitor);

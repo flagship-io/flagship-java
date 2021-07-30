@@ -37,7 +37,7 @@ public class ApiManager extends DecisionManager {
             put("x-sdk-client", "java");
             put("x-sdk-version", BuildConfig.flagship_version_name);
         }};
-        json.put("visitorId", visitor.getId());
+        json.put("visitorId", visitor.getVisitorId());
         json.put("anonymousId", visitor.getAnonymousId());
         json.put("trigger_hit", false);
         json.put("context", visitor.getContextAsJson());

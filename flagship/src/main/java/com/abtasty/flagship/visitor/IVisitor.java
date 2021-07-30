@@ -109,4 +109,17 @@ public interface IVisitor {
     @SuppressWarnings("SpellCheckingInspection")
     void unauthenticate();
 
+    /**
+     * Specify if the visitor has consented for personal data usage. When false some features will be deactivated, cache will be deactivated and cleared.
+     * @param hasConsented Set to true when the visitor has consented, false otherwise.
+     */
+    void setConsent(Boolean hasConsented);
+
+    /**
+     * Return if the visitor has given his consent for private data usage.
+     * @return return a true if the visitor has given consent, false otherwise.
+     */
+    Boolean hasConsented();
+
+
 }

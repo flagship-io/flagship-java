@@ -24,11 +24,11 @@ public class TrackingManager implements IFlagshipEndpoints {
         headers.put("x-sdk-client", "java");
         headers.put("x-sdk-version", BuildConfig.flagship_version_name);
         JSONObject data = hit.getData();
-        if (!visitor.getId().isEmpty() && visitor.getAnonymousId() != null) {
+        if (!visitor.getVisitorId().isEmpty() && visitor.getAnonymousId() != null) {
             data.put(FlagshipConstants.HitKeyMap.ANONYMOUS_ID, visitor.getAnonymousId());
-            data.put(FlagshipConstants.HitKeyMap.VISITOR_ID, visitor.getId());
-        } else if (!visitor.getId().isEmpty() && visitor.getAnonymousId() == null) {
-            data.put(FlagshipConstants.HitKeyMap.VISITOR_ID, visitor.getId());
+            data.put(FlagshipConstants.HitKeyMap.VISITOR_ID, visitor.getVisitorId());
+        } else if (!visitor.getVisitorId().isEmpty() && visitor.getAnonymousId() == null) {
+            data.put(FlagshipConstants.HitKeyMap.VISITOR_ID, visitor.getVisitorId());
             data.put(FlagshipConstants.HitKeyMap.ANONYMOUS_ID, JSONObject.NULL);
         } else {
             data.put(FlagshipConstants.HitKeyMap.VISITOR_ID, visitor.getAnonymousId());
@@ -44,11 +44,11 @@ public class TrackingManager implements IFlagshipEndpoints {
         else {
             if (hit.checkData()) {
                 JSONObject data = hit.getData();
-                if (!visitor.getId().isEmpty() && visitor.getAnonymousId() != null) {
-                    data.put(FlagshipConstants.HitKeyMap.CUSTOM_VISITOR_ID, visitor.getId());
+                if (!visitor.getVisitorId().isEmpty() && visitor.getAnonymousId() != null) {
+                    data.put(FlagshipConstants.HitKeyMap.CUSTOM_VISITOR_ID, visitor.getVisitorId());
                     data.put(FlagshipConstants.HitKeyMap.VISITOR_ID, visitor.getAnonymousId());
-                } else if (!visitor.getId().isEmpty() && visitor.getAnonymousId() == null) {
-                    data.put(FlagshipConstants.HitKeyMap.VISITOR_ID, visitor.getId());
+                } else if (!visitor.getVisitorId().isEmpty() && visitor.getAnonymousId() == null) {
+                    data.put(FlagshipConstants.HitKeyMap.VISITOR_ID, visitor.getVisitorId());
                     data.put(FlagshipConstants.HitKeyMap.CUSTOM_VISITOR_ID, JSONObject.NULL);
                 } else {
                     data.put(FlagshipConstants.HitKeyMap.VISITOR_ID, visitor.getAnonymousId());

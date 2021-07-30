@@ -150,7 +150,8 @@ public class FlagshipIntegrationTests {
 
         Flagship.start("my_env_id", "my_api_key");
         assertSame(Flagship.getStatus(), Flagship.Status.READY);
-        assertNotNull(Flagship.newVisitor("test"));
+        assertNotNull(Flagship.visitorBuilder("test").build());
+//        assertNotNull(Flagship.newVisitor("test"));
         assertNotNull(Flagship.getConfig());
         assertEquals(Flagship.getConfig().getEnvId(), "my_env_id");
         assertEquals(Flagship.getConfig().getApiKey(), "my_api_key");
@@ -199,10 +200,14 @@ public class FlagshipIntegrationTests {
         Flagship.start("my_env_id", "my_api_key", new FlagshipConfig.DecisionApi()
                 .withLogManager(new CustomLogManager(LogManager.Level.ALL)));
 
-        Visitor visitor0 = Flagship.newVisitor(null);
+        Visitor visitor0 = Flagship.visitorBuilder(null).build();
         assertNotNull(visitor0);
 
-        visitor0 = Flagship.newVisitor("visitor_0", false, null);
+//        visitor0 = Flagship.newVisitor("visitor_0", false, null);
+        visitor0 = Flagship.visitorBuilder("visitor_0")
+                .isAuthenticated(false)
+                .context(null)
+                .build();
         HashMap<String, Object> context0 = visitor0.getContext();
         assertNotNull(visitor0);
         assertEquals(3, context0.size());
@@ -211,16 +216,28 @@ public class FlagshipIntegrationTests {
         assertEquals(context0.get("fs_users"), "visitor_0");
 
         Visitor finalVisitor = visitor0;
-        Visitor visitor1 = Flagship.newVisitor("visitor_1", false, new HashMap<String, Object>() {{
-            put("boolean", true);
-            put("int", 32);
-            put("float", 3.14);
-            put("double", 3.14d);
-            put("String", "String");
-            put("json_object", new JSONObject("{\"key\":\"value\"}"));
-            put("json_array", new JSONArray("[\"key\",\"value\"]"));
-            put("wrong", finalVisitor);
-        }});
+//        Visitor visitor1 = Flagship.newVisitor("visitor_1", false, new HashMap<String, Object>() {{
+//            put("boolean", true);
+//            put("int", 32);
+//            put("float", 3.14);
+//            put("double", 3.14d);
+//            put("String", "String");
+//            put("json_object", new JSONObject("{\"key\":\"value\"}"));
+//            put("json_array", new JSONArray("[\"key\",\"value\"]"));
+//            put("wrong", finalVisitor);
+//        }});
+        Visitor visitor1 = Flagship.visitorBuilder("visitor_1")
+                .isAuthenticated(false)
+                .context(new HashMap<String, Object>() {{
+                    put("boolean", true);
+                    put("int", 32);
+                    put("float", 3.14);
+                    put("double", 3.14d);
+                    put("String", "String");
+                    put("json_object", new JSONObject("{\"key\":\"value\"}"));
+                    put("json_array", new JSONArray("[\"key\",\"value\"]"));
+                    put("wrong", finalVisitor);
+                }}).build();
         assertNotNull(visitor1);
         visitor1.updateContext("wrong2", new Response(0, "", "", null));
         visitor1.updateContext("key1", "value1");
@@ -272,10 +289,15 @@ public class FlagshipIntegrationTests {
             CountDownLatch synchronizeLatch = new CountDownLatch(1);
             Flagship.start("my_env_id", "my_api_key");
             assertEquals(Flagship.getStatus(), Flagship.Status.READY);
-            Visitor visitor = Flagship.newVisitor("visitor_1", false, new HashMap<String, Object>() {{
-                put("vip", true);
-                put("age", 32);
-            }});
+//            Visitor visitor = Flagship.newVisitor("visitor_1", false, new HashMap<String, Object>() {{
+//                put("vip", true);
+//                put("age", 32);
+//            }});
+            Visitor visitor = Flagship.visitorBuilder("visitor_1")
+                    .context(new HashMap<String, Object>() {{
+                        put("vip", true);
+                        put("age", 32);
+                    }}).build();
             assert visitor != null;
             visitor.synchronizeModifications().whenComplete((Void, error) -> {
                 assertEquals(visitor.getModification("isref", "default"), "not a all");
@@ -302,11 +324,17 @@ public class FlagshipIntegrationTests {
         });
 
         Flagship.start("my_env_id", "my_api_key");
-        Visitor visitor = Flagship.newVisitor("visitor_1", false, new HashMap<String, Object>() {{
-            put("isVIPUser", true);
-            put("age", 32);
-            put("daysSinceLastLaunch", 2);
-        }});
+//        Visitor visitor = Flagship.newVisitor("visitor_1", false, new HashMap<String, Object>() {{
+//            put("isVIPUser", true);
+//            put("age", 32);
+//            put("daysSinceLastLaunch", 2);
+//        }});
+        Visitor visitor = Flagship.visitorBuilder("visitor_1")
+                .context(new HashMap<String, Object>() {{
+                    put("isVIPUser", true);
+                    put("age", 32);
+                    put("daysSinceLastLaunch", 2);
+                }}).build();
 
         try {
             CountDownLatch synchronizeLatch = new CountDownLatch(1);
@@ -369,7 +397,8 @@ public class FlagshipIntegrationTests {
     @Test
     public void screenHit() {
         Flagship.start("my_env_id", "my_api_key");
-        Visitor visitor = Flagship.newVisitor("visitor_1");
+        Visitor visitor = Flagship.visitorBuilder("visitor_1").build();
+//        Visitor visitor = Flagship.newVisitor("visitor_1");
 
         mockResponse("https://ariane.abtasty.com", 200, "");
 
@@ -407,7 +436,8 @@ public class FlagshipIntegrationTests {
     @Test
     public void pageHit() {
         Flagship.start("my_env_id", "my_api_key");
-        Visitor visitor = Flagship.newVisitor("visitor_1");
+        Visitor visitor = Flagship.visitorBuilder("visitor_1").build();
+//        Visitor visitor = Flagship.newVisitor("visitor_1");
 
         /////////////////// TEST PAGE HIT //////////////////
         mockResponse("https://ariane.abtasty.com", 200, "");
@@ -437,7 +467,7 @@ public class FlagshipIntegrationTests {
     @Test
     public void eventHit() {
         Flagship.start("my_env_id", "my_api_key");
-        Visitor visitor = Flagship.newVisitor("visitor_1");
+        Visitor visitor = Flagship.visitorBuilder("visitor_1").build();
 
         /////////////////// TEST EVENT HIT //////////////////
         mockResponse("https://ariane.abtasty.com", 200, "");
@@ -473,7 +503,7 @@ public class FlagshipIntegrationTests {
     @Test
     public void transactionHit() {
         Flagship.start("my_env_id", "my_api_key");
-        Visitor visitor = Flagship.newVisitor("visitor_1");
+        Visitor visitor = Flagship.visitorBuilder("visitor_1").build();
 
         /////////////////// TEST TRANSACTION HIT //////////////////
         mockResponse("https://ariane.abtasty.com", 200, "");
@@ -521,7 +551,7 @@ public class FlagshipIntegrationTests {
     @Test
     public void itemHit() {
         Flagship.start("my_env_id", "my_api_key");
-        Visitor visitor = Flagship.newVisitor("visitor_1");
+        Visitor visitor = Flagship.visitorBuilder("visitor_1").build();
 
         /////////////////// TEST ITEM HIT //////////////////
         mockResponse("https://ariane.abtasty.com", 200, "");
@@ -578,11 +608,17 @@ public class FlagshipIntegrationTests {
         });
 
         Flagship.start("my_env_id", "my_api_key");
-        Visitor visitor = Flagship.newVisitor("visitor_1", false, new HashMap<String, Object>() {{
-            put("isVIPUser", true);
-            put("age", 32);
-            put("daysSinceLastLaunch", 2);
-        }});
+//        Visitor visitor = Flagship.newVisitor("visitor_1", false, new HashMap<String, Object>() {{
+//            put("isVIPUser", true);
+//            put("age", 32);
+//            put("daysSinceLastLaunch", 2);
+//        }});
+        Visitor visitor = Flagship.visitorBuilder("visitor_1")
+                .context(new HashMap<String, Object>() {{
+                    put("isVIPUser", true);
+                    put("age", 32);
+                    put("daysSinceLastLaunch", 2);
+                }}).build();
         visitor.synchronizeModifications().whenComplete((Void, error) -> {
             visitor.updateContext("hello", "world");
             assertFalse(visitor.getContext().containsKey("hello"));
@@ -618,11 +654,12 @@ public class FlagshipIntegrationTests {
         });
 
         Flagship.start("my_env_id", "my_api_key");
-        Visitor visitor = Flagship.newVisitor("visitor_1", false, new HashMap<String, Object>() {{
-            put("isVIPUser", true);
-            put("age", 32);
-            put("daysSinceLastLaunch", 2);
-        }});
+        Visitor visitor = Flagship.visitorBuilder("visitor_1")
+                .context(new HashMap<String, Object>() {{
+                    put("isVIPUser", true);
+                    put("age", 32);
+                    put("daysSinceLastLaunch", 2);
+                }}).build();
         visitor.synchronizeModifications().whenComplete((Void, error) -> {
             latch.countDown();
         });
@@ -653,11 +690,11 @@ public class FlagshipIntegrationTests {
         });
 
         Flagship.start("my_env_id", "my_api_key");
-        Visitor visitor = Flagship.newVisitor("visitor_1", false, new HashMap<String, Object>() {{
+        Visitor visitor = Flagship.visitorBuilder("visitor_1").context(new HashMap<String, Object>() {{
             put("isVIPUser", true);
             put("age", 32);
             put("daysSinceLastLaunch", 2);
-        }});
+        }}).build();
         visitor.synchronizeModifications().whenComplete((Void, error) -> {
             latch.countDown();
         });
@@ -815,12 +852,16 @@ public class FlagshipIntegrationTests {
                 }));
         if (!readyLatch.await(2, TimeUnit.SECONDS))
             fail();
-        Visitor visitor1 = Flagship.newVisitor("visitor_1", false, new HashMap<String, Object>() {{
-            put("ab10_enabled", true);
-        }});
-        Visitor visitor2 = Flagship.newVisitor("visitor_2", false, new HashMap<String, Object>() {{
-            put("ab10_enabled", true);
-        }});
+        Visitor visitor1 = Flagship.visitorBuilder("visitor_1")
+                .context(new HashMap<String, Object>() {{
+                    put("ab10_enabled", true);
+                }})
+                .build();
+        Visitor visitor2 = Flagship.visitorBuilder("visitor_2")
+                .context(new HashMap<String, Object>() {{
+                    put("ab10_enabled", true);
+                }})
+                .build();
         visitor1.synchronizeModifications().get();
         assertEquals(9, visitor1.getModification("ab10_variation", 0));
         assertEquals("xxxxxxc3fk9jdb020ukg", visitor1.getModificationInfo("ab10_variation").getString("campaignId"));
@@ -889,18 +930,17 @@ public class FlagshipIntegrationTests {
                     }
                 }));
         assertEquals(Flagship.getStatus(), Flagship.Status.POLLING);
-        Visitor visitor_1 = Flagship.newVisitor("visitor_1");
+        Visitor visitor_1 = Flagship.visitorBuilder("visitor_1").build();
         visitor_1.setConsent(true);
         visitor_1.updateContext("age", 32);
         visitor_1.synchronizeModifications().get();
-        assertEquals(0, latchNotInitialized.getCount());
+        assertEquals(1, latchNotInitialized.getCount()); //only consent
         assertEquals(0, synchronizeDeactivatedLog.getCount());
         readyLatch.await();
         visitor_1.setConsent(false);
         visitor_1.activateModification("key");
         visitor_1.synchronizeModifications().get();
-        assertEquals(0, consentDeactivatedLog.getCount());
-        System.out.println("_ _ _ _ _");
+        assertEquals(1, consentDeactivatedLog.getCount()); //consent
         visitor_1.setConsent(true);
         visitor_1.synchronizeModifications().get();
         boolean toZero = contextLatch.await(1500, TimeUnit.MILLISECONDS);
@@ -923,11 +963,12 @@ public class FlagshipIntegrationTests {
 
         //anonymous
         Flagship.start("my_env_id", "my_api_key");
-        Visitor visitor = Flagship.newVisitor("logged_out", false, new HashMap<String, Object>() {{
-            put("isVIPUser", true);
-            put("age", 32);
-            put("daysSinceLastLaunch", 2);
-        }});
+        Visitor visitor = Flagship.visitorBuilder("logged_out")
+                .context(new HashMap<String, Object>() {{
+                    put("isVIPUser", true);
+                    put("age", 32);
+                    put("daysSinceLastLaunch", 2);
+                }}).build();
         visitor.synchronizeModifications().get();
 
 

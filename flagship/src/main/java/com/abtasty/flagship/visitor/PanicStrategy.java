@@ -66,7 +66,7 @@ class PanicStrategy extends DefaultStrategy {
     }
 
     @Override
-    protected void sendContextRequest() { }       //do nothing
+    public void sendContextRequest() { }       //do nothing
 
     @Override
     protected void loadContext(HashMap<String, Object> context) { } // do nothing

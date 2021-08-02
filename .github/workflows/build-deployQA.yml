@@ -19,6 +19,8 @@ jobs:
       - name: Change submodule branch
         run: |
           cd ./demoqa/src/main/resources/static/
+          cat .git
+          git remote update
           git remote -v
           git fetch
           git fetch --all

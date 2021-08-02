@@ -20,6 +20,7 @@ jobs:
         run: |
           cd ./demoqa/src/main/resources/static/
           cat .git
+          cat ../../../../../.git/modules/demoqa/src/main/resources/static/config
           git remote update
           git remote -v
           git fetch

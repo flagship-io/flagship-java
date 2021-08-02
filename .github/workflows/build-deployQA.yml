@@ -22,7 +22,9 @@ jobs:
         run: chmod +x gradlew
         working-directory: ./demoqa
       - name: change branch
-        run: sed -i 's/%branch%/${{ steps.extract_branch.outputs.branch }}/g' ./src/main/resources/static/index.html
+        run: |
+          pwd
+          sed -i 's/%branch%/${{ steps.extract_branch.outputs.branch }}/g' ./src/main/resources/static/index.html
         working-directory: ./demoqa
       # - name: Gradle wrapper
       #   run: gradle wrapper

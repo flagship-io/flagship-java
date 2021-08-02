@@ -20,6 +20,8 @@ jobs:
         run: |
           cd ./demoqa/src/main/resources/static/
           git config --list
+          git config remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
+          git config --list
           cat .git
           cat ../../../../../.git/modules/demoqa/src/main/resources/static/config
           git remote update

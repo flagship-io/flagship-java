@@ -34,6 +34,7 @@ jobs:
           git checkout java
           git pull origin java
       - name: Npm build
+        uses: actions/setup-node@v2
         run: |
           npm install
           npm run build-bundle

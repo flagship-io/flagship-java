@@ -15,10 +15,12 @@ jobs:
         with:
           submodules: recursive
       - name: Checkout submodules
-        run: git submodule update --init --recursive
+        run: git submodule update --init --recursive --remote
       - name: Change submodule branch
         run: |
           cd ./demoqa/src/main/resources/static/
+          git remote -v
+          git branch
           git checkout java
           git pull origin java
       - name: Set up JDK 1.8

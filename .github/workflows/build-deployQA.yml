@@ -24,7 +24,7 @@ jobs:
       - name: change branch
         run: |
           pwd
-          sed -i 's/%branch%/${{ steps.extract_branch.outputs.branch }}/g' ./src/main/resources/static/index.html
+          sed -i -e "s/%branch%/${{ steps.extract_branch.outputs.branch }}/g" ./src/main/resources/static/index.html
         working-directory: ./demoqa
       # - name: Gradle wrapper
       #   run: gradle wrapper

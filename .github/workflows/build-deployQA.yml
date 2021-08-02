@@ -21,6 +21,8 @@ jobs:
           cd ./demoqa/src/main/resources/static/
           git remote -v
           git fetch
+          git fetch all
+          git branch -av
           git branch
           git branch -r
           git checkout master

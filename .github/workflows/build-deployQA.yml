@@ -22,8 +22,9 @@ jobs:
           git remote -v
           git fetch
           git branch
-          git checkout java
-          git pull origin java
+          git branch -r
+          git checkout master
+          git pull origin master
       - name: Set up JDK 1.8
         uses: actions/setup-java@v1
         with:

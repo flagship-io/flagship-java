@@ -20,6 +20,7 @@ jobs:
         run: |
           cd ./demoqa/src/main/resources/static/
           git remote -v
+          git fetch
           git branch
           git checkout java
           git pull origin java

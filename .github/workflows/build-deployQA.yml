@@ -38,7 +38,6 @@ jobs:
         run: |
           npm install
           npm run build-bundle
-          npm run build
         working-directory: ./demoqa/src/main/resources/static/
       - name: Set up JDK 1.8
         uses: actions/setup-java@v1

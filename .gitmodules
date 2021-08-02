@@ -1,6 +1,3 @@
-[submodule "demoqa/src/main/resources/static/flagship-qa-front"]
-	path = demoqa/src/main/resources/static/flagship-qa-front
-	url = git@github.com:flagship-io/flagship-qa-front.git
 [submodule "demoqa/src/main/resources/static"]
 	path = demoqa/src/main/resources/static
 	url = git@github.com:flagship-io/flagship-qa-front.git

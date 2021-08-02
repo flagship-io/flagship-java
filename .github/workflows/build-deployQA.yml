@@ -12,6 +12,24 @@ jobs:
         run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
         id: extract_branch
       - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Checkout submodules
+        run: git submodule update --init --recursive --remote
+      - name: Change submodule branch
+        run: |
+          cd ./demoqa/src/main/resources/static/
+          cat .git
+          cat ../../../../../.git/modules/demoqa/src/main/resources/static/config
+          git remote update
+          git remote -v
+          git fetch
+          git fetch --all
+          git branch -av
+          git branch
+          git branch -r
+          git checkout master
+          git pull origin master
       - name: Set up JDK 1.8
         uses: actions/setup-java@v1
         with:
@@ -22,7 +40,10 @@ jobs:
         run: chmod +x gradlew
         working-directory: ./demoqa
       - name: change branch
-        run: sed -i 's/%branch%/${{ steps.extract_branch.outputs.branch }}/g' ./src/main/resources/static/index.html
+        run: |
+          cat ./src/main/resources/static/index.html 
+          sed -i -e "s/%branch%/${{ steps.extract_branch.outputs.branch }}/g" ./src/main/resources/static/index.html
+          cat ./src/main/resources/static/index.html 
         working-directory: ./demoqa
       # - name: Gradle wrapper
       #   run: gradle wrapper

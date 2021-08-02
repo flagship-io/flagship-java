@@ -880,6 +880,7 @@ public class FlagshipIntegrationTests {
     @Test
     public void visitor_status_strategy() throws InterruptedException, ExecutionException {
 
+        Thread.sleep(400);
         CountDownLatch contextLatch = new CountDownLatch(4);
         mockResponse("https://cdn.flagship.io/my_env_id/bucketing.json", 200, FlagshipIntegrationConstants.bucketingResponse);
         verifyRequest("https://cdn.flagship.io/my_env_id/bucketing.json", new OnRequestValidation() {
@@ -940,7 +941,7 @@ public class FlagshipIntegrationTests {
         visitor_1.setConsent(false);
         visitor_1.activateModification("key");
         visitor_1.synchronizeModifications().get();
-        assertEquals(1, consentDeactivatedLog.getCount()); //consent
+        assertEquals(0, consentDeactivatedLog.getCount());
         visitor_1.setConsent(true);
         visitor_1.synchronizeModifications().get();
         boolean toZero = contextLatch.await(1500, TimeUnit.MILLISECONDS);

@@ -34,9 +34,11 @@ public class VisitorController {
 
     @RequestMapping(method = RequestMethod.PUT, value = "/visitor")
     public String setVisitor(@RequestBody com.springboot.model.Visitor visitorModel, final HttpServletRequest request) throws InterruptedException, ExecutionException {
-        Visitor visitor = Flagship.visitorBuilder(visitorModel.getVisitor_id()).isAuthenticated( visitorModel.getAuthenticated()).context( visitorModel.getContext()).build();
-//        Visitor visitor = Flagship.newVisitor(visitorModel.getVisitor_id(), visitorModel.getAuthenticated(), visitorModel.getContext());
-        visitor.setConsent(visitorModel.isConsent());
+        Visitor visitor = Flagship.visitorBuilder(visitorModel.getVisitor_id())
+                .isAuthenticated(visitorModel.getAuthenticated())
+                .context(visitorModel.getContext())
+                .hasConsented(visitorModel.isConsent())
+                .build();
         visitor.synchronizeModifications().get();
         request.getSession().setAttribute(VisitorConstant, visitor);
         return visitor.toString();
@@ -88,10 +90,18 @@ public class VisitorController {
     @RequestMapping(method = RequestMethod.GET, value = "/visitor/unauthenticate")
     public String unauthenticate(HttpServletRequest request) throws ExecutionException, InterruptedException {
 
-        Visitor visitor =  (Visitor) request.getSession().getAttribute(VisitorConstant);
+        Visitor visitor = (Visitor) request.getSession().getAttribute(VisitorConstant);
         visitor.unauthenticate();
         visitor.synchronizeModifications().get();
         request.getSession().setAttribute(VisitorConstant, visitor);
+        return visitor.toString();
+    }
+
+    @RequestMapping(method = RequestMethod.PUT, value = "/visitor/consent")
+    public String updateContext(@RequestBody com.springboot.model.Consent consent, HttpServletRequest request) throws ExecutionException, InterruptedException {
+
+        Visitor visitor = (Visitor) request.getSession().getAttribute(VisitorConstant);
+        visitor.setConsent(consent.isConsent());
         return visitor.toString();
     }
 }

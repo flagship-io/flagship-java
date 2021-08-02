@@ -36,6 +36,7 @@ class DefaultStrategy extends VisitorStrategy {
                 this.updateContext(e.getKey(), e.getValue());
             }
         }
+        visitorDelegate.logVisitor(FlagshipLogManager.Tag.UPDATE_CONTEXT);
     }
 
     @Override
@@ -49,6 +50,7 @@ class DefaultStrategy extends VisitorStrategy {
             FlagshipLogManager.log(FlagshipLogManager.Tag.UPDATE_CONTEXT, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.CONTEXT_RESERVED_KEY_ERROR, key));
         else
             visitorDelegate.getVisitorContext().put(key, value);
+        visitorDelegate.logVisitor(FlagshipLogManager.Tag.UPDATE_CONTEXT);
     }
 
     @Override
@@ -61,6 +63,7 @@ class DefaultStrategy extends VisitorStrategy {
     public void clearContext() {
         visitorDelegate.getVisitorContext().clear();
         visitorDelegate.loadContext(null);
+        visitorDelegate.logVisitor(FlagshipLogManager.Tag.UPDATE_CONTEXT);
     }
 
     @Override
@@ -77,6 +80,7 @@ class DefaultStrategy extends VisitorStrategy {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 visitorDelegate.updateModifications(decisionManager.getCampaignsModifications(visitorDelegate));
+                visitorDelegate.logVisitor(FlagshipLogManager.Tag.SYNCHRONIZE);
             } catch (Exception e) {
                 FlagshipLogManager.exception(e);
             }
@@ -164,6 +168,8 @@ class DefaultStrategy extends VisitorStrategy {
             FlagshipLogManager.log(FlagshipLogManager.Tag.AUTHENTICATE, LogManager.Level.ERROR,
                     String.format(FlagshipConstants.Errors.AUTHENTICATION_BUCKETING_ERROR, "authenticate"));
         }
+        visitorDelegate.loadContext(null);
+        visitorDelegate.logVisitor(FlagshipLogManager.Tag.AUTHENTICATE);
     }
 
     @Override
@@ -178,6 +184,8 @@ class DefaultStrategy extends VisitorStrategy {
             FlagshipLogManager.log(FlagshipLogManager.Tag.UNAUTHENTICATE, LogManager.Level.ERROR,
                     String.format(FlagshipConstants.Errors.AUTHENTICATION_BUCKETING_ERROR, "unauthenticate"));
         }
+        visitorDelegate.loadContext(null);
+        visitorDelegate.logVisitor(FlagshipLogManager.Tag.UNAUTHENTICATE);
     }
 
     @Override

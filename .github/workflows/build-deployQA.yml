@@ -72,16 +72,9 @@ jobs:
           path: |
             ./demoqa/build/libs/demoqa-0.0.1.jar
             ./demoqa/src/main/resources/static/dist
-            
-  deployqa:
-    needs: buildqa
-    runs-on: ubuntu-latest
-
-    steps:
+      
       - name: Extract branch name
-        shell: bash
         run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-        id: extract_branch
 
       - uses: actions/checkout@v2
 
@@ -95,7 +88,6 @@ jobs:
           pwd .
           ls -la .
           ls -la ./demoqa/
-        
 
       - name: Login to Registry
         uses: docker/login-action@v1

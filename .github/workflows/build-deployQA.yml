@@ -95,7 +95,6 @@ jobs:
           pwd .
           ls -la .
           ls -la ./demoqa/
-          ls -la .demoqa/build-ci
         
 
       - name: Login to Registry

@@ -69,8 +69,10 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: demoqa
-          path: ./demoqa
-
+          path: |
+            ./demoqa/build/libs/demoqa-0.0.1.jar
+            ./demoqa/src/main/resources/static/dist
+            
   deployqa:
     needs: buildqa
     runs-on: ubuntu-latest

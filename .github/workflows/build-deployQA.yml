@@ -19,18 +19,10 @@ jobs:
       - name: Change submodule branch
         run: |
           cd ./demoqa/src/main/resources/static/
-          git config --list
           git config remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
-          git config --list
-          cat .git
-          cat ../../../../../.git/modules/demoqa/src/main/resources/static/config
           git remote update
-          git remote -v
           git fetch
           git fetch --all
-          git branch -av
-          git branch
-          git branch -r
           git checkout java
           git pull origin java
       - uses: actions/setup-node@v2
@@ -92,14 +84,6 @@ jobs:
         with:
           name: demoqa
           path: ./demoqa/build-ci
-          
-      - name: test
-        run: |
-          pwd .
-          ls -la .
-          ls -la ./demoqa/
-          ls -la ./demoqa/build-ci
-        
 
       - name: Login to Registry
         uses: docker/login-action@v1

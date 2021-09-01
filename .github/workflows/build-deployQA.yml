@@ -19,25 +19,17 @@ jobs:
       - name: Change submodule branch
         run: |
           cd ./demoqa/src/main/resources/static/
-          git config --list
           git config remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
-          git config --list
-          cat .git
-          cat ../../../../../.git/modules/demoqa/src/main/resources/static/config
           git remote update
-          git remote -v
           git fetch
           git fetch --all
-          git branch -av
-          git branch
-          git branch -r
           git checkout java
           git pull origin java
       - uses: actions/setup-node@v2
       - name: Npm build
         run: |
           npm install
-          npm run build-bundle
+          npm run build-local
         working-directory: ./demoqa/src/main/resources/static/
       - name: Set up JDK 1.8
         uses: actions/setup-java@v1
@@ -85,17 +77,13 @@ jobs:
 
       - uses: actions/checkout@v2
 
+      - name: create folder
+        run: mkdir build-ci
+
       - uses: actions/download-artifact@v2
         with:
           name: demoqa
           path: ./demoqa/build-ci
-          
-      - name: test
-        run: |
-          pwd .
-          ls -la .
-          ls -la ./demoqa/
-        
 
       - name: Login to Registry
         uses: docker/login-action@v1
@@ -111,4 +99,5 @@ jobs:
         with:
           push: true
           tags: ghcr.io/${{ github.repository }}:QA
-          context: ./demoqa/
+          context: ./demoqa
+          no-cache: false

@@ -114,10 +114,12 @@ public class Transaction extends Hit<Transaction> {
         try {
             this.data.getString(FlagshipConstants.HitKeyMap.TRANSACTION_ID);
             this.data.getString(FlagshipConstants.HitKeyMap.TRANSACTION_AFFILIATION);
-            String currency = this.data.getString(FlagshipConstants.HitKeyMap.TRANSACTION_CURRENCY);
-            Optional<Currency> result  = Currency.getAvailableCurrencies().stream().filter(c -> c.getCurrencyCode().equals(currency)).findFirst();
-            if (!result.isPresent())
-                return false;
+            if (this.data.has(FlagshipConstants.HitKeyMap.TRANSACTION_CURRENCY)) {
+                String currency = this.data.getString(FlagshipConstants.HitKeyMap.TRANSACTION_CURRENCY);
+                Optional<Currency> result = Currency.getAvailableCurrencies().stream().filter(c -> c.getCurrencyCode().equals(currency)).findFirst();
+                if (!result.isPresent())
+                    return false;
+            }
         } catch (Exception e) {
             return false;
         }

@@ -147,7 +147,7 @@ public class Flagship {
      * @param visitorId : Unique visitor identifier.
      * @return Visitor.Builder
      */
-    public static Visitor.Builder visitorBuilder(String visitorId) {
+    public static Visitor.Builder newVisitor(String visitorId) {
         return new Visitor.Builder(instance().configManager, visitorId);
     }
 
@@ -170,7 +170,6 @@ public class Flagship {
     /**
      * Private instance implementations.
      */
-
     private void _start(String envId, String apiKey, FlagshipConfig<?> config) {
         updateStatus(Status.STARTING);
         this.configManager.reset();

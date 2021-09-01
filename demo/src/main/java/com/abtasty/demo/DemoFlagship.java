@@ -38,14 +38,16 @@ public class DemoFlagship {
                         })
         );
         flagshipReadyLatch.await();
-        Visitor visitor1 = Flagship.visitorBuilder("taze")
+        Visitor visitor1 = Flagship.newVisitor("visitor_1")
                 .context(new HashMap<String, Object>() {{
                     put("age", 32);
                 }})
                 .hasConsented(true)
+                .isAuthenticated(true)
                 .build();
-        visitor1.setConsent(false);
+        visitor1.setConsent(true);
         visitor1.sendHit(new Screen("coucou"));
+        visitor1.synchronizeModifications();
 
 //        Visitor visitor2 = Flagship.newVisitor("toto2", false, new HashMap<String, Object>() {{ put("age", 32);}});
 //        visitor1.synchronizeModifications().get();

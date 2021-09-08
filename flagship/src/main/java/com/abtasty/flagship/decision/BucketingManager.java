@@ -70,7 +70,7 @@ public class BucketingManager extends DecisionManager {
                 ArrayList<Campaign> campaigns = parseCampaignsResponse(response.getResponseContent());
                 if (campaigns != null)
                     this.campaigns = campaigns;
-                updateFlagshipStatus(isPanic() ? Flagship.Status.PANIC : Flagship.Status.READY);
+//                updateFlagshipStatus(isPanic() ? Flagship.Status.PANIC : Flagship.Status.READY);
             }
         } catch (Exception e) {
             FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, LogManager.Level.ERROR, e.getMessage());

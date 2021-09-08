@@ -30,6 +30,7 @@ public class FlagshipLogManager extends LogManager {
         AUTHENTICATE("AUTHENTICATE"),
         @SuppressWarnings("SpellCheckingInspection")
         UNAUTHENTICATE("UNAUTHENTICATE"),
+        CONSENT("CONSENT"),
         EXCEPTION("EXCEPTION");
 
         String name;

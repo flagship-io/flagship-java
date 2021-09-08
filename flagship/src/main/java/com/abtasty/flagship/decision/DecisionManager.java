@@ -26,6 +26,7 @@ public abstract class DecisionManager implements IDecisionManager, IFlagshipEndp
             try {
                 JSONObject json = new JSONObject(content);
                 panic = json.has("panic");
+                updateFlagshipStatus((panic) ? Flagship.Status.PANIC : Flagship.Status.READY);
                 if (!panic)
                     return Campaign.parse(json.getJSONArray("campaigns"));
             } catch (Exception e) {

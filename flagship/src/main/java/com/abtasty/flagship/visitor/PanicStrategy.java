@@ -80,4 +80,10 @@ class PanicStrategy extends DefaultStrategy {
     public void unauthenticate() {
         logMethodDeactivatedError(FlagshipLogManager.Tag.UNAUTHENTICATE, "unauthenticate()");
     }
+
+    @Override
+    public void setConsent(Boolean hasConsented) {
+        visitorDelegate.hasConsented = hasConsented;
+        logMethodDeactivatedError(FlagshipLogManager.Tag.CONSENT, "setConsent()");
+    }
 }

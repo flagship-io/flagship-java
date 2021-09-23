@@ -14,10 +14,10 @@ repositories {
 dependencies {
 	implementation project(':flagship')
 	implementation group: 'org.json', name: 'json', version: '20201115'
-	implementation 'org.springframework.boot:spring-boot-starter-web:2.5.0'
-	implementation 'org.springframework.session:spring-session-core:2.5.0'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools:2.5.0'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test:2.5.0'
+	implementation 'org.springframework.boot:spring-boot-starter-web:2.5.4'
+	implementation 'org.springframework.session:spring-session-core:2.5.2'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools:2.5.4'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test:2.5.4'
 }
 
 test {

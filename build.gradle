@@ -42,18 +42,18 @@ buildscript {
 
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 
     dependencies {
-        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.20.0"
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.24.18"
     }
 }
 
 allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
         maven { url 'https://abtasty.jfrog.io/artifactory/flagship-java' }
     }
 }

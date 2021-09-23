@@ -39,10 +39,6 @@ public class FlagshipContext<T> {
         return this.name;
     }
 
-//    public static boolean isOverriding(String key) {
-//        return Stream.of(EContext.values()).anyMatch(context -> context.key.equals(key));
-//    }
-
     public static boolean isReserved(String key) {
         return ALL.stream().anyMatch(context -> context.key.equals(key) && context.reserved);
     }

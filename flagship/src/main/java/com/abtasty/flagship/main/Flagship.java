@@ -107,40 +107,6 @@ public class Flagship {
         instance()._start(envId, apiKey, config);
     }
 
-//    /**
-//     * Create a new visitor without context.
-//     *
-//     * @param visitorId : Unique visitor identifier.
-//     * @return Visitor
-//     */
-//    public static Visitor newVisitor(String visitorId) {
-//        return newVisitor(visitorId, false, null);
-//    }
-//
-//    /**
-//     * Create a new visitor without context.
-//     *
-//     * @param visitorId : Unique visitor identifier.
-//     * @param context   : visitor context.
-//     * @return Visitor
-//     */
-//    public static Visitor newVisitor(String visitorId, HashMap<String, Object> context) {
-//        return newVisitor(visitorId, false, context);
-//    }
-//
-//
-//    /**
-//     * Create a new visitor with a context.
-//     *
-//     * @param visitorId : Unique visitor identifier.
-//     * @param isAuthenticated : Boolean to specify if the visitor is authenticated or anonymous.
-//     * @param context   : visitor context.
-//     * @return Visitor
-//     */
-//    public static Visitor newVisitor(String visitorId, boolean isAuthenticated, HashMap<String, Object> context) {
-//        return instance()._newVisitor(visitorId, isAuthenticated, context);
-//    }
-
     /**
      * Return a Visitor Builder class.
      *
@@ -180,12 +146,6 @@ public class Flagship {
             FlagshipLogManager.log(FlagshipLogManager.Tag.INITIALIZATION, LogManager.Level.ERROR, FlagshipConstants.Errors.INITIALIZATION_PARAM_ERROR);
         }
     }
-
-//    private Visitor _newVisitor(String visitorId, boolean isAuthenticated, HashMap<String, Object> context) {
-//        if (!status.greaterThan(Flagship.Status.POLLING))
-//            FlagshipLogManager.log(FlagshipLogManager.Tag.VISITOR, LogManager.Level.WARNING, String.format(FlagshipConstants.Warnings.VISITOR_STATUS_NOT_READY, visitorId, status));
-//        return new Visitor(configManager, visitorId, isAuthenticated, (context != null) ? context : new HashMap<String, Object>());
-//    }
 
     private void updateStatus(Status status) {
         if (this.status != status) {

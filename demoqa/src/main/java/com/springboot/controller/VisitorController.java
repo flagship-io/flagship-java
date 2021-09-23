@@ -17,14 +17,6 @@ public class VisitorController {
 
     public static final String VisitorConstant = "Visitor";
 
-//    @RequestMapping(method = RequestMethod.GET, value = "/visitor")
-//    public ResponseEntity<com.springboot.model.Visitor> getVisitor(final HttpSession session) {
-//
-//        final com.springboot.model.Visitor visitorAttribute = (com.springboot.model.Visitor) session.getAttribute(VisitorConstant);
-//
-//        return new ResponseEntity<com.springboot.model.Visitor>(visitorAttribute, HttpStatus.OK);
-//    }
-
     @RequestMapping(method = RequestMethod.GET, value = "/visitor")
     public String getVisitor(HttpServletRequest request) {
 

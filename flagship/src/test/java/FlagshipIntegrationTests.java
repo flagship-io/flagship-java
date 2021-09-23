@@ -379,7 +379,7 @@ public class FlagshipIntegrationTests {
 
         assertEquals(visitor.getModification("isref", "default", true), "not a all");
 
-        if (!nbHit2.await(2, TimeUnit.SECONDS))
+        if (!nbHit2.await(3, TimeUnit.SECONDS))
             fail();
 
 

@@ -13,7 +13,7 @@ public class DemoFlagship {
     public static void main(String[] args) throws InterruptedException, ExecutionException {
 
         CountDownLatch flagshipReadyLatch = new CountDownLatch(1);
-        Flagship.start("bkk4s7gcmjcg07fke9dg", "Q6FDmj6F188nh75lhEato2MwoyXDS7y34VrAL4Aa",
+        Flagship.start("_", "__",
                 new FlagshipConfig.DecisionApi()
                         .withLogLevel(LogManager.Level.ALL)
                         .withStatusListener(newStatus -> {

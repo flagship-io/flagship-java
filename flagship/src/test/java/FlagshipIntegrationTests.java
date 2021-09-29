@@ -863,6 +863,7 @@ public class FlagshipIntegrationTests {
                 }})
                 .build();
         visitor1.synchronizeModifications().get();
+        System.out.println("=> " + visitor1.getModification("ab10_variation", 0));
         assertEquals(9, visitor1.getModification("ab10_variation", 0));
         assertEquals("xxxxxxc3fk9jdb020ukg", visitor1.getModificationInfo("ab10_variation").getString("campaignId"));
         assertEquals("xxxxxxc3fk9jdb020ulg", visitor1.getModificationInfo("ab10_variation").getString("variationGroupId"));

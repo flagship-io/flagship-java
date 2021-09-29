@@ -34,6 +34,6 @@ jobs:
           bash ./gradlew clean
           bash ./gradlew generateBuildConfig
           bash ./gradlew assemble
-          bash ./gradlew test --stacktrace
+          bash ./gradlew flagship:test
           bash ./gradlew artifactoryPublish
       

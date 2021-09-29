@@ -30,4 +30,4 @@ jobs:
       - name: Assemble
         run: ./gradlew assemble
       - name: Test
-        run: ./gradlew flagship:test --debug
+        run: ./gradlew flagship:test

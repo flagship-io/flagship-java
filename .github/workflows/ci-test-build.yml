@@ -25,7 +25,9 @@ jobs:
      #   run: gradle wrapper
       - name: Clean
         run: ./gradlew clean
+      - name: Generate BuildConfig
+        run: ./gradlew generateBuildConfig
       - name: Assemble
         run: ./gradlew assemble
       - name: Test
-        run: ./gradlew test --debug
+        run: ./gradlew flagship:test --debug

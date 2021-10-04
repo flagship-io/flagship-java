@@ -23,21 +23,22 @@ public class DemoFlagship {
                         })
         );
         flagshipReadyLatch.await();
-        Visitor visitor1 = Flagship.newVisitor("visitor_1")
-                .context(new HashMap<String, Object>() {{
-                    put("age", 32);
-                }})
-                .hasConsented(false)
+
+        Visitor visitor1 = Flagship.newVisitor("visitor_1", Visitor.Instance.SINGLE_INSTANCE)
                 .build();
-        visitor1.synchronizeModifications().get();
 
-        Thread.sleep(3000);
+        Visitor visitor2 = Flagship.newVisitor("visitor_2", Visitor.Instance.SINGLE_INSTANCE)
+                .build();
 
-        visitor1.synchronizeModifications().get();
+        visitor1.updateContext("color", "blue");
 
-        visitor1.setConsent(true);
+        Flagship.getVisitor().updateContext("color", "red");
 
-        Thread.sleep(3000);
+        System.out.println("=> " + (visitor1.getContext().get("color") == "blue"));
+        System.out.println("=> " + (visitor2.getContext().get("color") == "red"));
+        System.out.println("=> " + (Flagship.getVisitor().getContext().get("color") == "red"));
+
+        Thread.sleep(10000);
     }
 
 

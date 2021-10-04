@@ -15,6 +15,7 @@ public class Flagship {
     private static volatile Flagship    instance = null;
 
     private final ConfigManager         configManager   = new ConfigManager();
+    private  Visitor                    singleVisitorInstance = null;
     private Status                      status          = Status.NOT_INITIALIZED;
 
     /**
@@ -111,11 +112,35 @@ public class Flagship {
      * Return a Visitor Builder class.
      *
      * @param visitorId : Unique visitor identifier.
+     * @param instanceType : How Flagship SDK should handle the newly created visitor instance when built. (Default is NEW_INSTANCE)
+     * @return Visitor.Builder
+     */
+    public static Visitor.Builder newVisitor(String visitorId, Visitor.Instance instanceType) {
+        return new Visitor.Builder(instanceType, instance().configManager, visitorId);
+    }
+
+    /**
+     * Return a Visitor Builder class. When built this will return a new instance of Visitor.
+     *
+     * @param visitorId : Unique visitor identifier.
      * @return Visitor.Builder
      */
     public static Visitor.Builder newVisitor(String visitorId) {
-        return new Visitor.Builder(instance().configManager, visitorId);
+        return newVisitor(visitorId, Visitor.Instance.NEW_INSTANCE);
     }
+
+    public static void setSingleVisitorInstance(Visitor visitor) {
+        instance().singleVisitorInstance = visitor;
+    }
+
+
+    /**
+     * This method will return any previous created visitor instance initialized with the SINGLE_INSTANCE (Set by default) option.
+     */
+    public static Visitor getVisitor() {
+        return instance().singleVisitorInstance;
+    }
+
 
     /**
      * Return the current used configuration.

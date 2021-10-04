@@ -2,6 +2,7 @@ package com.abtasty.flagship.visitor;
 
 import com.abtasty.flagship.hits.Hit;
 import com.abtasty.flagship.main.ConfigManager;
+import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.utils.FlagshipContext;
 import org.json.JSONObject;
 
@@ -16,19 +17,39 @@ public class Visitor implements IVisitor {
     VisitorDelegate delegate;
 
     /**
+     * Specify if how Flagship SDK should handle the newly create visitor instance.
+     */
+    public enum Instance {
+
+        /**
+         * The  newly created visitor instance will be returned and saved into the Flagship singleton. Call `Flagship.getVisitor()` to retrieve the instance.
+         * This option should be adopted on applications that handle only one visitor at the same time.
+         */
+        SINGLE_INSTANCE,
+
+        /**
+         * The newly created visitor instance wont be saved and will simply be returned. Any previous visitor instance will have to be recreated.
+         * This option should be adopted on applications that handle multiple visitors at the same time.
+         */
+        NEW_INSTANCE
+    }
+
+    /**
      * This class represents a Visitor builder.
      *
      * Use Flagship.visitorBuilder() method to instantiate it.
      */
     public static class Builder {
 
+        private Instance                instanceType = Instance.SINGLE_INSTANCE;
         private final ConfigManager     configManager;
         private final String            visitorId;
         private boolean                 isAuthenticated = false;
         private boolean                 hasConsented = true;
         private HashMap<String, Object> context = null;
 
-        public Builder(ConfigManager configManager, String visitorId) {
+        public Builder(Instance instanceType, ConfigManager configManager, String visitorId) {
+            this.instanceType = instanceType;
             this.configManager = configManager;
             this.visitorId = visitorId;
         }
@@ -73,7 +94,10 @@ public class Visitor implements IVisitor {
          * @return Visitor
          */
         public Visitor build() {
-            return new Visitor(configManager, visitorId, isAuthenticated, hasConsented, context);
+            Visitor visitor = new Visitor(configManager, visitorId, isAuthenticated, hasConsented, context);
+            if (instanceType == Instance.SINGLE_INSTANCE)
+                Flagship.setSingleVisitorInstance(visitor);
+            return visitor;
         }
     }
 

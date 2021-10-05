@@ -106,6 +106,22 @@ public class Visitor implements IVisitor {
         this.delegate.setVisitor(this);
     }
 
+    /**
+     * Return the current visitor id
+     * @return visitor unique identifier
+     */
+    public String getId() {
+        return delegate.visitorId;
+    }
+
+    /**
+     * Return the current visitor anonymous id.
+     * @return visitor anonymous identifier.
+     */
+    public String getAnonymousId() {
+        return delegate.anonymousId;
+    }
+
     @Override
     public void updateContext(HashMap<String, Object> context) {
         this.delegate.getStrategy().updateContext(context);

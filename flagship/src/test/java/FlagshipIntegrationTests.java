@@ -945,7 +945,7 @@ public class FlagshipIntegrationTests {
         assertEquals(0, consentDeactivatedLog.getCount());
         visitor_1.setConsent(true);
         visitor_1.synchronizeModifications().get();
-        boolean toZero = contextLatch.await(1500, TimeUnit.MILLISECONDS);
+        boolean toZero = contextLatch.await(3000, TimeUnit.MILLISECONDS);
         assertFalse(toZero);
         assertEquals(3, contextLatch.getCount());
     }
@@ -1077,5 +1077,36 @@ public class FlagshipIntegrationTests {
         if (!anonymous2_latch.await(2, TimeUnit.SECONDS))
             fail();
         visitor.synchronizeModifications().get();
+    }
+
+    @Test
+    public void visitor_instance() {
+        Flagship.start("my_env_id", "my_api_key");
+
+        Flagship.newVisitor("visitor_1");
+        assertNull(Flagship.getVisitor());
+        Flagship.newVisitor("visitor_1", Visitor.Instance.NEW_INSTANCE);
+        assertNull(Flagship.getVisitor());
+        Visitor visitor_2 = Flagship.newVisitor("visitor_2", Visitor.Instance.SINGLE_INSTANCE).build();
+        assertNotNull(Flagship.getVisitor());
+        assertSame(Flagship.getVisitor(), visitor_2);
+        assertSame("visitor_2", Flagship.getVisitor().getId());
+        Visitor visitor_3 = Flagship.newVisitor("visitor_3", Visitor.Instance.SINGLE_INSTANCE).build();
+        assertSame(Flagship.getVisitor(), visitor_3);
+        assertSame("visitor_3", Flagship.getVisitor().getId());
+
+        Visitor visitor_4 = Flagship.newVisitor("visitor_4", Visitor.Instance.SINGLE_INSTANCE).build();
+        visitor_4.updateContext("color", "blue");
+        assertSame("blue", Flagship.getVisitor().getContext().get("color"));
+
+        Visitor visitor_5 = Flagship.newVisitor("visitor_5", Visitor.Instance.SINGLE_INSTANCE).build();
+        assertNull(Flagship.getVisitor().getContext().get("color"));
+
+        Flagship.getVisitor().updateContext("color", "red");
+
+        assertSame("blue", visitor_4.getContext().get("color").toString());
+        assertSame("red", visitor_5.getContext().get("color").toString());
+
+        assertSame("red", Flagship.getVisitor().getContext().get("color"));
     }
 }

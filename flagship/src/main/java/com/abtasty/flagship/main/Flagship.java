@@ -135,7 +135,7 @@ public class Flagship {
 
 
     /**
-     * This method will return any previous created visitor instance initialized with the SINGLE_INSTANCE (Set by default) option.
+     * This method will return any previous created visitor instance initialized with the SINGLE_INSTANCE parameter or null.
      */
     public static Visitor getVisitor() {
         return instance().singleVisitorInstance;

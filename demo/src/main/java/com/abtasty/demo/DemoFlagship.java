@@ -22,6 +22,7 @@ public class DemoFlagship {
                                 flagshipReadyLatch.countDown();
                         })
         );
+
         flagshipReadyLatch.await();
 
         Visitor visitor1 = Flagship.newVisitor("visitor_1", Visitor.Instance.SINGLE_INSTANCE)
@@ -39,6 +40,8 @@ public class DemoFlagship {
         System.out.println("=> " + (Flagship.getVisitor().getContext().get("color") == "red"));
 
         Thread.sleep(10000);
+
+
     }
 
 

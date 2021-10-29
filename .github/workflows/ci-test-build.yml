@@ -29,3 +29,5 @@ jobs:
         run: ./gradlew assemble
       - name: Test
         run: ./gradlew test
+      - name: Coverage Report
+        run:  ./gradlew jacocoTestReport

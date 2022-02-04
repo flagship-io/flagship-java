@@ -19,11 +19,11 @@
 
 ## Docs
 
-- [Get Started](https://developers.flagship.io/docs/sdk/java/v1.0#getting-started)
-- [Initialize and start](https://developers.flagship.io/docs/sdk/java/v1.0#initialization)
-- [Campaign integration](https://developers.flagship.io/docs/sdk/java/v1.0#managing-visitor-campaigns)
-- [Hit tracking](https://developers.flagship.io/docs/sdk/java/v1.0#hit-tracking)
-- [Release Notes](https://developers.flagship.io/docs/sdk/java/v1.0#release-notes)
+- [Get Started](https://docs.developers.flagship.io/docs/java-v3)
+- [Initialize and start](https://docs.developers.flagship.io/docs/java-v3#getting-started)
+- [Campaign integration](https://docs.developers.flagship.io/docs/java-v3#managing-visitor-campaigns-and-their-flags)
+- [Hit tracking](https://docs.developers.flagship.io/docs/java-v3#hit-tracking)
+- [Release Notes](https://docs.developers.flagship.io/docs/java-sdk)
 
 
 ## Contributors

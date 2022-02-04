@@ -374,6 +374,7 @@ public class FlagshipIntegrationTests {
                     put("daysSinceLastLaunch", 2);
                 }}).build();
 
+        Thread.sleep(500);
         try {
             CountDownLatch synchronizeLatch = new CountDownLatch(1);
             assert visitor != null;

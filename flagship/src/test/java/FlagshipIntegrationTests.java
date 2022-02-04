@@ -475,11 +475,12 @@ public class FlagshipIntegrationTests {
     }
 
     @Test
-    public void pageHit() {
+    public void pageHit() throws InterruptedException {
         Flagship.start("my_env_id", "my_api_key");
         Visitor visitor = Flagship.newVisitor("visitor_1").build();
 
         /////////////////// TEST PAGE HIT //////////////////
+        Thread.sleep(500);
         mockResponse("https://ariane.abtasty.com", 200, "");
         CountDownLatch pageHit = new CountDownLatch(1);
 

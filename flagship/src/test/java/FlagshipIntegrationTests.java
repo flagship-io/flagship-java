@@ -406,15 +406,15 @@ public class FlagshipIntegrationTests {
 
         CountDownLatch nbHit2 = new CountDownLatch(1);
         verifyRequest("https://decision.flagship.io/v2/activate", (request) -> {
-//            if (!request.getRequestContent().contains("fs_consent")) { // prevent consent hit
-                JSONObject content = new JSONObject(request.getRequestContent());
+            JSONObject content = new JSONObject(request.getRequestContent());
+            if (!content.toString().contains("fs_consent")) { // prevent consent hit
                 assertEquals(content.getString("vid"), "visitor_1");
                 assertEquals(content.getString("cid"), "my_env_id");
                 if (content.getString("vaid").contains("xxxxxx65k9h02cuc1ae0") &&
                         content.getString("caid").contains("xxxxxxjh6h101fk8lbsg")) {
                     nbHit2.countDown();
                 }
-//            }
+            }
         });
 
         Thread.sleep(200);
@@ -486,12 +486,14 @@ public class FlagshipIntegrationTests {
         verifyRequest("https://ariane.abtasty.com", (request) -> {
             assertEquals(request.getType().toString(), "POST");
             JSONObject content = new JSONObject(request.getRequestContent());
-            assertEquals(content.getString("vid"), "visitor_1");
-            assertEquals(content.getString("ds"), "APP");
-            assertEquals(content.get("cid"), "my_env_id");
-            assertEquals(content.get("t"), "PAGEVIEW");
-            assertEquals(content.get("dl"), "https://www.location.com");
-            pageHit.countDown();
+            if (!content.toString().contains("fs_consent")) { // prevent hit consent
+                assertEquals(content.getString("vid"), "visitor_1");
+                assertEquals(content.getString("ds"), "APP");
+                assertEquals(content.get("cid"), "my_env_id");
+                assertEquals(content.get("t"), "PAGEVIEW");
+                assertEquals(content.get("dl"), "https://www.location.com");
+                pageHit.countDown();
+            }
         });
         Page page = new Page("https://www.location.com");
         visitor.sendHit(page);

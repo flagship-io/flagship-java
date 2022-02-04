@@ -490,13 +490,13 @@ public class FlagshipIntegrationTests {
             assertEquals(content.getString("ds"), "APP");
             assertEquals(content.get("cid"), "my_env_id");
             assertEquals(content.get("t"), "PAGEVIEW");
-            assertEquals(content.get("dl"), "https://location.com");
+            assertEquals(content.get("dl"), "https://www.location.com");
             pageHit.countDown();
         });
-        Page page = new Page("https://location.com");
+        Page page = new Page("https://www.location.com");
         visitor.sendHit(page);
         try {
-            if (!pageHit.await(200, TimeUnit.MILLISECONDS))
+            if (!pageHit.await(500, TimeUnit.MILLISECONDS))
                 fail();
         } catch (InterruptedException e) {
             e.printStackTrace();

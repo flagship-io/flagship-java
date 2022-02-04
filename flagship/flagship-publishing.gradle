@@ -1,0 +1,53 @@
+apply plugin: 'maven-publish'
+apply plugin: "com.jfrog.artifactory"
+apply plugin: 'jacoco'
+
+//./gradlew release
+artifactoryPublish.skip = true
+
+artifactory {
+    contextUrl = 'https://abtasty.jfrog.io/artifactory/'
+    publish {
+        repository {
+            repoKey = artifact_id
+            username = bintray_user
+            password = bintray_key
+            maven = true
+        }
+        defaults {
+            publishArtifacts = true
+            publishPom = true
+        }
+    }
+}
+
+project(':flagship') {
+    artifactoryPublish.dependsOn('build')
+    publishing {
+        publications {
+            jar(MavenPublication) {
+                groupId = group_id
+                artifactId = artifact_id
+                version = flagship_version_name
+                artifact "$buildDir/libs/flagship-java-" + flagship_version_name + ".jar"
+                pom.withXml {
+                    def dependenciesNode = asNode().appendNode('dependencies')
+                    configurations.implementation.allDependencies.each { dependency ->
+                        if (dependency.name != "unspecified") {
+                            def dependencyNode = dependenciesNode.appendNode('dependency')
+                            dependencyNode.appendNode('groupId', dependency.group)
+                            dependencyNode.appendNode('artifactId', dependency.name)
+                            dependencyNode.appendNode('version', dependency.version)
+                        }
+                    }
+                }
+            }
+        }
+
+
+    }
+
+    artifactoryPublish {
+        publications(publishing.publications.jar)
+    }
+}

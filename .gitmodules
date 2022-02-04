@@ -1,0 +1,4 @@
+[submodule "demoqa/src/main/resources/static"]
+	path = demoqa/src/main/resources/static
+	url = git@github.com:flagship-io/flagship-qa-front.git
+	branch = java

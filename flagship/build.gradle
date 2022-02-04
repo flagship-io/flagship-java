@@ -1,0 +1,69 @@
+plugins {
+    id 'java'
+}
+
+apply from: 'flagship-publishing.gradle'
+
+task generateBuildConfig {
+    def outputDir = file("$buildDir/generated/sources/buildConfig/com/abtasty/flagship")
+    outputDir.exists() || outputDir.mkdirs()
+    def java =
+            "package com.abtasty.flagship;\n\n" +
+            "public class BuildConfig {\n" +
+                    "\tpublic static String flagship_version_name = \"" + flagship_version_name + "\";\n" +
+            "}"
+    def javaFile = new File(outputDir, 'BuildConfig.java')
+    javaFile.write(java)
+}
+
+compileJava.dependsOn generateBuildConfig
+compileTestJava.dependsOn generateBuildConfig
+
+
+
+sourceSets.main.java.srcDirs += ["$buildDir/generated/sources/buildConfig"]
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.json:json:20210307'
+    implementation 'junit:junit:4.13.2'
+    implementation 'org.xerial:sqlite-jdbc:3.36.0.3'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.0'
+
+    testImplementation group: 'org.powermock', name: 'powermock-api-mockito2', version: '2.0.9'
+    testImplementation group: 'org.powermock', name: 'powermock-module-junit4', version: '2.0.9'
+}
+
+jar {
+    archivesBaseName = artifact_id + "-" + flagship_version_name
+    configurations.runtimeClasspath.collect  { it.isDirectory() ? it : zipTree(it) }
+}
+
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.enabled true
+        xml.destination file("${buildDir}/reports/jacoco/report.xml")
+        html.enabled true
+        csv.enabled true
+    }
+    subprojects.each {
+        sourceSets it.sourceSets.main
+    }
+    executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
+}
+
+jacocoTestReport.dependsOn {
+    subprojects*.test
+}
+
+test {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}

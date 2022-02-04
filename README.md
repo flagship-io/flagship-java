@@ -9,9 +9,9 @@
 
 <h3 align="center">Bring your features to life</h3>
 
-[![CI UnitTest & Build](https://github.com/raf-abtasty/flagship-java/actions/workflows/ci-test-build.yml/badge.svg?branch=main)](https://github.com/raf-abtasty/flagship-java/actions/workflows/ci-test-build.yml)
 [![CI UnitTest & Build](https://github.com/flagship-io/flagship-java/actions/workflows/ci-test-build.yml/badge.svg?branch=master)](https://github.com/flagship-io/flagship-java/actions/workflows/ci-test-build.yml)
 [![java](https://img.shields.io/badge/Java-1.8-blue.svg)]()
+[![codecov](https://codecov.io/gh/flagship-io/flagship-java/branch/master/graph/badge.svg?token=UL25AAEEAJ)](https://codecov.io/gh/flagship-io/flagship-java)
 [![Apache2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
 

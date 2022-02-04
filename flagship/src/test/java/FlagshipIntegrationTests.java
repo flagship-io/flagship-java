@@ -400,30 +400,34 @@ public class FlagshipIntegrationTests {
             }
         });
 
+
+
         visitor.activateModification("release");
 
         if (!nbHit1.await(2, TimeUnit.SECONDS))
             fail();
 
+        requestToVerify.clear();
+        Thread.sleep(500);
+
         CountDownLatch nbHit2 = new CountDownLatch(1);
         verifyRequest("https://decision.flagship.io/v2/activate", (request) -> {
             JSONObject content = new JSONObject(request.getRequestContent());
-            if (!content.toString().contains("fs_consent")) { // prevent consent hit
-                assertEquals(content.getString("vid"), "visitor_1");
-                assertEquals(content.getString("cid"), "my_env_id");
-                if (content.getString("vaid").contains("xxxxxx65k9h02cuc1ae0") &&
-                        content.getString("caid").contains("xxxxxxjh6h101fk8lbsg")) {
-                    nbHit2.countDown();
-                }
+            assertEquals(content.getString("vid"), "visitor_1");
+            assertEquals(content.getString("cid"), "my_env_id");
+            if (content.getString("vaid").contains("xxxxxx65k9h02cuc1ae0") &&
+                    content.getString("caid").contains("xxxxxxjh6h101fk8lbsg")) {
+                nbHit2.countDown();
             }
         });
 
-        Thread.sleep(200);
         assertEquals(visitor.getModification("isref", "default", true), "not a all");
 
         if (!nbHit2.await(3, TimeUnit.SECONDS))
             fail();
 
+        requestToVerify.clear();
+        Thread.sleep(500);
 
         AtomicInteger call = new AtomicInteger(0);
         CountDownLatch nbHit3 = new CountDownLatch(1);

@@ -43,3 +43,5 @@ flagship/build/test-results/
 flagship/build
 logs
 build/
+qa_db/
+flagship_database.db

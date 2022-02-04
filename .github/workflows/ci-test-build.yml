@@ -5,9 +5,9 @@ name: CI UnitTest & Build
 
 on:
   push:
-    branches: [main]
+    branches: [main, master]
   pull_request:
-    branches: [main]
+    branches: [main, master]
 
 jobs:
   build:
@@ -31,3 +31,7 @@ jobs:
         run: ./gradlew assemble
       - name: Test
         run: ./gradlew flagship:test
+      - name: Coverage Report
+        run: ./gradlew jacocoTestReport
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1

@@ -3,7 +3,7 @@ package com.abtasty.flagship.hits;
 public class Consent extends Event {
 
     public Consent(boolean consent) {
-        super(EventCategory.USER_ENGAGEMENT, "fs_content");
+        super(EventCategory.USER_ENGAGEMENT, "fs_consent");
         withEventLabel("java:"+consent);
     }
 

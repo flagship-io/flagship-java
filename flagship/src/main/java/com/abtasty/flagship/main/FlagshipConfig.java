@@ -1,7 +1,9 @@
 package com.abtasty.flagship.main;
 
+import com.abtasty.flagship.cache.CacheManager;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
+
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -18,6 +20,7 @@ public abstract class FlagshipConfig<T> {
     private long                                pollingTime         = 60;
     private TimeUnit                            pollingUnit         = TimeUnit.SECONDS;
     private Flagship.StatusListener             statusListener      = null;
+    private CacheManager                        cacheManager        = null;
 
 
     /**
@@ -129,6 +132,20 @@ public abstract class FlagshipConfig<T> {
         return (T) this;
     }
 
+    /**
+     * Provide the desired custom cache implementations.
+     *
+     * @param customCacheManager custom implementation of cache manager.
+     *
+     * @see CacheManager
+     * @See CacheManager.Builder
+     */
+    @SuppressWarnings("unchecked")
+    public T withCacheManager(CacheManager customCacheManager) {
+        this.cacheManager = customCacheManager;
+        return (T) this;
+    }
+
     public Flagship.StatusListener getStatusListener() {
         return statusListener;
     }
@@ -159,6 +176,10 @@ public abstract class FlagshipConfig<T> {
 
     public TimeUnit getPollingUnit() {
         return pollingUnit;
+    }
+
+    public CacheManager getCacheManager() {
+        return cacheManager;
     }
 
     @Override

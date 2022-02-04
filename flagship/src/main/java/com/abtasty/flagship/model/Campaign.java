@@ -45,18 +45,19 @@ public class Campaign implements Serializable {
     public static Campaign parse(JSONObject campaignObject) {
         try {
             String id = campaignObject.getString("id");
+            String campaignType = campaignObject.optString("type", "");
             LinkedList<VariationGroup> variationGroups = new LinkedList<>();
             JSONArray variationGroupArray = campaignObject.optJSONArray("variationGroups");
             if (variationGroupArray != null) {
                 //bucketing
                 variationGroupArray.forEach(variationGroupsObj -> {
-                    VariationGroup variationGroup = VariationGroup.parse(id, (JSONObject) variationGroupsObj, true);
+                    VariationGroup variationGroup = VariationGroup.parse(id, campaignType, (JSONObject) variationGroupsObj, true);
                     if (variationGroup != null)
                         variationGroups.add(variationGroup);
                 });
             } else {
                 //api
-                VariationGroup variationGroup = VariationGroup.parse(id, campaignObject, false);
+                VariationGroup variationGroup = VariationGroup.parse(id, campaignType, campaignObject, false);
                 if (variationGroup != null)
                     variationGroups.add(variationGroup);
             }

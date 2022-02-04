@@ -1,7 +1,9 @@
 package com.abtasty.demo;
 
+import com.abtasty.flagship.database.SQLiteCacheManager;
 import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.main.FlagshipConfig;
+import com.abtasty.flagship.model.Flag;
 import com.abtasty.flagship.utils.LogManager;
 import com.abtasty.flagship.visitor.Visitor;
 import java.util.HashMap;
@@ -13,7 +15,7 @@ public class DemoFlagship {
     public static void main(String[] args) throws InterruptedException, ExecutionException {
 
         CountDownLatch flagshipReadyLatch = new CountDownLatch(1);
-        Flagship.start("_", "__",
+        Flagship.start("_ENV_ID_", "_API_KEY_",
                 new FlagshipConfig.DecisionApi()
                         .withLogLevel(LogManager.Level.ALL)
                         .withStatusListener(newStatus -> {
@@ -21,27 +23,18 @@ public class DemoFlagship {
                             if (newStatus.greaterThan(Flagship.Status.POLLING))
                                 flagshipReadyLatch.countDown();
                         })
+                        .withCacheManager(new SQLiteCacheManager())
         );
 
         flagshipReadyLatch.await();
-
-        Visitor visitor1 = Flagship.newVisitor("visitor_1", Visitor.Instance.SINGLE_INSTANCE)
-                .build();
-
-        Visitor visitor2 = Flagship.newVisitor("visitor_2", Visitor.Instance.SINGLE_INSTANCE)
-                .build();
-
-        visitor1.updateContext("color", "blue");
-
-        Flagship.getVisitor().updateContext("color", "red");
-
-        System.out.println("=> " + (visitor1.getContext().get("color") == "blue"));
-        System.out.println("=> " + (visitor2.getContext().get("color") == "red"));
-        System.out.println("=> " + (Flagship.getVisitor().getContext().get("color") == "red"));
-
-        Thread.sleep(10000);
-
-
+        Visitor visitor = Flagship.newVisitor("visitor_id")
+                .context(new HashMap<String, Object>() {{
+                    put("my_context", true);
+                }}).build();
+        visitor.fetchFlags().get();
+        String value = visitor.getFlag("my_flag", "default").value(true);
+        System.out.println("My flag value is : " + value);
+        Thread.sleep(2000);
     }
 
 

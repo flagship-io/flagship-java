@@ -2,23 +2,31 @@ package com.abtasty.flagship.visitor;
 
 import com.abtasty.flagship.api.HttpManager;
 import com.abtasty.flagship.api.TrackingManager;
+import com.abtasty.flagship.cache.CacheHelper;
+import com.abtasty.flagship.cache.CacheManager;
+import com.abtasty.flagship.cache.IHitCacheImplementation;
+import com.abtasty.flagship.cache.IVisitorCacheImplementation;
 import com.abtasty.flagship.decision.DecisionManager;
 import com.abtasty.flagship.hits.Activate;
 import com.abtasty.flagship.hits.Consent;
 import com.abtasty.flagship.hits.Hit;
-import com.abtasty.flagship.main.ConfigManager;
 import com.abtasty.flagship.main.Flagship;
+import com.abtasty.flagship.main.FlagshipConfig;
+import com.abtasty.flagship.model.Flag;
 import com.abtasty.flagship.model.Modification;
 import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.FlagshipContext;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Visitor default method strategy
@@ -49,121 +57,122 @@ class DefaultStrategy extends VisitorStrategy {
         else if (FlagshipContext.isReserved(key))
             FlagshipLogManager.log(FlagshipLogManager.Tag.UPDATE_CONTEXT, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.CONTEXT_RESERVED_KEY_ERROR, key));
         else
-            visitorDelegate.getVisitorContext().put(key, value);
+            visitorDelegate.context.put(key, value);
         visitorDelegate.logVisitor(FlagshipLogManager.Tag.UPDATE_CONTEXT);
     }
 
     @Override
     public <T> void updateContext(FlagshipContext<T> flagshipContext, T value) {
         if (flagshipContext.verify(value))
-            visitorDelegate.getVisitorContext().put(flagshipContext.key(), value);
+            visitorDelegate.context.put(flagshipContext.key(), value);
     }
 
     @Override
     public void clearContext() {
-        visitorDelegate.getVisitorContext().clear();
+        visitorDelegate.context.clear();
         visitorDelegate.loadContext(null);
         visitorDelegate.logVisitor(FlagshipLogManager.Tag.UPDATE_CONTEXT);
     }
 
     @Override
     public void sendContextRequest() {
-        ConfigManager configManager = visitorDelegate.getConfigManager();
-        TrackingManager trackingManager = configManager.getTrackingManager();
-        trackingManager.sendContextRequest(configManager.getFlagshipConfig().getEnvId(), visitorDelegate.getVisitorId(), visitorDelegate.getContext());
+        TrackingManager trackingManager = visitorDelegate.configManager.getTrackingManager();
+        trackingManager.sendContextRequest(visitorDelegate.toDTO());
     }
 
-    @Override
-    public CompletableFuture<Visitor> synchronizeModifications() {
+//    @Override
+//    public CompletableFuture<Visitor> synchronizeModifications() {
+//
+//        DecisionManager decisionManager = visitorDelegate.configManager.getDecisionManager();
+//        return CompletableFuture.supplyAsync(() -> {
+//            try {
+//                VisitorDelegateDTO visitorDTO = visitorDelegate.toDTO();
+//                visitorDelegate.updateModifications(decisionManager.getCampaignsModifications(visitorDTO));
+//                visitorDelegate.logVisitor(FlagshipLogManager.Tag.SYNCHRONIZE);
+//                visitorDelegate.getStrategy().cacheVisitor();
+//            } catch (Exception e) {
+//                FlagshipLogManager.exception(e);
+//            }
+//            return visitorDelegate.originalVisitor;
+//        }, HttpManager.getInstance().getThreadPoolExecutor()).whenCompleteAsync((instance, error) -> visitorDelegate.logVisitor(FlagshipLogManager.Tag.SYNCHRONIZE));
+//    }
 
-        DecisionManager decisionManager = visitorDelegate.getConfigManager().getDecisionManager();
-        return CompletableFuture.supplyAsync(() -> {
-            try {
-                visitorDelegate.updateModifications(decisionManager.getCampaignsModifications(visitorDelegate));
-                visitorDelegate.logVisitor(FlagshipLogManager.Tag.SYNCHRONIZE);
-            } catch (Exception e) {
-                FlagshipLogManager.exception(e);
-            }
-            return visitorDelegate.getVisitor();
-        }, HttpManager.getInstance().getThreadPoolExecutor()).whenCompleteAsync((instance, error) -> visitorDelegate.logVisitor(FlagshipLogManager.Tag.SYNCHRONIZE));
-    }
+//    @Override
+//    public <T> T getModification(String key, T defaultValue) {
+//        return getModification(key, defaultValue, false);
+//    }
+//
+//    @SuppressWarnings("unchecked")
+//    public <T> T getModification(String key, T defaultValue, boolean activate) {
+//        ConcurrentMap<String, Modification> visitorModifications = visitorDelegate.modifications;
+//        try {
+//            if (key == null) {
+//                FlagshipLogManager.log(FlagshipLogManager.Tag.GET_MODIFICATION, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_KEY_ERROR, "null"));
+//            } else if (!visitorModifications.containsKey(key)) {
+//                FlagshipLogManager.log(FlagshipLogManager.Tag.GET_MODIFICATION, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_MISSING_ERROR, key));
+//            } else {
+//                Modification modification = visitorModifications.get(key);
+//                T castValue = (T) ((modification.isReference() && modification.getValue() == null) ? defaultValue : modification.getValue());
+//                if (defaultValue == null || castValue == null || castValue.getClass().equals(defaultValue.getClass())) {
+//                    if (activate)
+//                        this.activateModification(modification);
+//                    return castValue;
+//                } else
+//                    FlagshipLogManager.log(FlagshipLogManager.Tag.GET_MODIFICATION, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_CAST_ERROR, key));
+//            }
+//        } catch (Exception e) {
+//            FlagshipLogManager.log(FlagshipLogManager.Tag.GET_MODIFICATION, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_ERROR, key));
+//        }
+//        return defaultValue;
+//    }
 
-    @Override
-    public <T> T getModification(String key, T defaultValue) {
-        return getModification(key, defaultValue, false);
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T> T getModification(String key, T defaultValue, boolean activate) {
-        ConcurrentMap<String, Modification> visitorModifications = visitorDelegate.getModifications();
-        try {
-            if (key == null) {
-                FlagshipLogManager.log(FlagshipLogManager.Tag.GET_MODIFICATION, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_KEY_ERROR, "null"));
-            } else if (!visitorModifications.containsKey(key)) {
-                FlagshipLogManager.log(FlagshipLogManager.Tag.GET_MODIFICATION, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_MISSING_ERROR, key));
-            } else {
-                Modification modification = visitorModifications.get(key);
-                T castValue = (T) ((modification.isReference() && modification.getValue() == null) ? defaultValue : modification.getValue());
-                if (defaultValue == null || castValue == null || castValue.getClass().equals(defaultValue.getClass())) {
-                    if (activate)
-                        this.activateModification(modification);
-                    return castValue;
-                } else
-                    FlagshipLogManager.log(FlagshipLogManager.Tag.GET_MODIFICATION, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_CAST_ERROR, key));
-            }
-        } catch (Exception e) {
-            FlagshipLogManager.log(FlagshipLogManager.Tag.GET_MODIFICATION, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_ERROR, key));
-        }
-        return defaultValue;
-    }
-
-    @Override
-    public JSONObject getModificationInfo(String key) {
-        ConcurrentMap<String, Modification> visitorModifications = visitorDelegate.getModifications();
-        if (key == null || !visitorModifications.containsKey(key)) {
-            FlagshipLogManager.log(FlagshipLogManager.Tag.GET_MODIFICATION_INFO, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_INFO_ERROR, key));
-            return null;
-        } else {
-            JSONObject obj = new JSONObject();
-            Modification modification = visitorModifications.get(key);
-            obj.put("campaignId", modification.getCampaignId());
-            obj.put("variationGroupId", modification.getVariationGroupId());
-            obj.put("variationId", modification.getVariationId());
-            obj.put("isReference", modification.isReference());
-            return obj;
-        }
-    }
-
-    private void activateModification(Modification modification) {
-        if (modification != null)
-            this.sendHit(new Activate(modification));
-    }
-
-    @Override
-    public void activateModification(String key) {
-        this.getModification(key, null, true);
-    }
+//    @Override
+//    public JSONObject getModificationInfo(String key) {
+//        ConcurrentMap<String, Modification> visitorModifications = visitorDelegate.modifications;
+//        if (key == null || !visitorModifications.containsKey(key)) {
+//            FlagshipLogManager.log(FlagshipLogManager.Tag.GET_MODIFICATION_INFO, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_INFO_ERROR, key));
+//            return null;
+//        } else {
+//            JSONObject obj = new JSONObject();
+//            Modification modification = visitorModifications.get(key);
+//            obj.put("campaignId", modification.getCampaignId());
+//            obj.put("variationGroupId", modification.getVariationGroupId());
+//            obj.put("variationId", modification.getVariationId());
+//            obj.put("isReference", modification.isReference());
+//            return obj;
+//        }
+//    }
+//
+//    private void activateModification(Modification modification) {
+//        if (modification != null)
+//            this.sendHit(new Activate(modification));
+//    }
+//
+//    @Override
+//    public void activateModification(String key) {
+//        this.getModification(key, null, true);
+//    }
 
     @Override
     public void sendConsentRequest() {
-        TrackingManager trackingManager = visitorDelegate.getConfigManager().getTrackingManager();
+        TrackingManager trackingManager = visitorDelegate.configManager.getTrackingManager();
         if (trackingManager != null)
-            trackingManager.sendHit(visitorDelegate, new Consent(visitorDelegate.hasConsented()));
+            trackingManager.sendHit(visitorDelegate.toDTO(), new Consent(visitorDelegate.hasConsented));
     }
 
     @Override
     public <T> void sendHit(Hit<T> hit) {
-        TrackingManager trackingManager = visitorDelegate.getConfigManager().getTrackingManager();
+        TrackingManager trackingManager = visitorDelegate.configManager.getTrackingManager();
         if (trackingManager != null && hit != null)
-            trackingManager.sendHit(visitorDelegate, hit);
+            trackingManager.sendHit(visitorDelegate.toDTO(), hit);
     }
 
     @Override
     public void authenticate(String visitorId) {
-        if (visitorDelegate.getConfigManager().isDecisionMode(Flagship.DecisionMode.API)) {
-            if (visitorDelegate.getAnonymousId() == null)
-                visitorDelegate.setAnonymousId(visitorDelegate.getVisitorId());
-            visitorDelegate.setVisitorId(visitorId);
+        if (visitorDelegate.configManager.isDecisionMode(Flagship.DecisionMode.API)) {
+            if (visitorDelegate.anonymousId == null)
+                visitorDelegate.anonymousId = (visitorDelegate.visitorId);
+            visitorDelegate.visitorId = (visitorId);
         } else {
             FlagshipLogManager.log(FlagshipLogManager.Tag.AUTHENTICATE, LogManager.Level.ERROR,
                     String.format(FlagshipConstants.Errors.AUTHENTICATION_BUCKETING_ERROR, "authenticate"));
@@ -175,10 +184,10 @@ class DefaultStrategy extends VisitorStrategy {
     @Override
     @SuppressWarnings("SpellCheckingInspection")
     public void unauthenticate() {
-        if (visitorDelegate.getConfigManager().isDecisionMode(Flagship.DecisionMode.API)) {
-            if (visitorDelegate.getAnonymousId() != null) {
-                visitorDelegate.setVisitorId(visitorDelegate.getAnonymousId());
-                visitorDelegate.setAnonymousId(null);
+        if (visitorDelegate.configManager.isDecisionMode(Flagship.DecisionMode.API)) {
+            if (visitorDelegate.anonymousId != null) {
+                visitorDelegate.visitorId = (visitorDelegate.anonymousId);
+                visitorDelegate.anonymousId = (null);
             }
         } else {
             FlagshipLogManager.log(FlagshipLogManager.Tag.UNAUTHENTICATE, LogManager.Level.ERROR,
@@ -191,12 +200,16 @@ class DefaultStrategy extends VisitorStrategy {
     @Override
     public void setConsent(Boolean hasConsented) {
         visitorDelegate.hasConsented = hasConsented;
+        if (!hasConsented) {
+            visitorDelegate.getStrategy().flushVisitorCache();
+            visitorDelegate.getStrategy().flushHitCache();
+        }
         sendConsentRequest();
     }
 
     @Override
     public Boolean hasConsented() {
-        return visitorDelegate.hasConsented();
+        return visitorDelegate.hasConsented;
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
@@ -211,6 +224,196 @@ class DefaultStrategy extends VisitorStrategy {
             for (FlagshipContext flagshipContext : FlagshipContext.ALL) {
                 this.updateContext(flagshipContext, flagshipContext.load(visitorDelegate));
             }
+        }
+    }
+
+    @Override
+    public void cacheVisitor() {
+        VisitorDelegateDTO visitorDTO = visitorDelegate.toDTO();
+        CacheManager cacheManager = flagshipConfig.getCacheManager();
+        if (cacheManager != null) {
+            CompletableFuture.supplyAsync(() -> {
+                try {
+                    IVisitorCacheImplementation visitorCacheImplementation = flagshipConfig.getCacheManager().getVisitorCacheImplementation();
+                    if (visitorCacheImplementation != null)
+                        visitorCacheImplementation.cacheVisitor(visitorDTO.getVisitorId(), CacheHelper.fromVisitor(visitorDTO));
+                } catch (Exception e) {
+                    logCacheException(String.format(FlagshipConstants.Errors.CACHE_IMPL_ERROR, "cacheVisitor", visitorDTO.getVisitorId()), e);
+                }
+                return 0;
+            });
+        }
+    }
+
+    @Override
+    public void lookupVisitorCache() {
+        VisitorDelegateDTO visitorDelegateDTO = visitorDelegate.toDTO();
+        CacheManager cacheManager = flagshipConfig.getCacheManager();
+        if (cacheManager != null) {
+            try {
+                CompletableFuture.supplyAsync(() -> {
+                    IVisitorCacheImplementation cacheImplementation = cacheManager.getVisitorCacheImplementation();
+                    if (cacheImplementation != null) {
+                        JSONObject json = cacheImplementation.lookupVisitor(visitorDelegateDTO.getVisitorId());
+                        CacheHelper.applyVisitorMigration(visitorDelegate, (json != null) ? json : new JSONObject());
+                    }
+                    return 0;
+                }).get(cacheManager.getVisitorCacheLookupTimeout(), cacheManager.getTimeoutUnit());
+            } catch (Exception e) {
+                if (e instanceof TimeoutException)
+                    logCacheException(String.format(FlagshipConstants.Errors.CACHE_IMPL_TIMEOUT, "lookupVisitor", visitorDelegateDTO.getVisitorId()), e);
+                else
+                    logCacheException(String.format(FlagshipConstants.Errors.CACHE_IMPL_ERROR, "lookupVisitor", visitorDelegateDTO.getVisitorId()), e);
+            }
+        }
+    }
+
+    @Override
+    public void flushVisitorCache() {
+        VisitorDelegateDTO visitorDelegateDTO = visitorDelegate.toDTO();
+        CacheManager cacheManager = flagshipConfig.getCacheManager();
+        if (cacheManager != null) {
+            try {
+                IVisitorCacheImplementation visitorCacheImplementation = cacheManager.getVisitorCacheImplementation();
+                if (visitorCacheImplementation != null)
+                    visitorCacheImplementation.flushVisitor(visitorDelegateDTO.getVisitorId());
+            } catch (Exception e) {
+                logCacheException(String.format(FlagshipConstants.Errors.CACHE_IMPL_ERROR, "flushVisitor", visitorDelegateDTO.getVisitorId()), e);
+            }
+        }
+    }
+
+    @Override
+    public void lookupHitCache() {
+        VisitorDelegateDTO visitorDelegateDTO = visitorDelegate.toDTO();
+        CacheManager cacheManager = flagshipConfig.getCacheManager();
+        if (cacheManager != null) {
+            try {
+                CompletableFuture.supplyAsync(() -> {
+                    IHitCacheImplementation hitCacheImplementation = cacheManager.getHitCacheImplementation();
+                    if (hitCacheImplementation != null) {
+                        JSONArray array = hitCacheImplementation.lookupHits(visitorDelegateDTO.getVisitorId());
+                        JSONArray result = (array != null) ? array : new JSONArray();
+                        CacheHelper.applyHitMigration(visitorDelegateDTO, result);
+                    }
+                    return 0;
+                }).get(cacheManager.getVisitorCacheLookupTimeout(), cacheManager.getTimeoutUnit());
+            } catch (Exception e) {
+                if (e instanceof TimeoutException)
+                    logCacheException(String.format(FlagshipConstants.Errors.CACHE_IMPL_TIMEOUT, "lookupHits", visitorDelegateDTO.getVisitorId()), e);
+                else
+                    logCacheException(String.format(FlagshipConstants.Errors.CACHE_IMPL_ERROR, "lookupHits", visitorDelegateDTO.getVisitorId()), e);
+            }
+        }
+    }
+
+    @Override
+    public void cacheHit(String visitorId, JSONObject data) {
+        CacheManager cacheManager = flagshipConfig.getCacheManager();
+        if (cacheManager != null) {
+            try {
+                IHitCacheImplementation hitCacheImplementation = cacheManager.getHitCacheImplementation();
+                if (hitCacheImplementation != null)
+                    hitCacheImplementation.cacheHit(visitorId, data);
+            } catch (Exception e) {
+                logCacheException(String.format(FlagshipConstants.Errors.CACHE_IMPL_ERROR, "cacheHit", visitorId), e);
+            }
+        }
+    }
+
+    @Override
+    public void flushHitCache() {
+        VisitorDelegateDTO visitorDelegateDTO = visitorDelegate.toDTO();
+        CacheManager cacheManager = flagshipConfig.getCacheManager();
+        if (cacheManager != null) {
+            CompletableFuture.supplyAsync(() -> {
+                try {
+                    IHitCacheImplementation hitCacheImplementation = cacheManager.getHitCacheImplementation();
+                    if (hitCacheImplementation != null)
+                        hitCacheImplementation.flushHits(visitorDelegateDTO.getVisitorId());
+                } catch (Exception e) {
+                    logCacheException(String.format(FlagshipConstants.Errors.CACHE_IMPL_ERROR, "flushHit", visitorDelegateDTO.getVisitorId()), e);
+                }
+                return 0;
+            });
+        }
+    }
+
+    @Override
+    public CompletableFuture<Visitor> fetchFlags() {
+
+        DecisionManager decisionManager = visitorDelegate.configManager.getDecisionManager();
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                VisitorDelegateDTO visitorDTO = visitorDelegate.toDTO();
+                visitorDelegate.updateModifications(decisionManager.getCampaignsModifications(visitorDTO));
+                visitorDelegate.logVisitor(FlagshipLogManager.Tag.SYNCHRONIZE);
+                visitorDelegate.getStrategy().cacheVisitor();
+            } catch (Exception e) {
+                FlagshipLogManager.exception(e);
+            }
+            return visitorDelegate.originalVisitor;
+        }, HttpManager.getInstance().getThreadPoolExecutor()).whenCompleteAsync((instance, error) -> visitorDelegate.logVisitor(FlagshipLogManager.Tag.SYNCHRONIZE));
+    }
+
+    @Override
+    public <T> Flag<T> getFlag(String key, T defaultValue) {
+        return new Flag<T>(visitorDelegate, key, defaultValue);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> Modification getModification(String key, T defaultValue) throws FlagshipConstants.Exceptions.FlagNotFoundException, FlagshipConstants.Exceptions.FlagTypeException, FlagshipConstants.Exceptions.FlagException {
+        HashMap<String, Modification> modifications = new HashMap<String, Modification>(visitorDelegate.modifications);
+        try {
+            Modification modification = modifications.get(key);
+            if (modification != null) {
+                T castValue = (T) ((modification.isReference() && modification.getValue() == null) ? defaultValue : modification.getValue());
+                if (defaultValue == null || castValue == null || castValue.getClass().equals(defaultValue.getClass()))
+                    return modification;
+                else
+                    throw new FlagshipConstants.Exceptions.FlagTypeException();
+            } else
+                throw new FlagshipConstants.Exceptions.FlagNotFoundException();
+        } catch (Exception e) {
+            if (e instanceof FlagshipConstants.Exceptions.FlagTypeException || e instanceof FlagshipConstants.Exceptions.FlagNotFoundException)
+                throw e;
+            else
+                throw new  FlagshipConstants.Exceptions.FlagException();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    synchronized public <T> T getFlagValue(String key, T defaultValue) {
+        try {
+            Modification modification = getModification(key, defaultValue);
+            return (modification.getValue() != null) ? (T) modification.getValue() : (T) defaultValue;
+        } catch (Exception e) {
+           logFlagError(FlagshipLogManager.Tag.FLAG_VALUE, e, String.format( FlagshipConstants.Errors.FLAG_VALUE_ERROR, key));
+        }
+        return (T) defaultValue;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    synchronized public <T> Modification getFlagMetadata(String key, T defaultValue) {
+        try {
+            return getModification(key, defaultValue);
+        } catch (Exception e) {
+            logFlagError(FlagshipLogManager.Tag.FLAG_METADATA, e, String.format( FlagshipConstants.Errors.FLAG_METADATA_ERROR, key));
+        }
+        return null;
+    }
+
+    @Override
+    synchronized public <T> void exposeFlag(String key, T defaultValue) {
+        try {
+            Modification modification = getModification(key, defaultValue);
+            if (!visitorDelegate.activatedVariations.contains(modification.getVariationId()))
+                visitorDelegate.activatedVariations.add(modification.getVariationId());
+            sendHit(new Activate(modification));
+        } catch (Exception e) {
+            logFlagError(FlagshipLogManager.Tag.FLAG_USER_EXPOSED, e, String.format( FlagshipConstants.Errors.FLAG_USER_EXPOSITION_ERROR, key));
         }
     }
 }

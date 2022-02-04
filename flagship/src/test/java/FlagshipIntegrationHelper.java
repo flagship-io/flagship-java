@@ -1,4 +1,14 @@
-public class FlagshipIntegrationConstants {
+public class FlagshipIntegrationHelper {
+
+    public static String CAMPAIGNS_URL = "https://decision.flagship.io/v2/%s/campaigns/?exposeAllKeys=true";
+    public static String BUCKETING_URL = "https://cdn.flagship.io/%s/bucketing.json";
+    public static String ACTIVATION_URL = "https://decision.flagship.io/v2/activate";
+    public static String CONTEXT_URL = "https://decision.flagship.io/v2/%s/events";
+    public static String CONSENT_PARAM = "&sendContextEvent=false";
+    public static String ARIANE_URL = "https://ariane.abtasty.com";
+    public static String _ENV_ID_ = "_ENV_ID_";
+    public static String _API_KEY_ = "_API_KEY_";
+
 
     public static final String synchronizeResponse = "{\"visitorId\":\"visitor_1\",\"campaigns\":[{\"id\":\"xxxxxxjh6h101fk8lbrg\",\"variationGroupId\":\"xxxxxxjh6h101fk8lbsg\",\"variation\":{\"id\":\"xxxxxx65k9h02cuc1ae0\",\"modifications\":{\"type\":\"JSON\",\"value\":{\"isref\":\"not a all\"}},\"reference\":false}},{\"id\":\"xxxxxx3m649g0h9nkui0\",\"variationGroupId\":\"xxxxxx3m649g0h9nkuj0\",\"variation\":{\"id\":\"xxxxxx3m649g0h9nkuk0\",\"modifications\":{\"type\":\"FLAG\",\"value\":{\"release\":100}},\"reference\":false}}]}";
     public static final String synchronizeResponse2 = "{\"visitorId\":\"visitor_1\",\"campaigns\":[{\"id\":\"xxxxxx4jaeg0gm49cjg\",\"variationGroupId\":\"xxxxxx4jaeg0gm49ckg\",\"variation\":{\"id\":\"xxxxxx4jaeg0gm49cn0\",\"modifications\":{\"type\":\"JSON\",\"value\":{\"title\":\"Hello\",\"visitorIdColor\":\"#E5B21D\"}},\"reference\":false}},{\"id\":\"xxxxxxe4jaeg0gi1bhog\",\"variationGroupId\":\"xxxxxxe4jaeg0gi1bhpg\",\"variation\":{\"id\":\"xxxxxxe4jaeg0gi1bhq0\",\"modifications\":{\"type\":\"FLAG\",\"value\":{\"featureEnabled\":true}},\"reference\":false}},{\"id\":\"xxxxxxjh6h101fk8lbrg\",\"variationGroupId\":\"xxxxxxjh6h101fk8lbsg\",\"variation\":{\"id\":\"xxxxxx65k9h02cuc1ae0\",\"modifications\":{\"type\":\"JSON\",\"value\":{\"isref\":\"not a all\"}},\"reference\":false}},{\"id\":\"xxxxxx3m649g0h9nkui0\",\"variationGroupId\":\"xxxxxx3m649g0h9nkuj0\",\"variation\":{\"id\":\"xxxxxx3m649g0h9nkuk0\",\"modifications\":{\"type\":\"FLAG\",\"value\":{\"release\":100}},\"reference\":false}},{\"id\":\"xxxxxxc8tbo3s7bp5il0\",\"variationGroupId\":\"xxxxxxc8tbo3s7bp5im0\",\"variation\":{\"id\":\"xxxxxxc8tbo3s7bp5in0\",\"modifications\":{\"type\":\"JSON\",\"value\":{\"all_users\":1}},\"reference\":false}}]}";

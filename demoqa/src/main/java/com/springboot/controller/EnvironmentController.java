@@ -1,5 +1,6 @@
 package com.springboot.controller;
 
+import com.abtasty.flagship.database.SQLiteCacheManager;
 import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.main.FlagshipConfig;
 import com.abtasty.flagship.utils.LogManager;
@@ -14,6 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import static com.springboot.controller.VisitorController.VisitorConstant;
 
 @RestController
@@ -49,10 +53,12 @@ public class EnvironmentController {
         if (environmentModel.getFlagship_mode().equals("api")) {
             return new FlagshipConfig.DecisionApi()
                     .withLogLevel(LogManager.Level.ALL)
+                    .withCacheManager(new SQLiteCacheManager("./qa_db"))
                     .withTimeout(environmentModel.getTimeout())
                     .withLogManager(new LogManager() {
                         @Override
                         public void onLog(Level level, String tag, String message) {
+                            System.out.println(String.format("[Flagship][%s][%s] [%s]", level.toString(), tag, message));
                             LogHelper.appendToLogFile(level, tag, message);
                         }
                     });
@@ -61,9 +67,11 @@ public class EnvironmentController {
             return new FlagshipConfig.Bucketing()
                     .withLogLevel(LogManager.Level.ALL)
                     .withTimeout(environmentModel.getTimeout())
+                    .withCacheManager(new SQLiteCacheManager("./qa_db"))
                     .withLogManager(new LogManager() {
                         @Override
                         public void onLog(Level level, String tag, String message) {
+                            System.out.println(String.format("[Flagship][%s][%s] [%s]", level.toString(), tag, message));
                             LogHelper.appendToLogFile(level, tag, message);
                         }
                     })

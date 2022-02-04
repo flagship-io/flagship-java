@@ -12,6 +12,7 @@ import com.abtasty.flagship.model.VariationGroup;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
 import com.abtasty.flagship.visitor.VisitorDelegate;
+import com.abtasty.flagship.visitor.VisitorDelegateDTO;
 import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ public class ApiManager extends DecisionManager {
             statusListener.onStatusChanged(Flagship.Status.READY);
     }
 
-    private ArrayList<Campaign> sendCampaignRequest(VisitorDelegate visitor) throws IOException {
+    private ArrayList<Campaign> sendCampaignRequest(VisitorDelegateDTO visitor) throws IOException {
         JSONObject json = new JSONObject();
         HashMap<String, String> headers = new HashMap<String, String>() {{
             put("x-api-key", config.getApiKey());
@@ -51,7 +52,7 @@ public class ApiManager extends DecisionManager {
     }
 
     @Override
-    public HashMap<String, Modification> getCampaignsModifications(VisitorDelegate visitor) {
+    public HashMap<String, Modification> getCampaignsModifications(VisitorDelegateDTO visitor) {
         try {
             ArrayList<Campaign> campaigns = sendCampaignRequest(visitor);
             if (campaigns != null) {

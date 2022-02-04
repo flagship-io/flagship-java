@@ -1,6 +1,8 @@
 package com.abtasty.flagship.visitor;
 
 import com.abtasty.flagship.hits.Hit;
+import com.abtasty.flagship.model.Flag;
+import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.FlagshipContext;
 import org.json.JSONObject;
 import java.util.HashMap;
@@ -48,47 +50,63 @@ public interface IVisitor {
      */
     void clearContext();
 
+//    /**
+//     * This function will call the decision api and update all the campaigns modifications from the server according to the visitor context.
+//     *
+//     * @return a CompletableFuture for this synchronization
+//     */
+//    CompletableFuture<Visitor> synchronizeModifications();
+//
+//    /**
+//     * Retrieve a modification value by its key. If no modification match the given key, default value will be returned.
+//     *
+//     * @param key          key associated to the modification.
+//     * @param defaultValue default value to return.
+//     * @return modification value or default value.
+//     */
+//    <T> T getModification(String key, T defaultValue);
+//
+//    /**
+//     * Retrieve a modification value by its key. If no modification match the given key or if the stored value type and default value type do not match, default value will be returned.
+//     *
+//     * @param key          key associated to the modification.
+//     * @param defaultValue default value to return.
+//     * @param activate     Set this parameter to true to automatically report on our server that the
+//     *                     current visitor has seen this modification. It is possible to call activateModification() later.
+//     * @return modification value or default value.
+//     */
+//    <T> T getModification(String key, T defaultValue, boolean activate);
+//
+//    /**
+//     * Get the campaign modification information value matching the given key.
+//     *
+//     * @param key key which identify the modification.
+//     * @return JSONObject containing the modification information.
+//     */
+//    JSONObject getModificationInfo(String key);
+//
+//    /**
+//     * Report this user has seen this modification.
+//     *
+//     * @param key key which identify the modification to activate.
+//     */
+//    void activateModification(String key);
+
     /**
-     * This function will call the decision api and update all the campaigns modifications from the server according to the visitor context.
+     * This function will update all the campaigns flags from the server according to the visitor context.
      *
      * @return a CompletableFuture for this synchronization
      */
-    CompletableFuture<Visitor> synchronizeModifications();
+    CompletableFuture<Visitor> fetchFlags();
 
     /**
-     * Retrieve a modification value by its key. If no modification match the given key, default value will be returned.
+     * This function will return a flag object containing the current value returned by Flagship and the associated campaign information.
+     * If the key is not found an empty Flag object with the default value will be returned.
      *
      * @param key          key associated to the modification.
-     * @param defaultValue default value to return.
-     * @return modification value or default value.
+     * @param defaultValue fallback default value to use.
      */
-    <T> T getModification(String key, T defaultValue);
-
-    /**
-     * Retrieve a modification value by its key. If no modification match the given key or if the stored value type and default value type do not match, default value will be returned.
-     *
-     * @param key          key associated to the modification.
-     * @param defaultValue default value to return.
-     * @param activate     Set this parameter to true to automatically report on our server that the
-     *                     current visitor has seen this modification. It is possible to call activateModification() later.
-     * @return modification value or default value.
-     */
-    <T> T getModification(String key, T defaultValue, boolean activate);
-
-    /**
-     * Get the campaign modification information value matching the given key.
-     *
-     * @param key key which identify the modification.
-     * @return JSONObject containing the modification information.
-     */
-    JSONObject getModificationInfo(String key);
-
-    /**
-     * Report this user has seen this modification.
-     *
-     * @param key key which identify the modification to activate.
-     */
-    void activateModification(String key);
+    <T> Flag<T> getFlag(String key, T defaultValue);
 
     /**
      * Send a Hit to Flagship servers for reporting.

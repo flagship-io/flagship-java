@@ -1,24 +1,25 @@
 package com.abtasty.flagship.api;
 
 import com.abtasty.flagship.BuildConfig;
+import com.abtasty.flagship.cache.CacheHelper;
 import com.abtasty.flagship.hits.Activate;
 import com.abtasty.flagship.hits.Hit;
 import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
-import com.abtasty.flagship.visitor.VisitorDelegate;
+import com.abtasty.flagship.visitor.VisitorDelegateDTO;
 import org.json.JSONObject;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 public class TrackingManager implements IFlagshipEndpoints {
 
     public TrackingManager() {
     }
 
-    private void sendActivation(VisitorDelegate visitor, Activate hit) {
+    private void sendActivation(VisitorDelegateDTO visitor, Activate hit) {
 
         HashMap<String, String> headers = new HashMap<>();
         headers.put("x-sdk-client", "java");
@@ -34,11 +35,10 @@ public class TrackingManager implements IFlagshipEndpoints {
             data.put(FlagshipConstants.HitKeyMap.VISITOR_ID, visitor.getAnonymousId());
             data.put(FlagshipConstants.HitKeyMap.ANONYMOUS_ID, JSONObject.NULL);
         }
-        CompletableFuture<Response> response = HttpManager.getInstance().sendAsyncHttpRequest(HttpManager.RequestType.POST, DECISION_API + ACTIVATION, headers, data.toString());
-        response.whenComplete((httpResponse, error) -> logHit(hit, httpResponse));
+        sendTracking(visitor,  hit.getType() + "", DECISION_API + ACTIVATION, headers, data, -1);
     }
 
-    public void sendHit(VisitorDelegate visitor, Hit<?> hit) {
+    public void sendHit(VisitorDelegateDTO visitor, Hit<?> hit) {
         if (hit instanceof Activate)
             sendActivation(visitor, (Activate) hit);
         else {
@@ -54,39 +54,69 @@ public class TrackingManager implements IFlagshipEndpoints {
                     data.put(FlagshipConstants.HitKeyMap.VISITOR_ID, visitor.getAnonymousId());
                     data.put(FlagshipConstants.HitKeyMap.CUSTOM_VISITOR_ID, JSONObject.NULL);
                 }
-                CompletableFuture<Response> response = HttpManager.getInstance().sendAsyncHttpRequest(HttpManager.RequestType.POST, ARIANE, null, data.toString());
-                response.whenComplete((httpResponse, error) -> logHit(hit, httpResponse));
+                sendTracking(visitor, hit.getType() + "", ARIANE, null, data, -1);
             } else
                 FlagshipLogManager.log(FlagshipLogManager.Tag.TRACKING, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.HIT_INVALID_DATA_ERROR, hit.getType(), hit));
         }
     }
 
-    private void logHit(Hit<?> h, Response response) {
-        FlagshipLogManager.Tag tag = (h instanceof Activate) ? FlagshipLogManager.Tag.ACTIVATE : FlagshipLogManager.Tag.TRACKING;
-        LogManager.Level level = response.isSuccess() ? LogManager.Level.DEBUG : LogManager.Level.ERROR;
-        String log = String.format("[%s] %s [%d] [%dms]\n%s", response.getType(), response.getRequestUrl(),
-                response.getResponseCode(), response.getResponseTime(), h.getData().toString(2));
-        FlagshipLogManager.log(tag, level, log);
+    public void sendHit(VisitorDelegateDTO visitorDelegateDTO, String type, long time, JSONObject content) {
+        String endpoint = null;
+        HashMap<String, String> headers = new HashMap<String, String>();
+        if (type.equals("CONTEXT")) {
+            endpoint = DECISION_API + visitorDelegateDTO.getConfigManager().getFlagshipConfig().getEnvId() + EVENTS;
+            headers.put("x-sdk-client", "android");
+            headers.put("x-sdk-version", BuildConfig.flagship_version_name);
+        }
+        else if (type.equals("ACTIVATION")) {
+            endpoint = DECISION_API + ACTIVATION;
+            headers.put("x-sdk-client", "android");
+            headers.put("x-sdk-version", BuildConfig.flagship_version_name);
+        }
+        else if (Arrays.asList("SCREENVIEW", "PAGEVIEW", "EVENT", "TRANSACTION", "ITEM", "CONSENT", "BATCH").contains(type)) {
+            endpoint = ARIANE;
+        }
+        if (endpoint != null)
+            sendTracking(visitorDelegateDTO, type, endpoint, headers, content, time);
     }
 
-    public void sendContextRequest(String envId, String visitorId, HashMap<String, Object> context) {
+    private void sendTracking(VisitorDelegateDTO visitorDelegateDTO, String type, String endpoint, HashMap<String, String> headers, JSONObject content, long time) {
+        HttpManager.getInstance().sendAsyncHttpRequest(HttpManager.RequestType.POST, endpoint, headers, content.toString())
+                .whenComplete((response, error) -> {
+                    FlagshipLogManager.Tag tag = (type.equals(FlagshipLogManager.Tag.ACTIVATE.name())) ? FlagshipLogManager.Tag.ACTIVATE : FlagshipLogManager.Tag.TRACKING;
+                    logHit(tag, response, response.getRequestContent());
+                    if (response == null || response.getResponseCode() < 200 || response.getResponseCode() > 204) {
+                        JSONObject json = CacheHelper.fromHit(visitorDelegateDTO, type, content, time);
+                        visitorDelegateDTO.getVisitorDelegate().getStrategy().cacheHit(visitorDelegateDTO.getVisitorId(), json);
+                    }
+                });
+    }
+
+    private void logHit(FlagshipLogManager.Tag tag, Response response, String content) {
         try {
-            String endpoint = DECISION_API + envId + EVENTS;
-            JSONObject body = new JSONObject();
+            LogManager.Level level = (response.getResponseCode() < 400) ? LogManager.Level.DEBUG : LogManager.Level.ERROR;
+            String log = String.format("[%s] %s [%d] [%dms]\n%s", "POST", response.getRequestUrl(),
+                    response.getResponseCode(), response.getResponseTime(), new JSONObject(content).toString(3));
+            FlagshipLogManager.log(tag, level, log);
+        } catch (Exception ignored) {}
+    }
+
+    public void sendContextRequest(VisitorDelegateDTO visitor) {
+        try {
+            String endpoint = DECISION_API + visitor.getConfigManager().getFlagshipConfig().getEnvId() + EVENTS;
+            HashMap<String, String> headers = new HashMap<String, String>();
+            headers.put("x-sdk-client", "android");
+            headers.put("x-sdk-version", BuildConfig.flagship_version_name);
+
             JSONObject data = new JSONObject();
-            body.put("visitorId", visitorId);
-            body.put("type", "CONTEXT");
-            for (Map.Entry<String, Object> item : context.entrySet()) {
+            for (Map.Entry<String, Object> item : visitor.getContext().entrySet()) {
                 data.put(item.getKey(), item.getValue());
             }
-            body.put("data", data);
-            CompletableFuture<Response> response = HttpManager.getInstance().sendAsyncHttpRequest(HttpManager.RequestType.POST, endpoint, null, body.toString());
-            response.whenComplete((httpResponse, error) -> {
-                String log = String.format("[%s] %s [%d] [%dms]\n%s", httpResponse.getType(), httpResponse.getRequestUrl(),
-                        httpResponse.getResponseCode(), httpResponse.getResponseTime(), httpResponse.getRequestContentAsJson().toString(2));
-                LogManager.Level level = httpResponse.isSuccess() ? LogManager.Level.DEBUG : LogManager.Level.ERROR;
-                FlagshipLogManager.log(FlagshipLogManager.Tag.TRACKING, level, log);
-            });
+            JSONObject body = new JSONObject()
+                    .put("visitorId", visitor.getVisitorId())
+                    .put("type", "CONTEXT")
+                    .put("data", data);
+            sendTracking(visitor, "CONTEXT", endpoint, headers, body, -1);
         } catch (Exception e) {
             FlagshipLogManager.exception(e);
         }

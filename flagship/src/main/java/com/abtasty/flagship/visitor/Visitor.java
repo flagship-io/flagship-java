@@ -3,6 +3,7 @@ package com.abtasty.flagship.visitor;
 import com.abtasty.flagship.hits.Hit;
 import com.abtasty.flagship.main.ConfigManager;
 import com.abtasty.flagship.main.Flagship;
+import com.abtasty.flagship.model.Flag;
 import com.abtasty.flagship.utils.FlagshipContext;
 import org.json.JSONObject;
 
@@ -102,15 +103,15 @@ public class Visitor implements IVisitor {
     }
 
     private Visitor(ConfigManager configManager, String visitorId, Boolean isAuthenticated, Boolean hasConsented, HashMap<String, Object> context) {
-        this.delegate = new VisitorDelegate(configManager, visitorId, isAuthenticated, hasConsented, context);
-        this.delegate.setVisitor(this);
+        this.delegate = new VisitorDelegate(this, configManager, visitorId, isAuthenticated, hasConsented, context);
     }
 
     /**
      * Return the current visitor id
      * @return visitor unique identifier
      */
-    public String getId() {
+
+    synchronized public String getId() {
         return delegate.visitorId;
     }
 
@@ -118,77 +119,135 @@ public class Visitor implements IVisitor {
      * Return the current visitor anonymous id.
      * @return visitor anonymous identifier.
      */
-    public String getAnonymousId() {
+    synchronized public String getAnonymousId() {
         return delegate.anonymousId;
     }
 
     @Override
-    public void updateContext(HashMap<String, Object> context) {
+    synchronized public void updateContext(HashMap<String, Object> context) {
         this.delegate.getStrategy().updateContext(context);
     }
 
     @Override
-    public <T> void updateContext(String key, T value) {
+    synchronized public <T> void updateContext(String key, T value) {
         this.delegate.getStrategy().updateContext(key, value);
     }
 
     @Override
-    public <T> void updateContext(FlagshipContext<T> flagshipContext, T value) {
+    synchronized public <T> void updateContext(FlagshipContext<T> flagshipContext, T value) {
         this.delegate.getStrategy().updateContext(flagshipContext, value);
     }
 
     @Override
-    public void clearContext() {
+    synchronized public void clearContext() {
         this.delegate.getStrategy().clearContext();
     }
 
+    /**
+     * This function will call the decision api and update all the campaigns modifications from the server according to the visitor context.
+     *
+     * @deprecated Use fetchFlags() instead.
+     *
+     * @return a CompletableFuture for this synchronization
+     */
+    @Deprecated
+    synchronized public CompletableFuture<Visitor> synchronizeModifications() {
+        return this.delegate.getStrategy().fetchFlags();
+    }
+
+    /**
+     * Retrieve a modification value by its key. If no modification match the given key, default value will be returned.
+     *
+     * @deprecated Use getFlag() instead.
+     *
+     * @param key          key associated to the modification.
+     * @param defaultValue default value to return.
+     * @return modification value or default value.
+     */
+    @Deprecated
+    synchronized public <T> T getModification(String key, T defaultValue) {
+        return this.delegate.getStrategy().getFlag(key, defaultValue).value(false);
+    }
+
+    /**
+     * Retrieve a modification value by its key. If no modification match the given key, default value will be returned.
+     *
+     * @deprecated Use getFlag() instead.
+     *
+     * @param key          key associated to the modification.
+     * @param defaultValue default value to return.
+     * @param activate     Set this parameter to true to automatically report on our server that the
+     *                     current visitor has seen this modification. It is possible to call activateModification() later.
+     * @return modification value or default value.
+     */
+    @Deprecated
+    synchronized public <T> T getModification(String key, T defaultValue, boolean activate) {
+        return this.delegate.getStrategy().getFlag(key, defaultValue).value(activate);
+    }
+
+    /**
+     * Get the campaign modification information value matching the given key.
+     *
+     * @deprecated Use getFlag("flag key").metadata() instead.
+     *
+     * @param key key which identify the modification.
+     * @return JSONObject containing the modification information.
+     */
+    @Deprecated
+    synchronized public JSONObject getModificationInfo(String key) {
+        JSONObject json = this.delegate.getStrategy().getFlag(key, null).metadata().toJSON();
+        return (json.length() == 0) ? null : json;
+    }
+
+    /**
+     * Report this user has seen this modification.
+     *
+     * @deprecated Use getFlag("flag key").userExposed() instead.
+     *
+     * @param key key which identify the modification to activate.
+     */
+    @Deprecated
+    synchronized public void activateModification(String key) {
+        delegate.getStrategy().getFlag(key, null).userExposed();
+    }
+
+    //// new
+
+
     @Override
-    public CompletableFuture<Visitor> synchronizeModifications() {
-        return this.delegate.getStrategy().synchronizeModifications();
+    synchronized public CompletableFuture<Visitor> fetchFlags() {
+        return this.delegate.getStrategy().fetchFlags();
     }
 
     @Override
-    public <T> T getModification(String key, T defaultValue) {
-        return this.delegate.getStrategy().getModification(key, defaultValue);
+    synchronized public <T> Flag<T> getFlag(String key, T defaultValue) {
+        return this.delegate.getStrategy().getFlag(key, defaultValue);
     }
 
-    @Override
-    public <T> T getModification(String key, T defaultValue, boolean activate) {
-        return this.delegate.getStrategy().getModification(key, defaultValue, activate);
-    }
+    ////
 
     @Override
-    public JSONObject getModificationInfo(String key) {
-        return this.delegate.getStrategy().getModificationInfo(key);
-    }
-
-    @Override
-    public void activateModification(String key) {
-        this.delegate.getStrategy().activateModification(key);
-    }
-
-    @Override
-    public <T> void sendHit(Hit<T> hit) {
+    synchronized public <T> void sendHit(Hit<T> hit) {
         this.delegate.getStrategy().sendHit(hit);
     }
 
     @Override
-    public void authenticate(String visitorId) {
+    synchronized public void authenticate(String visitorId) {
         this.delegate.getStrategy().authenticate(visitorId);
     }
 
     @Override
-    public void unauthenticate() {
+    synchronized public void unauthenticate() {
         this.delegate.getStrategy().unauthenticate();
     }
 
     @Override
-    public void setConsent(Boolean hasConsented) {
+    synchronized public void setConsent(Boolean hasConsented) {
         this.delegate.getStrategy().setConsent(hasConsented);
     }
 
     @Override
-    public Boolean hasConsented() {
+    synchronized public Boolean hasConsented() {
         return this.delegate.getStrategy().hasConsented();
     }
 
@@ -197,17 +256,12 @@ public class Visitor implements IVisitor {
      *
      * @return return context.
      */
-    public HashMap<String, Object> getContext() {
+    synchronized public HashMap<String, Object> getContext() {
         return this.delegate.getContext();
     }
 
         @Override
-    public String toString() {
-        JSONObject json = new JSONObject();
-        json.put("visitorId", this.delegate.visitorId);
-        json.put("anonymousId", (this.delegate.anonymousId != null) ? this.delegate.anonymousId : JSONObject.NULL);
-        json.put("context", this.delegate.getContextAsJson());
-        json.put("modifications", this.delegate.getModificationsAsJson());
-        return json.toString(2);
+    synchronized public String toString() {
+        return this.delegate.toString();
     }
 }

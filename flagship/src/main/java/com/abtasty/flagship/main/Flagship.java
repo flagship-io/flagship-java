@@ -15,7 +15,7 @@ public class Flagship {
     private static volatile Flagship    instance = null;
 
     private final ConfigManager         configManager   = new ConfigManager();
-    private  Visitor                    singleVisitorInstance = null;
+    private Visitor                     singleVisitorInstance = null;
     private Status                      status          = Status.NOT_INITIALIZED;
 
     /**
@@ -77,7 +77,7 @@ public class Flagship {
      * Main singleton
      * @return Flagship instance
      */
-    protected static Flagship instance() {
+    public static Flagship instance() {
         if (instance == null) {
             synchronized (Flagship.class) {
                 if (instance == null)

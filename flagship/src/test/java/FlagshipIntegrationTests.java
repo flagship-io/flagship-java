@@ -1,13 +1,20 @@
 import com.abtasty.flagship.BuildConfig;
 import com.abtasty.flagship.api.HttpManager;
 import com.abtasty.flagship.api.Response;
+import com.abtasty.flagship.cache.CacheHelper;
+import com.abtasty.flagship.cache.CacheManager;
+import com.abtasty.flagship.cache.IHitCacheImplementation;
+import com.abtasty.flagship.cache.IVisitorCacheImplementation;
+import com.abtasty.flagship.database.SQLiteCacheManager;
 import com.abtasty.flagship.hits.*;
+import com.abtasty.flagship.main.ConfigManager;
 import com.abtasty.flagship.main.Flagship;
 import com.abtasty.flagship.main.FlagshipConfig;
-import com.abtasty.flagship.visitor.Visitor;
+import com.abtasty.flagship.model.Flag;
 import com.abtasty.flagship.utils.ETargetingComp;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
+import com.abtasty.flagship.visitor.Visitor;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
@@ -18,16 +25,26 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.powermock.api.mockito.PowerMockito.doAnswer;
@@ -41,8 +58,9 @@ public class FlagshipIntegrationTests {
     private Boolean                                         requestsVerified = true;
     private Boolean                                         missingRequestVerification = false;
 
-    public FlagshipIntegrationTests() {
+    private HashMap<String, List<Response>>                 interceptedRequests = new HashMap<>();
 
+    public FlagshipIntegrationTests() {
         try {
             HttpManager mock = PowerMockito.spy(HttpManager.getInstance());
             Whitebox.setInternalState(HttpManager.class, "instance", mock);
@@ -59,7 +77,7 @@ public class FlagshipIntegrationTests {
                 if (requestToVerify.containsKey(response.getRequestUrl())) {
                     OnRequestValidation validation = requestToVerify.get(response.getRequestUrl());
                     try {
-                       validation.onRequestValidation(response);
+                        validation.onRequestValidation(response);
                     } catch (Error | Exception e) {
                         requestsVerified = false;
                         System.err.println("Error verifying : " + response.getRequestUrl());
@@ -71,6 +89,13 @@ public class FlagshipIntegrationTests {
                     missingRequestVerification = true;
                     System.err.println("Error url not verified : " + response.getRequestUrl());
                 }
+                //v2
+                if (interceptedRequests.containsKey(response.getRequestUrl())) {
+                    interceptedRequests.get(response.getRequestUrl()).add(response);
+                } else {
+                    interceptedRequests.put(response.getRequestUrl(), new ArrayList<>(Arrays.asList(response)));
+                }
+                //
                 return response;
             }).when(mock, "parseResponse", any(), any(), any(), any(), any());
         } catch (Exception e) {
@@ -78,6 +103,8 @@ public class FlagshipIntegrationTests {
             fail();
         }
     }
+
+
 
     interface OnRequestValidation {
         default boolean shouldBeRemoved() {return true;}
@@ -107,11 +134,13 @@ public class FlagshipIntegrationTests {
 
     @BeforeEach
     public void before() {
-
         requestsVerified = true;
         missingRequestVerification = false;
         responseToMock.clear();
         requestToVerify.clear();
+
+        //v2
+        interceptedRequests.clear();
     }
 
     @AfterEach
@@ -123,10 +152,12 @@ public class FlagshipIntegrationTests {
         }
         resetSingleton();
         try {
-            Thread.sleep(200);
+            Thread.sleep(400);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        //v2
+        interceptedRequests.clear();
     }
 
     public static void resetSingleton() {
@@ -134,7 +165,21 @@ public class FlagshipIntegrationTests {
         try {
             instance = Flagship.class.getDeclaredField("instance");
             instance.setAccessible(true);
+
+            Field config = Flagship.instance().getClass().getDeclaredField("configManager");
+            config.setAccessible(true);
+            config.set(Flagship.instance(), new ConfigManager());
+
+            Field status = Flagship.instance().getClass().getDeclaredField("status");
+            status.setAccessible(true);
+            status.set(Flagship.instance(), Flagship.Status.NOT_INITIALIZED);
+
+            Field visitorInstance = Flagship.instance().getClass().getDeclaredField("singleVisitorInstance");
+            visitorInstance.setAccessible(true);
+            visitorInstance.set(Flagship.instance(), null);
+
             instance.set(null, null);
+
         } catch (Exception e) {
             throw new RuntimeException();
         }
@@ -272,7 +317,7 @@ public class FlagshipIntegrationTests {
     public void synchronize() {
 
         try {
-            mockResponse("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", 200, FlagshipIntegrationConstants.synchronizeResponse);
+            mockResponse("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", 200, FlagshipIntegrationHelper.synchronizeResponse);
 
             verifyRequest("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", (request) -> {
                 assertTrue(request.getType().toString().equalsIgnoreCase("POST"));
@@ -289,10 +334,7 @@ public class FlagshipIntegrationTests {
             CountDownLatch synchronizeLatch = new CountDownLatch(1);
             Flagship.start("my_env_id", "my_api_key");
             assertEquals(Flagship.getStatus(), Flagship.Status.READY);
-//            Visitor visitor = Flagship.newVisitor("visitor_1", false, new HashMap<String, Object>() {{
-//                put("vip", true);
-//                put("age", 32);
-//            }});
+
             Visitor visitor = Flagship.newVisitor("visitor_1")
                     .context(new HashMap<String, Object>() {{
                         put("vip", true);
@@ -315,7 +357,7 @@ public class FlagshipIntegrationTests {
     @Test
     public void activate() throws InterruptedException {
 
-        mockResponse("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", 200, FlagshipIntegrationConstants.synchronizeResponse2);
+        mockResponse("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", 200, FlagshipIntegrationHelper.synchronizeResponse2);
         mockResponse("https://decision.flagship.io/v2/activate", 200, "");
 
         verifyRequest("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", (request) -> {
@@ -324,11 +366,7 @@ public class FlagshipIntegrationTests {
         });
 
         Flagship.start("my_env_id", "my_api_key");
-//        Visitor visitor = Flagship.newVisitor("visitor_1", false, new HashMap<String, Object>() {{
-//            put("isVIPUser", true);
-//            put("age", 32);
-//            put("daysSinceLastLaunch", 2);
-//        }});
+
         Visitor visitor = Flagship.newVisitor("visitor_1")
                 .context(new HashMap<String, Object>() {{
                     put("isVIPUser", true);
@@ -368,15 +406,18 @@ public class FlagshipIntegrationTests {
 
         CountDownLatch nbHit2 = new CountDownLatch(1);
         verifyRequest("https://decision.flagship.io/v2/activate", (request) -> {
-            JSONObject content = new JSONObject(request.getRequestContent());
-            assertEquals(content.getString("vid"), "visitor_1");
-            assertEquals(content.getString("cid"), "my_env_id");
-            if (content.getString("vaid").contains("xxxxxx65k9h02cuc1ae0") &&
-                    content.getString("caid").contains("xxxxxxjh6h101fk8lbsg")) {
-                nbHit2.countDown();
-            }
+//            if (!request.getRequestContent().contains("fs_consent")) { // prevent consent hit
+                JSONObject content = new JSONObject(request.getRequestContent());
+                assertEquals(content.getString("vid"), "visitor_1");
+                assertEquals(content.getString("cid"), "my_env_id");
+                if (content.getString("vaid").contains("xxxxxx65k9h02cuc1ae0") &&
+                        content.getString("caid").contains("xxxxxxjh6h101fk8lbsg")) {
+                    nbHit2.countDown();
+                }
+//            }
         });
 
+        Thread.sleep(200);
         assertEquals(visitor.getModification("isref", "default", true), "not a all");
 
         if (!nbHit2.await(3, TimeUnit.SECONDS))
@@ -395,13 +436,13 @@ public class FlagshipIntegrationTests {
     }
 
     @Test
-    public void screenHit() {
+    public void screenHit() throws InterruptedException {
         Flagship.start("my_env_id", "my_api_key");
         Visitor visitor = Flagship.newVisitor("visitor_1").build();
-//        Visitor visitor = Flagship.newVisitor("visitor_1");
 
         mockResponse("https://ariane.abtasty.com", 200, "");
 
+        Thread.sleep(200); //wait for consent
         CountDownLatch screenHit = new CountDownLatch(1);
         verifyRequest("https://ariane.abtasty.com", (request) -> {
             assertEquals(request.getType().toString(), "POST");
@@ -437,7 +478,6 @@ public class FlagshipIntegrationTests {
     public void pageHit() {
         Flagship.start("my_env_id", "my_api_key");
         Visitor visitor = Flagship.newVisitor("visitor_1").build();
-//        Visitor visitor = Flagship.newVisitor("visitor_1");
 
         /////////////////// TEST PAGE HIT //////////////////
         mockResponse("https://ariane.abtasty.com", 200, "");
@@ -465,10 +505,11 @@ public class FlagshipIntegrationTests {
     }
 
     @Test
-    public void eventHit() {
+    public void eventHit() throws InterruptedException {
         Flagship.start("my_env_id", "my_api_key");
         Visitor visitor = Flagship.newVisitor("visitor_1").build();
 
+        Thread.sleep(200); // wait for consent
         /////////////////// TEST EVENT HIT //////////////////
         mockResponse("https://ariane.abtasty.com", 200, "");
         CountDownLatch eventHit = new CountDownLatch(1);
@@ -501,7 +542,7 @@ public class FlagshipIntegrationTests {
     }
 
     @Test
-    public void transactionHit() {
+    public void transactionHit() throws InterruptedException {
         Flagship.start("my_env_id", "my_api_key");
         Visitor visitor = Flagship.newVisitor("visitor_1").build();
 
@@ -509,6 +550,7 @@ public class FlagshipIntegrationTests {
         mockResponse("https://ariane.abtasty.com", 200, "");
         CountDownLatch transactionHit = new CountDownLatch(1);
 
+        Thread.sleep(200); // wait for consent
         verifyRequest("https://ariane.abtasty.com", (request) -> {
             assertEquals(request.getType().toString(), "POST");
             JSONObject content = new JSONObject(request.getRequestContent());
@@ -549,10 +591,11 @@ public class FlagshipIntegrationTests {
     }
 
     @Test
-    public void itemHit() {
+    public void itemHit() throws InterruptedException {
         Flagship.start("my_env_id", "my_api_key");
         Visitor visitor = Flagship.newVisitor("visitor_1").build();
 
+        Thread.sleep(200); // wait for consent
         /////////////////// TEST ITEM HIT //////////////////
         mockResponse("https://ariane.abtasty.com", 200, "");
         CountDownLatch itemHit = new CountDownLatch(1);
@@ -591,8 +634,9 @@ public class FlagshipIntegrationTests {
     @Test
     public void panic() throws InterruptedException {
         AtomicBoolean calls = new AtomicBoolean(false);
+        CountDownLatch consentCalls = new CountDownLatch(10);
         CountDownLatch campaignCall0 = new CountDownLatch(1);
-        mockResponse("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", 200, FlagshipIntegrationConstants.panic);
+        mockResponse("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", 200, FlagshipIntegrationHelper.panic);
         mockResponse("https://decision.flagship.io/v2/activate", 200, "");
         mockResponse("https://ariane.abtasty.com", 200, "");
 
@@ -604,15 +648,13 @@ public class FlagshipIntegrationTests {
         });
 
         verifyRequest("https://ariane.abtasty.com", (request) -> {
-            calls.set(true);
+            if (request.getRequestContent().contains("fs_consent"))
+                consentCalls.countDown();
+            else
+                calls.set(true);
         });
 
         Flagship.start("my_env_id", "my_api_key");
-//        Visitor visitor = Flagship.newVisitor("visitor_1", false, new HashMap<String, Object>() {{
-//            put("isVIPUser", true);
-//            put("age", 32);
-//            put("daysSinceLastLaunch", 2);
-//        }});
         Visitor visitor = Flagship.newVisitor("visitor_1")
                 .context(new HashMap<String, Object>() {{
                     put("isVIPUser", true);
@@ -633,9 +675,10 @@ public class FlagshipIntegrationTests {
             fail();
         }
         assertFalse(calls.get());
+        assertEquals(9, consentCalls.getCount());
 //
         AtomicInteger campaignCall = new AtomicInteger(0);
-        mockResponse("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", 200, FlagshipIntegrationConstants.synchronizeResponse2);
+        mockResponse("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", 200, FlagshipIntegrationHelper.synchronizeResponse2);
         verifyRequest("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", (request) -> {
             campaignCall.getAndAdd(1);
         });
@@ -647,7 +690,7 @@ public class FlagshipIntegrationTests {
     @Test
     public void getModifications() {
 
-        mockResponse("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", 200, FlagshipIntegrationConstants.synchronizeResponse2);
+        mockResponse("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", 200, FlagshipIntegrationHelper.synchronizeResponse2);
         CountDownLatch latch = new CountDownLatch(1);
         verifyRequest("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", (request) -> {
 
@@ -683,7 +726,7 @@ public class FlagshipIntegrationTests {
     @Test
     public void getModificationsInfo() {
 
-        mockResponse("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", 200, FlagshipIntegrationConstants.synchronizeResponse2);
+        mockResponse("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", 200, FlagshipIntegrationHelper.synchronizeResponse2);
         CountDownLatch latch = new CountDownLatch(1);
         verifyRequest("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", (request) -> {
 
@@ -805,7 +848,7 @@ public class FlagshipIntegrationTests {
 
     @Test
     public void bucketingPollingInterval() throws InterruptedException, ExecutionException {
-        mockResponse("https://cdn.flagship.io/my_env_id/bucketing.json", 200, FlagshipIntegrationConstants.bucketingResponse);
+        mockResponse("https://cdn.flagship.io/my_env_id/bucketing.json", 200, FlagshipIntegrationHelper.bucketingResponse);
         AtomicInteger nbBucketingCall = new AtomicInteger(0);
         verifyRequest("https://cdn.flagship.io/my_env_id/bucketing.json", new OnRequestValidation() {
 
@@ -828,11 +871,12 @@ public class FlagshipIntegrationTests {
                 .withPollingIntervals(2, TimeUnit.SECONDS));
         Thread.sleep(10500);
         assertEquals(6, nbBucketingCall.get());
+        Flagship.start("my_env_id", "my_api_key", new FlagshipConfig.DecisionApi());
     }
 
     @Test
     public void bucketing() throws InterruptedException, ExecutionException {
-        mockResponse("https://cdn.flagship.io/my_env_id/bucketing.json", 200, FlagshipIntegrationConstants.bucketingResponse);
+        mockResponse("https://cdn.flagship.io/my_env_id/bucketing.json", 200, FlagshipIntegrationHelper.bucketingResponse);
         verifyRequest("https://cdn.flagship.io/my_env_id/bucketing.json", new OnRequestValidation() {
             @Override
             public boolean shouldBeRemoved() {
@@ -883,7 +927,7 @@ public class FlagshipIntegrationTests {
 
         Thread.sleep(400);
         CountDownLatch contextLatch = new CountDownLatch(4);
-        mockResponse("https://cdn.flagship.io/my_env_id/bucketing.json", 200, FlagshipIntegrationConstants.bucketingResponse);
+        mockResponse("https://cdn.flagship.io/my_env_id/bucketing.json", 200, FlagshipIntegrationHelper.bucketingResponse);
         verifyRequest("https://cdn.flagship.io/my_env_id/bucketing.json", new OnRequestValidation() {
             @Override
             public boolean shouldBeRemoved() {
@@ -907,6 +951,7 @@ public class FlagshipIntegrationTests {
                 contextLatch.countDown();
             }
         });
+        Visitor visitor_1 = Flagship.newVisitor("visitor_1").build(); // ??
         CountDownLatch latchNotInitialized = new CountDownLatch(1);
         CountDownLatch readyLatch = new CountDownLatch(1);
         CountDownLatch synchronizeDeactivatedLog = new CountDownLatch(1);
@@ -925,14 +970,14 @@ public class FlagshipIntegrationTests {
                         System.out.println("message => " + message);
                         if (message.contains("has been created while SDK status is POLLING"))
                             latchNotInitialized.countDown();
-                        else if (message.contains("'synchronizeModifications()' is deactivated"))
+                        else if (message.contains("deactivated") && message.contains("fetchFlags()"))
                             synchronizeDeactivatedLog.countDown();
                         else if (message.contains("'visitor_1': visitor did not consent."))
                             consentDeactivatedLog.countDown();
                     }
                 }));
         assertEquals(Flagship.getStatus(), Flagship.Status.POLLING);
-        Visitor visitor_1 = Flagship.newVisitor("visitor_1").build();
+//        Visitor visitor_1 = Flagship.newVisitor("visitor_1").build();
         visitor_1.setConsent(true);
         visitor_1.updateContext("age", 32);
         visitor_1.synchronizeModifications().get();
@@ -953,7 +998,7 @@ public class FlagshipIntegrationTests {
     @Test
     public void authentication() throws InterruptedException, ExecutionException {
 
-        mockResponse("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", 200, FlagshipIntegrationConstants.synchronizeResponse2);
+        mockResponse("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", 200, FlagshipIntegrationHelper.synchronizeResponse2);
         mockResponse("https://decision.flagship.io/v2/activate", 200, "");
         mockResponse("https://ariane.abtasty.com", 200, "");
 
@@ -964,7 +1009,7 @@ public class FlagshipIntegrationTests {
         });
 
         //anonymous
-        Flagship.start("my_env_id", "my_api_key");
+        Flagship.start("my_env_id", "my_api_key", new FlagshipConfig.DecisionApi());
         Visitor visitor = Flagship.newVisitor("logged_out")
                 .context(new HashMap<String, Object>() {{
                     put("isVIPUser", true);
@@ -1034,13 +1079,16 @@ public class FlagshipIntegrationTests {
         });
 
         verifyRequest("https://ariane.abtasty.com", (request) -> {
-            JSONObject content = new JSONObject(request.getRequestContent());
-            assertEquals(content.getString("vid"), "logged_out");
-            assertEquals(content.getString("cuid"), "logged_in_2");
-            logged2_latch.countDown();
+            if (!request.getRequestContent().contains("fs_consent")) { // prevent consent hit
+                JSONObject content = new JSONObject(request.getRequestContent());
+                assertEquals(content.getString("vid"), "logged_out");
+                assertEquals(content.getString("cuid"), "logged_in_2");
+                logged2_latch.countDown();
+            }
         });
 
         visitor.synchronizeModifications().get();
+        Thread.sleep(200); // wait for consent
         visitor.sendHit(new Screen("test"));
         visitor.activateModification("isref");
 
@@ -1109,4 +1157,405 @@ public class FlagshipIntegrationTests {
 
         assertSame("red", Flagship.getVisitor().getContext().get("color"));
     }
+
+    //v2
+    public String responseFromAssets(String fileName) {
+        String json = "{}";
+        try {
+            ClassLoader classLoader = getClass().getClassLoader();
+            String path = classLoader.getResource(fileName).getPath();
+            Stream<String> lines = Files.lines(Paths.get(path));
+            return lines.collect(Collectors.joining(System.lineSeparator()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return json;
+    }
+
+    public <T extends Object> T getFieldValue(Object instance, String fieldName) {
+        try {
+            Field field = instance.getClass().getDeclaredField(fieldName);
+            field.setAccessible(true);
+            return (T) field.get(instance);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Test
+    public void test_cache_default() throws InterruptedException, ExecutionException {
+
+        CountDownLatch readyCDL = new CountDownLatch(1);
+        mockResponse(String.format(FlagshipIntegrationHelper.BUCKETING_URL, FlagshipIntegrationHelper._ENV_ID_),
+                200, responseFromAssets("bucketing_response_1.json"));
+        mockResponse(String.format(FlagshipIntegrationHelper.CONTEXT_URL, FlagshipIntegrationHelper._ENV_ID_),
+                500, "");
+
+        Flagship.start(FlagshipIntegrationHelper._ENV_ID_, FlagshipIntegrationHelper._API_KEY_, new FlagshipConfig.Bucketing()
+                .withStatusListener(newStatus -> {
+                    if (newStatus == Flagship.Status.READY)
+                        readyCDL.countDown();
+                }));
+        if (!readyCDL.await(500, TimeUnit.MILLISECONDS))
+            fail();
+        Visitor visitor = Flagship.newVisitor("visitor_id").build();
+        visitor.synchronizeModifications().get();
+        ConfigManager config = getFieldValue(getFieldValue(visitor, "delegate"), "configManager");
+        assertNotNull(config);
+        assertNull(config.getFlagshipConfig().getCacheManager());
+    }
+
+    @Test
+    public void test_cache_sqlite() throws InterruptedException, ExecutionException, IOException {
+
+        CountDownLatch readyCDL = new CountDownLatch(1);
+        mockResponse(String.format(FlagshipIntegrationHelper.BUCKETING_URL, FlagshipIntegrationHelper._ENV_ID_),
+                200, responseFromAssets("bucketing_response_1.json"));
+        mockResponse(String.format(FlagshipIntegrationHelper.CONTEXT_URL, FlagshipIntegrationHelper._ENV_ID_),
+                500, "");
+        mockResponse(FlagshipIntegrationHelper.ARIANE_URL, 500, "");
+
+        Flagship.start(FlagshipIntegrationHelper._ENV_ID_, FlagshipIntegrationHelper._API_KEY_, new FlagshipConfig.Bucketing()
+                .withStatusListener(newStatus -> {
+                    if (newStatus == Flagship.Status.READY)
+                        readyCDL.countDown();
+                })
+                .withCacheManager(new SQLiteCacheManager("database_test")));
+        if (!readyCDL.await(1500, TimeUnit.MILLISECONDS))
+            fail();
+        assertTrue(new File("./database_test/flagship_database.db").exists());
+        Visitor visitor = Flagship.newVisitor("visitor_id").build(); //1 consent
+        visitor.synchronizeModifications().get(); //1 context
+        ConfigManager config = getFieldValue(getFieldValue(visitor, "delegate"), "configManager");
+        assertNotNull(config);
+        assertNotNull(config.getFlagshipConfig().getCacheManager());
+
+        IVisitorCacheImplementation visitorImpl = config.getFlagshipConfig().getCacheManager().getVisitorCacheImplementation(); //check default visitor cache
+        IHitCacheImplementation hitImpl = config.getFlagshipConfig().getCacheManager().getHitCacheImplementation(); //check default visitor hits cache
+        assertEquals(200, config.getFlagshipConfig().getCacheManager().getVisitorCacheLookupTimeout());
+        assertEquals(200, config.getFlagshipConfig().getCacheManager().getHitCacheLookupTimeout());
+
+        Thread.sleep(500); //wait for visitor to be inserted
+        JSONObject cachedVisitor = visitorImpl.lookupVisitor("visitor_id");
+        assertEquals(CacheHelper._VISITOR_CACHE_VERSION_, cachedVisitor.get("version"));
+        assertTrue(cachedVisitor.getJSONObject("data").getBoolean("consent"));
+        assertEquals("visitor_id", cachedVisitor.getJSONObject("data").getString("visitorId"));
+
+        JSONObject cachedVisitor2 = visitorImpl.lookupVisitor("visitor_id2"); //do not exists
+        assertEquals(new JSONObject("{}").toString(), cachedVisitor2.toString());
+
+        JSONArray cachedHits = hitImpl.lookupHits("visitor_id");
+        assertEquals(2, cachedHits.length());
+
+        Thread.sleep(500);
+        visitor.setConsent(false);
+        cachedHits = hitImpl.lookupHits("visitor_id");
+        assertEquals(0, cachedHits.length());
+        Files.deleteIfExists(new File("./database_test/flagship_database.db").toPath());
+    }
+
+    @Test
+    public void test_cache_custom() throws InterruptedException, ExecutionException {
+
+        mockResponse(String.format(FlagshipIntegrationHelper.BUCKETING_URL, FlagshipIntegrationHelper._ENV_ID_),
+                200, responseFromAssets("bucketing_response_1.json"));
+        mockResponse(String.format(FlagshipIntegrationHelper.CONTEXT_URL, FlagshipIntegrationHelper._ENV_ID_),
+                500, "");
+        mockResponse(FlagshipIntegrationHelper.ARIANE_URL, 500, "");
+        mockResponse(FlagshipIntegrationHelper.ACTIVATION_URL, 500, "");
+
+        CountDownLatch readyCDL = new CountDownLatch(1);
+        CountDownLatch cacheVisitorLatch = new CountDownLatch(10);
+        CountDownLatch lookUpVisitorLatch = new CountDownLatch(10);
+        CountDownLatch flushVisitorLatch = new CountDownLatch(10);
+        CountDownLatch cacheHitLatch = new CountDownLatch(10);
+        CountDownLatch lookupHitsLatch = new CountDownLatch(10);
+        CountDownLatch flushHitsLatch = new CountDownLatch(10);
+        AtomicBoolean cacheVisitorOk = new AtomicBoolean(false);
+        AtomicBoolean cacheHitOk = new AtomicBoolean(false);
+
+
+        Flagship.start(FlagshipIntegrationHelper._ENV_ID_, FlagshipIntegrationHelper._API_KEY_, new FlagshipConfig.Bucketing()
+                .withStatusListener(newStatus -> {
+                    if (newStatus == Flagship.Status.READY)
+                        readyCDL.countDown();
+                })
+                .withCacheManager(new CacheManager() {
+
+                    @Override
+                    public Long getVisitorCacheLookupTimeout() {
+                        return 500L;
+                    }
+
+                    @Override
+                    public Long getHitCacheLookupTimeout() {
+                        return 500L;
+                    }
+
+                    @Override
+                    public TimeUnit getTimeoutUnit() {
+                        return TimeUnit.MILLISECONDS;
+                    }
+
+                    @Override
+                    public IVisitorCacheImplementation getVisitorCacheImplementation() {
+                        return new IVisitorCacheImplementation() {
+                            @Override
+                            public void cacheVisitor(String visitorId, JSONObject data) {
+                                cacheVisitorLatch.countDown();
+                                if (visitorId.equals("visitor_id")) {
+                                    assertEquals("visitor_id", visitorId);
+                                    assertEquals(CacheHelper._VISITOR_CACHE_VERSION_, data.get("version"));
+                                    assertTrue(data.getJSONObject("data").getBoolean("consent"));
+                                    assertEquals("visitor_id", data.getJSONObject("data").getString("visitorId"));
+                                    assertEquals("null", data.getJSONObject("data").optString("anonymousId", "null"));
+                                    assertTrue(data.getJSONObject("data").getJSONObject("context").getBoolean("vip"));
+                                    assertTrue(data.getJSONObject("data").getJSONObject("context").getBoolean("vip"));
+                                    assertEquals("java", data.getJSONObject("data").getJSONObject("context").getString("fs_client"));
+                                    JSONObject jsonCampaign = data.getJSONObject("data").getJSONArray("campaigns").getJSONObject(0);
+                                    assertEquals("brjjpk7734cg0sl5llll", jsonCampaign.getString("campaignId"));
+                                    assertEquals("brjjpk7734cg0sl5mmmm", jsonCampaign.getString("variationGroupId"));
+                                    assertEquals("brjjpk7734cg0sl5oooo", jsonCampaign.getString("variationId"));
+                                    assertFalse(jsonCampaign.getBoolean("isReference"));
+                                    assertEquals("ab", jsonCampaign.getString("type"));
+                                    assertTrue(jsonCampaign.getBoolean("activated")); //it is loaded from cache with true
+                                    JSONObject jsonFlags = jsonCampaign.getJSONObject("flags");
+                                    assertEquals(81111, jsonFlags.get("rank"));
+                                    assertTrue(jsonFlags.has("rank_plus"));
+                                    cacheVisitorOk.set(true);
+                                }
+                            }
+
+                            @Override
+                            public JSONObject lookupVisitor(String visitorId) {
+                                if (visitorId.equals("visitor_id_2")) {
+                                    try {
+                                        Thread.sleep(50000);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                                lookUpVisitorLatch.countDown();
+                                return new JSONObject(responseFromAssets("cache_visitor.json"));
+                            }
+
+                            @Override
+                            public void flushVisitor(String visitorId) {
+                                flushVisitorLatch.countDown();
+                            }
+                        };
+                    }
+
+                    @Override
+                    public IHitCacheImplementation getHitCacheImplementation() {
+                        return new IHitCacheImplementation() {
+                            @Override
+                            public void cacheHit(String visitorId, JSONObject data) {
+                                if (visitorId.equals("visitor_id")) {
+                                    assertEquals("visitor_id", visitorId);
+                                    assertEquals(CacheHelper._HIT_CACHE_VERSION_, data.get("version"));
+                                    JSONObject jsonData = data.getJSONObject("data");
+                                    assertTrue(jsonData.getLong("time") > 0);
+                                    assertEquals("visitor_id", data.getJSONObject("data").getString("visitorId"));
+                                    assertEquals("null", data.getJSONObject("data").optString("anonymousId", "null"));
+                                    String type = jsonData.getString("type");
+                                    JSONObject jsonContent = jsonData.getJSONObject("content");
+                                    switch (type) {
+                                        case "EVENT": {
+                                            assertEquals("EVENT", jsonContent.getString("t"));
+                                            assertTrue(jsonContent.getString("el").equals("java:true") || jsonContent.getString("el").equals("java:false"));
+                                            assertEquals("fs_consent", jsonContent.getString("ea"));
+                                            assertEquals("visitor_id", jsonContent.getString("vid"));
+                                            cacheHitLatch.countDown();
+                                            break;
+                                        }
+                                        case "CONTEXT": {
+                                            assertEquals("visitor_id", jsonContent.getString("visitorId"));
+                                            assertEquals("CONTEXT", jsonContent.getString("type"));
+                                            JSONObject contextData = jsonContent.getJSONObject("data");
+                                            assertEquals("Android", contextData.getString("sdk_osName"));
+                                            assertTrue(contextData.getBoolean("vip"));
+                                            assertEquals(2, contextData.getInt("daysSinceLastLaunch"));
+                                            cacheHitLatch.countDown();
+                                            break;
+                                        }
+                                        case "BATCH": {
+                                            assertEquals("visitor_id", jsonContent.getString("vid"));
+                                            JSONArray hits = jsonContent.getJSONArray("h");
+                                            assertEquals(2, hits.length()); //One hit should be omitted : too old
+                                            assertEquals("SCREENVIEW", hits.getJSONObject(0).getString("t"));
+                                            assertEquals("Screen_1", hits.getJSONObject(0).getString("dl"));
+                                            assertTrue(hits.getJSONObject(0).getLong("qt") > 0);
+                                            assertEquals("EVENT", hits.getJSONObject(1).getString("t"));
+                                            assertEquals("Event_1", hits.getJSONObject(1).getString("ea"));
+                                            assertTrue(hits.getJSONObject(1).getLong("qt") > 0);
+                                            cacheHitLatch.countDown();
+                                            break;
+                                        }
+                                        default: {
+                                            break;
+                                        }
+                                    }
+                                    cacheHitOk.set(true);
+
+                                } else if (visitorId.equals("visitor_id_2")) {
+                                    cacheHitLatch.countDown();
+                                }
+                            }
+
+                            @Override
+                            public JSONArray lookupHits(String visitorId) {
+                                JSONArray array;
+                                if (visitorId.equals("visitor_id_2"))
+                                    array = new JSONArray("{]"); //shouldn't crash
+                                else {
+                                    array = new JSONArray(responseFromAssets("cache_hit.json"));
+                                    array.getJSONObject(0).getJSONObject("data").put("time", System.currentTimeMillis() - 2000);
+                                }
+                                lookupHitsLatch.countDown();
+                                return array;
+                            }
+
+                            @Override
+                            public void flushHits(String visitorId) {
+                                flushHitsLatch.countDown();
+                            }
+                        };
+                    }
+                }));
+        if (!readyCDL.await(1000, TimeUnit.MILLISECONDS))
+            fail();
+        Visitor visitor = Flagship.newVisitor("visitor_id") // 1 consent true
+                .context(new HashMap<String, Object>() {{
+                    put("vip", true);
+                    put("access", "password");
+                    put("daysSinceLastLaunch", 2);
+                }})
+                .build();
+        visitor.synchronizeModifications().get(); // 1 context
+        assertEquals("Ahoy", visitor.getModification("title", "null", true)); // 1 activate
+
+        Thread.sleep(1000);
+        visitor.setConsent(false); // 1 consent false hit
+        visitor.sendHit(new Page("https://www.page.com"));
+        visitor.sendHit(new Screen("ScreenActivity"));
+
+        assertTrue(cacheVisitorOk.get());
+        assertTrue(cacheHitOk.get());
+        cacheVisitorOk.set(false);
+        cacheHitOk.set(false);
+
+        Thread.sleep(500);
+        visitor = Flagship.newVisitor("visitor_id") // 1 consent true // + 1 cached
+                .context(new HashMap<String, Object>() {{
+                    put("vip", true);
+                    put("access", "password");
+                    put("daysSinceLastLaunch", 2);
+                }})
+                .build();
+        visitor.synchronizeModifications().get(); // 1 context
+
+        Visitor visitor2 = Flagship.newVisitor("visitor_id_2").build(); // 1 consent true
+
+        Thread.sleep(500);
+
+        ConfigManager config = getFieldValue(getFieldValue(visitor, "delegate"), "configManager");
+        assertNotNull(config);
+        assertNotNull(config.getFlagshipConfig().getCacheManager());
+
+        assertEquals(500, config.getFlagshipConfig().getCacheManager().getVisitorCacheLookupTimeout());
+        assertEquals(500, config.getFlagshipConfig().getCacheManager().getHitCacheLookupTimeout());
+
+        assertEquals(8, cacheVisitorLatch.getCount());
+        assertEquals(8, lookUpVisitorLatch.getCount());
+        assertEquals(9, flushVisitorLatch.getCount());
+        assertEquals(2, cacheHitLatch.getCount());
+        assertEquals(8, lookupHitsLatch.getCount());
+        assertEquals(9, flushHitsLatch.getCount());
+        assertTrue(cacheVisitorOk.get());
+        assertTrue(cacheHitOk.get());
+
+    }
+
+    @Test
+    public void flags() throws InterruptedException, ExecutionException {
+
+        CountDownLatch activateLatch = new CountDownLatch(10);
+        CountDownLatch readyLatch = new CountDownLatch(1);
+
+        mockResponse(String.format(FlagshipIntegrationHelper.BUCKETING_URL, FlagshipIntegrationHelper._ENV_ID_),
+                200, responseFromAssets("bucketing_response_1.json"));
+
+        mockResponse(FlagshipIntegrationHelper.ARIANE_URL, 500, "");
+
+        Flagship.start(FlagshipIntegrationHelper._ENV_ID_, FlagshipIntegrationHelper._API_KEY_, new FlagshipConfig.Bucketing()
+                .withStatusListener(newStatus -> {
+                    if (newStatus == Flagship.Status.READY)
+                        readyLatch.countDown();
+                })
+                .withLogManager(new LogManager() {
+                    @Override
+                    public void onLog(Level level, String tag, String message) {
+                        System.out.println("[$tag] : " + message);
+                        if (message.contains(FlagshipIntegrationHelper.ACTIVATION_URL))
+                            activateLatch.countDown();
+                    }
+
+
+                })
+        );
+        if (!readyLatch.await(500, TimeUnit.MILLISECONDS))
+            fail();
+        Visitor visitor = Flagship.newVisitor("visitor_id")
+                .context(new HashMap<String, Object>() {{
+                    put("vip", true);
+                    put("access", "password");
+                    put("daysSinceLastLaunch", 2);
+                }}).build();
+        Flag<Integer> rank = visitor.getFlag("rank", 0);
+        assertEquals(0, rank.value(false)); // no activate
+        visitor.fetchFlags().get();
+
+        assertEquals(81111, rank.value(true)); // activate
+        Flag<String> rank_plus = visitor.getFlag("rank_plus", "a");
+        Flag<String> rank_plus2 = visitor.getFlag("rank_plus", null);
+        assertEquals("a", rank_plus.value(false));
+        assertNull(rank_plus2.value(false));
+        assertTrue(rank_plus.exists());
+        assertEquals("brjjpk7734cg0sl5llll", rank_plus.metadata().campaignId);
+        assertEquals("brjjpk7734cg0sl5mmmm", rank_plus.metadata().variationGroupId);
+        assertEquals("brjjpk7734cg0sl5oooo", rank_plus.metadata().variationId);
+        assertFalse(rank_plus.metadata().isReference);
+        assertEquals("ab", rank_plus.metadata().campaignType);
+        assertTrue(rank_plus.metadata().exists());
+        assertEquals(5, rank_plus.metadata().toJSON().length());
+
+        Flag<String> do_not_exists = visitor.getFlag("do_not_exists", "a");
+
+        assertEquals("a", do_not_exists.value( false));
+        assertFalse(do_not_exists.exists());
+        assertEquals("", do_not_exists.metadata().campaignId);
+        assertEquals("", do_not_exists.metadata().variationGroupId);
+        assertEquals("", do_not_exists.metadata().variationId);
+        assertFalse(do_not_exists.metadata().isReference);
+        assertEquals("", do_not_exists.metadata().campaignType);
+        assertFalse(do_not_exists.metadata().exists());
+        assertEquals(0, do_not_exists.metadata().toJSON().length());
+
+        assertEquals("a", visitor.getFlag("rank", "a").value(true)); // no activate
+        assertEquals(81111, visitor.getFlag("rank", null).value(true)); // activate
+
+        assertNull(visitor.getFlag("null", null).value(true)); // no activate
+
+        visitor.getFlag("rank", null).userExposed(); // activate
+        visitor.getFlag("rank", "null").userExposed(); // no activate
+        visitor.getFlag("rank_plus", "null").userExposed(); // activate
+        visitor.getFlag("do_not_exists", "null").userExposed(); // no activate
+
+        Thread.sleep(1500);
+        assertEquals(6, activateLatch.getCount());
+
+    }
+
 }

@@ -1,6 +1,11 @@
 plugins {
     id 'java'
 }
+apply plugin: 'application'
+
+application {
+    mainClass = 'com.abtasty.demo.DemoFlagship'
+}
 
 group 'com.flagship.demo'
 version '1'

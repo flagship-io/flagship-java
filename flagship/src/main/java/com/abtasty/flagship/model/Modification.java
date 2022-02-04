@@ -10,14 +10,17 @@ public class Modification implements Serializable {
     private final String      variationId;
     private final boolean     isReference;
     private final Object      value;
+    private final String      type;
 
-    public Modification(String key, String campaignId, String variationGroupId, String variationId, boolean isReference, Object value) {
+    public Modification(String key, String campaignId, String variationGroupId, String variationId, boolean isReference,
+                        Object value, String type) {
         this.key = key;
         this.campaignId = campaignId;
         this.variationGroupId = variationGroupId;
         this.variationId = variationId;
         this.isReference = isReference;
         this.value = value;
+        this.type = type;
     }
 
     public String getKey() {
@@ -42,5 +45,9 @@ public class Modification implements Serializable {
 
     public Object getValue() {
         return value;
+    }
+
+    public String getType() {
+        return type;
     }
 }

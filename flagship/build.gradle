@@ -30,6 +30,7 @@ repositories {
 dependencies {
     implementation 'org.json:json:20210307'
     implementation 'junit:junit:4.13.2'
+    implementation 'org.xerial:sqlite-jdbc:3.36.0.3'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.0'
@@ -44,6 +45,25 @@ jar {
 }
 
 
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.enabled true
+        xml.destination file("${buildDir}/reports/jacoco/report.xml")
+        html.enabled true
+        csv.enabled true
+    }
+    subprojects.each {
+        sourceSets it.sourceSets.main
+    }
+    executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
+}
+
+jacocoTestReport.dependsOn {
+    subprojects*.test
+}
+
 test {
     useJUnitPlatform()
+    finalizedBy jacocoTestReport
 }

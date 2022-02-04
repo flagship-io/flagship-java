@@ -12,6 +12,8 @@ import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
 import com.abtasty.flagship.visitor.VisitorDelegate;
+import com.abtasty.flagship.visitor.VisitorDelegateDTO;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.Executors;
@@ -83,7 +85,7 @@ public class BucketingManager extends DecisionManager {
     }
 
     @Override
-    public HashMap<String, Modification> getCampaignsModifications(VisitorDelegate visitor) {
+    public HashMap<String, Modification> getCampaignsModifications(VisitorDelegateDTO visitor) {
         try {
             if (campaigns != null) {
                 HashMap<String, Modification> campaignsModifications = new HashMap<>();
@@ -98,7 +100,7 @@ public class BucketingManager extends DecisionManager {
                         }
                     }
                 }
-                visitor.sendContextRequest();
+                visitor.getVisitorDelegate().getStrategy().sendContextRequest();
                 return campaignsModifications;
             }
         } catch (Exception e) {

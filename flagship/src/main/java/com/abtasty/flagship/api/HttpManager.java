@@ -106,19 +106,22 @@ public class HttpManager {
                                                                    HashMap<String, String> headers,
                                                                    String content) {
         return CompletableFuture.supplyAsync(() -> {
+            Response response = null;
             try {
-                return sendHttpRequest(type, uri, headers, content);
-            } catch (IOException e) {
+                response = sendHttpRequest(type, uri, headers, content);
+            } catch (Exception e) {
+                e.printStackTrace();
                 FlagshipLogManager.exception(e);
             }
-            return null;
+            return response;
         }, threadPoolExecutor);
     }
 
     public Response parseResponse(HttpURLConnection conn, RequestType requestType, String requestUri,
                                           HashMap<String, String> requestHeaders, String requestContent) throws IOException {
         int status = conn.getResponseCode();
-        Reader streamReader = new InputStreamReader((status >= 400) ? conn.getErrorStream() : conn.getInputStream());
+        InputStream errorStream = conn.getErrorStream();
+        Reader streamReader = new InputStreamReader((status >= 400 && errorStream != null) ? errorStream : conn.getInputStream());
         BufferedReader in = new BufferedReader(streamReader);
         String inputLine;
         StringBuilder content = new StringBuilder();

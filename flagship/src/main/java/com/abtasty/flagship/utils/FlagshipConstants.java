@@ -7,7 +7,15 @@ public final class FlagshipConstants {
         public static final String READY = "Flagship SDK (version: %s) READY";
         public static final String BUCKETING_INTERVAL = "Polling event.";
         public static final String NEW_ALLOCATION = "Variation %s selected with allocation %d.";
+        public static final String CACHED_ALLOCATION = "Variation %s selected from cache.";
         public static final String STATUS_CHANGED = "SDK status has changed : %s.";
+        public static final String SQLITE_CACHE_MANAGER_CACHE_VISITOR = "[cacheVisitor] Visitor '%s' has been saved into database:\n%s.";
+        public static final String SQLITE_CACHE_MANAGER_LOOKUP_VISITOR = "[lookupVisitor] Visitor '%s' has been loaded from database:\n%s.";
+        public static final String SQLITE_CACHE_MANAGER_FLUSH_VISITOR = "[flushVisitor] Visitor '%s' has been flushed from database.";
+        public static final String SQLITE_CACHE_MANAGER_CACHE_HIT = "[cacheHit] Hit for visitor '%s' has been saved into database:\n%s.";
+        public static final String SQLITE_CACHE_MANAGER_LOOKUP_HIT = "[lookupHits] hits for visitor '%s' has been loaded from database:\n%s.";
+        public static final String SQLITE_CACHE_MANAGER_FLUSH_HIT = "[flushHits] Hits for visitor '%s' has been flushed from database.";
+        public static final String SQLITE_DATABASE_CREATION = "A new sqlite database has been created at: %s";
     }
 
     public static class Warnings {
@@ -46,6 +54,18 @@ public final class FlagshipConstants {
         public static final String METHOD_DEACTIVATED_CONSENT_ERROR = "Method '%s' is deactivated for visitor '%s': visitor did not consent.";
         public static final String CONFIGURATION_POLLING_ERROR = "Setting a polling interval is only available for Bucketing configuration.";
         public static final String AUTHENTICATION_BUCKETING_ERROR = "'%s' method will be ignored in Bucketing configuration.";
+
+        public static final String CACHE_IMPL_ERROR  = "Error: '%s' for visitor '%s' threw an exception.";
+        public static final String CACHE_IMPL_TIMEOUT = "Error: '%s' for visitor '%s' has timed out.";
+        public static final String CACHE_IMPL_FORMAT_ERROR = "Error: '%s' have loaded a bad format version (%d) for visitor '%s'.";
+
+        public static final String FLAG_ERROR = "Unexpected Error.";
+        public static final String FLAG_CAST_ERROR = "Flag type and default value type are different.";
+        public static final String FLAG_MISSING_ERROR = "Flag not found.";
+
+        public static final String FLAG_VALUE_ERROR = "Default value will be returned for flag '%s': ";
+        public static final String FLAG_USER_EXPOSITION_ERROR = "User exposition for Flag '%s' wont be sent: ";
+        public static final String FLAG_METADATA_ERROR = "Empty metadata will be returned for Flag '%s': ";
     }
 
     public static class HitKeyMap {
@@ -98,5 +118,17 @@ public final class FlagshipConstants {
 
         public static String CONSENT = "co";
         public static String CONSENT_MECHANISM = "me";
+    }
+
+    public static class Exceptions {
+
+        public static class FlagException extends Exception {
+        }
+
+        public static class FlagTypeException extends Exception {
+        }
+
+        public static class FlagNotFoundException extends Exception {
+        }
     }
 }

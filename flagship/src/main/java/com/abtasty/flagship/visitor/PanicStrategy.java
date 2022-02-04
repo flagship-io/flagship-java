@@ -1,6 +1,7 @@
 package com.abtasty.flagship.visitor;
 
 import com.abtasty.flagship.hits.Hit;
+import com.abtasty.flagship.model.Modification;
 import com.abtasty.flagship.utils.FlagshipContext;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import org.json.JSONObject;
@@ -36,28 +37,46 @@ class PanicStrategy extends DefaultStrategy {
     }
 
     // Call default strategy synchronizeModifications
+//
+//    @Override
+//    public <T> T getModification(String key, T defaultValue) {
+//        logMethodDeactivatedError(FlagshipLogManager.Tag.GET_MODIFICATION, "getModification()");
+//        return defaultValue;
+//    }
+//
+//    @Override
+//    public <T> T getModification(String key, T defaultValue, boolean activate) {
+//        logMethodDeactivatedError(FlagshipLogManager.Tag.GET_MODIFICATION, "getModification()");
+//        return defaultValue;
+//    }
+//
+//    @Override
+//    public JSONObject getModificationInfo(String key) {
+//        logMethodDeactivatedError(FlagshipLogManager.Tag.GET_MODIFICATION_INFO, "getModificationInfo()");
+//        return null;
+//    }
+//
+//    @Override
+//    public void activateModification(String key) {
+//        logMethodDeactivatedError(FlagshipLogManager.Tag.ACTIVATE, "activateModification()");
+//    }
+
 
     @Override
-    public <T> T getModification(String key, T defaultValue) {
-        logMethodDeactivatedError(FlagshipLogManager.Tag.GET_MODIFICATION, "getModification()");
+    public synchronized <T> T getFlagValue(String key, T defaultValue) {
+        logMethodDeactivatedError(FlagshipLogManager.Tag.FLAG_VALUE, "Flag.value()");
         return defaultValue;
     }
 
     @Override
-    public <T> T getModification(String key, T defaultValue, boolean activate) {
-        logMethodDeactivatedError(FlagshipLogManager.Tag.GET_MODIFICATION, "getModification()");
-        return defaultValue;
-    }
-
-    @Override
-    public JSONObject getModificationInfo(String key) {
-        logMethodDeactivatedError(FlagshipLogManager.Tag.GET_MODIFICATION_INFO, "getModificationInfo()");
+    public synchronized <T> Modification getFlagMetadata(String key, T defaultValue) {
+        logMethodDeactivatedError(FlagshipLogManager.Tag.FLAG_METADATA, "Flag.metadata()");
         return null;
     }
 
     @Override
-    public void activateModification(String key) {
-        logMethodDeactivatedError(FlagshipLogManager.Tag.ACTIVATE, "activateModification()");
+    public synchronized <T> void exposeFlag(String key, T defaultValue) {
+        logMethodDeactivatedError(FlagshipLogManager.Tag.FLAG_USER_EXPOSED, "Flag.userExposed()");
     }
 
     @Override
@@ -82,8 +101,23 @@ class PanicStrategy extends DefaultStrategy {
     }
 
     @Override
+    public void sendConsentRequest() {} // do nothing
+
+    @Override
     public void setConsent(Boolean hasConsented) {
         visitorDelegate.hasConsented = hasConsented;
         logMethodDeactivatedError(FlagshipLogManager.Tag.CONSENT, "setConsent()");
     }
+
+    @Override
+    public void cacheVisitor() {} //do nothing
+
+    @Override
+    public void lookupVisitorCache() {} //do nothing
+
+    @Override
+    public void lookupHitCache() {} //do nothing
+
+    @Override
+    public void cacheHit(String visitorId, JSONObject data) {} //do nothing
 }

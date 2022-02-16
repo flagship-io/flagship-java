@@ -80,79 +80,6 @@ class DefaultStrategy extends VisitorStrategy {
         trackingManager.sendContextRequest(visitorDelegate.toDTO());
     }
 
-//    @Override
-//    public CompletableFuture<Visitor> synchronizeModifications() {
-//
-//        DecisionManager decisionManager = visitorDelegate.configManager.getDecisionManager();
-//        return CompletableFuture.supplyAsync(() -> {
-//            try {
-//                VisitorDelegateDTO visitorDTO = visitorDelegate.toDTO();
-//                visitorDelegate.updateModifications(decisionManager.getCampaignsModifications(visitorDTO));
-//                visitorDelegate.logVisitor(FlagshipLogManager.Tag.SYNCHRONIZE);
-//                visitorDelegate.getStrategy().cacheVisitor();
-//            } catch (Exception e) {
-//                FlagshipLogManager.exception(e);
-//            }
-//            return visitorDelegate.originalVisitor;
-//        }, HttpManager.getInstance().getThreadPoolExecutor()).whenCompleteAsync((instance, error) -> visitorDelegate.logVisitor(FlagshipLogManager.Tag.SYNCHRONIZE));
-//    }
-
-//    @Override
-//    public <T> T getModification(String key, T defaultValue) {
-//        return getModification(key, defaultValue, false);
-//    }
-//
-//    @SuppressWarnings("unchecked")
-//    public <T> T getModification(String key, T defaultValue, boolean activate) {
-//        ConcurrentMap<String, Modification> visitorModifications = visitorDelegate.modifications;
-//        try {
-//            if (key == null) {
-//                FlagshipLogManager.log(FlagshipLogManager.Tag.GET_MODIFICATION, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_KEY_ERROR, "null"));
-//            } else if (!visitorModifications.containsKey(key)) {
-//                FlagshipLogManager.log(FlagshipLogManager.Tag.GET_MODIFICATION, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_MISSING_ERROR, key));
-//            } else {
-//                Modification modification = visitorModifications.get(key);
-//                T castValue = (T) ((modification.isReference() && modification.getValue() == null) ? defaultValue : modification.getValue());
-//                if (defaultValue == null || castValue == null || castValue.getClass().equals(defaultValue.getClass())) {
-//                    if (activate)
-//                        this.activateModification(modification);
-//                    return castValue;
-//                } else
-//                    FlagshipLogManager.log(FlagshipLogManager.Tag.GET_MODIFICATION, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_CAST_ERROR, key));
-//            }
-//        } catch (Exception e) {
-//            FlagshipLogManager.log(FlagshipLogManager.Tag.GET_MODIFICATION, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_ERROR, key));
-//        }
-//        return defaultValue;
-//    }
-
-//    @Override
-//    public JSONObject getModificationInfo(String key) {
-//        ConcurrentMap<String, Modification> visitorModifications = visitorDelegate.modifications;
-//        if (key == null || !visitorModifications.containsKey(key)) {
-//            FlagshipLogManager.log(FlagshipLogManager.Tag.GET_MODIFICATION_INFO, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.GET_MODIFICATION_INFO_ERROR, key));
-//            return null;
-//        } else {
-//            JSONObject obj = new JSONObject();
-//            Modification modification = visitorModifications.get(key);
-//            obj.put("campaignId", modification.getCampaignId());
-//            obj.put("variationGroupId", modification.getVariationGroupId());
-//            obj.put("variationId", modification.getVariationId());
-//            obj.put("isReference", modification.isReference());
-//            return obj;
-//        }
-//    }
-//
-//    private void activateModification(Modification modification) {
-//        if (modification != null)
-//            this.sendHit(new Activate(modification));
-//    }
-//
-//    @Override
-//    public void activateModification(String key) {
-//        this.getModification(key, null, true);
-//    }
-
     @Override
     public void sendConsentRequest() {
         TrackingManager trackingManager = visitorDelegate.configManager.getTrackingManager();
@@ -229,16 +156,16 @@ class DefaultStrategy extends VisitorStrategy {
 
     @Override
     public void cacheVisitor() {
-        VisitorDelegateDTO visitorDTO = visitorDelegate.toDTO();
+        VisitorDelegateDTO visitorDelegateDTO = visitorDelegate.toDTO();
         CacheManager cacheManager = flagshipConfig.getCacheManager();
         if (cacheManager != null) {
             CompletableFuture.supplyAsync(() -> {
                 try {
                     IVisitorCacheImplementation visitorCacheImplementation = flagshipConfig.getCacheManager().getVisitorCacheImplementation();
                     if (visitorCacheImplementation != null)
-                        visitorCacheImplementation.cacheVisitor(visitorDTO.getVisitorId(), CacheHelper.fromVisitor(visitorDTO));
+                        visitorCacheImplementation.cacheVisitor(visitorDelegateDTO.getVisitorId(),  visitorDelegateDTO.mergedCachedVisitor.toCacheJSON());
                 } catch (Exception e) {
-                    logCacheException(String.format(FlagshipConstants.Errors.CACHE_IMPL_ERROR, "cacheVisitor", visitorDTO.getVisitorId()), e);
+                    logCacheException(String.format(FlagshipConstants.Errors.CACHE_IMPL_ERROR, "cacheVisitor", visitorDelegateDTO.getVisitorId()), e);
                 }
                 return 0;
             });

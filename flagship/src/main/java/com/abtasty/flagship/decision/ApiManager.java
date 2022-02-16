@@ -41,7 +41,7 @@ public class ApiManager extends DecisionManager {
         json.put("visitorId", visitor.getVisitorId());
         json.put("anonymousId", visitor.getAnonymousId());
         json.put("trigger_hit", false);
-        json.put("context", visitor.getContextAsJson());
+        json.put("context", visitor.contextToJson());
         Response response = HttpManager.getInstance().sendHttpRequest(HttpManager.RequestType.POST,
                 DECISION_API + config.getEnvId() + CAMPAIGNS + ((!visitor.hasConsented()) ? CONTEXT_PARAM : ""),
                 headers,

@@ -1,7 +1,6 @@
 package com.abtasty.flagship.cache;
 
 import com.abtasty.flagship.hits.Batch;
-import com.abtasty.flagship.model.Modification;
 import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
@@ -12,8 +11,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
 
 public class CacheHelper {
 
@@ -34,35 +31,39 @@ public class CacheHelper {
         MIGRATION_1() {
             @Override
             public void applyFromJSON(VisitorDelegate visitor, JSONObject data) {
-                JSONObject json = data.getJSONObject("data");
-                if (json.getString("visitorId").equals(visitor.visitorId)) {
-                    JSONObject jsonContext = json.optJSONObject("context");
-                    if (jsonContext != null) {
-                        jsonContext.keySet().forEach(key -> {
-                            visitor.getStrategy().updateContext(key, jsonContext.get(key));
-                        });
-                    }
-                    JSONArray campaignsArray = json.optJSONArray("campaigns");
-                    if (campaignsArray != null) {
-                       for (int i = 0; i < campaignsArray.length(); i++) {
-                           JSONObject campaignJson = campaignsArray.getJSONObject(i);
-                           String campaignId = campaignJson.getString("campaignId");
-                           String variationGroupId = campaignJson.getString("variationGroupId");
-                           String variationId = campaignJson.getString("variationId");
-                           boolean isReference = campaignJson.getBoolean("isReference");
-                           String type = campaignJson.getString("type");
-                           if (campaignJson.optBoolean("activated", false) && !visitor.activatedVariations.contains(variationId))
-                               visitor.activatedVariations.add(variationId);
-                           JSONObject flagsJson = campaignJson.optJSONObject("flags");
-                           if (flagsJson != null) {
-                               flagsJson.keySet().forEach(key -> {
-                                   Modification modification = new Modification(key, campaignId, variationGroupId, variationId, isReference, flagsJson.get(key), type);
-                                    visitor.modifications.put(key, modification);
-                               });
-                           }
-                       }
-                    }
+                JSONObject dataJSON = data.getJSONObject("data");
+                if (dataJSON.get("visitorId").equals(visitor.visitorId)) { // todo think anonymous
+                    visitor.cachedVisitor.fromCacheJSON(dataJSON);
                 }
+//                JSONObject json = data.getJSONObject("data");
+//                if (json.getString("visitorId").equals(visitor.visitorId)) {
+//                    JSONObject jsonContext = json.optJSONObject("context");
+//                    if (jsonContext != null) {
+//                        jsonContext.keySet().forEach(key -> {
+//                            visitor.getStrategy().updateContext(key, jsonContext.get(key));
+//                        });
+//                    }
+//                    JSONArray campaignsArray = json.optJSONArray("campaigns");
+//                    if (campaignsArray != null) {
+//                       for (int i = 0; i < campaignsArray.length(); i++) {
+//                           JSONObject campaignJson = campaignsArray.getJSONObject(i);
+//                           String campaignId = campaignJson.getString("campaignId");
+//                           String variationGroupId = campaignJson.getString("variationGroupId");
+//                           String variationId = campaignJson.getString("variationId");
+//                           boolean isReference = campaignJson.getBoolean("isReference");
+//                           String type = campaignJson.getString("type");
+//                           if (campaignJson.optBoolean("activated", false) && !visitor.activatedVariations.contains(variationId))
+//                               visitor.activatedVariations.add(variationId);
+//                           JSONObject flagsJson = campaignJson.optJSONObject("flags");
+//                           if (flagsJson != null) {
+//                               flagsJson.keySet().forEach(key -> {
+//                                   Modification modification = new Modification(key, campaignId, variationGroupId, variationId, isReference, flagsJson.get(key), type);
+//                                    visitor.modifications.put(key, modification);
+//                               });
+//                           }
+//                       }
+//                    }
+//                }
             }
         };
     }
@@ -103,16 +104,16 @@ public class CacheHelper {
         };
     }
 
-    public static JSONObject fromVisitor(VisitorDelegateDTO visitorDelegateDTO) {
-        return new JSONObject().put("version", _VISITOR_CACHE_VERSION_)
-                .put("data", new JSONObject()
-                        .put("visitorId", visitorDelegateDTO.getVisitorId())
-                        .put("anonymousId", (visitorDelegateDTO.getAnonymousId() != null) ? visitorDelegateDTO.getAnonymousId() : JSONObject.NULL)
-                        .put("consent", visitorDelegateDTO.hasConsented())
-                        .put("context", visitorDelegateDTO.getContextAsJson())
-                        .put("campaigns", modificationAsJson(visitorDelegateDTO)));
+//    public static JSONObject fromVisitor(VisitorDelegateDTO visitorDelegateDTO) {
+//        return new JSONObject().put("version", _VISITOR_CACHE_VERSION_)
+//                .put("data", new JSONObject()
+//                        .put("visitorId", visitorDelegateDTO.getVisitorId())
+//                        .put("anonymousId", (visitorDelegateDTO.getAnonymousId() != null) ? visitorDelegateDTO.getAnonymousId() : JSONObject.NULL)
+//                        .put("consent", visitorDelegateDTO.hasConsented())
+//                        .put("context", visitorDelegateDTO.contextToJson())
+//                        .put("campaigns", modificationAsJson(visitorDelegateDTO)));
 
-    }
+//    }
 
     public static JSONObject fromHit(VisitorDelegateDTO visitorDelegateDTO, String type, JSONObject hitData, long time) {
 
@@ -126,35 +127,35 @@ public class CacheHelper {
                         .put("content", hitData));
     }
 
-    private static JSONArray modificationAsJson(VisitorDelegateDTO visitorDelegateDTO) {
-        JSONArray campaigns = new JSONArray();
-        for (Map.Entry<String, Modification> m : visitorDelegateDTO.getModifications().entrySet()) {
-            boolean isCampaignSet = false;
-            for (int i = 0; i < campaigns.length(); i++) {
-                JSONObject campaign = campaigns.getJSONObject(i);
-                if (Objects.equals(campaign.optString("campaignId"), m.getValue().getCampaignId()) &&
-                        Objects.equals(campaign.optString("variationGroupId"), m.getValue().getVariationGroupId()) &&
-                        Objects.equals(campaign.optString("variationId"), m.getValue().getVariationId())
-                ) {
-                    isCampaignSet = true;
-                    campaign.getJSONObject("flags").put(m.getValue().getKey(),
-                            (m.getValue().getValue() != null) ? m.getValue().getValue() : JSONObject.NULL);
-                }
-            }
-            if (!isCampaignSet) {
-                campaigns.put(new JSONObject()
-                        .put("campaignId", m.getValue().getCampaignId())
-                        .put("variationGroupId", m.getValue().getVariationGroupId())
-                        .put("variationId", m.getValue().getVariationId())
-                        .put("isReference", m.getValue().isReference())
-                        .put("type", m.getValue().getType())
-                        .put("activated", visitorDelegateDTO.isVariationAssigned(m.getValue().getVariationId()))
-                        .put("flags", new JSONObject().put(m.getValue().getKey(),
-                                (m.getValue().getValue() != null) ? m.getValue().getValue() : JSONObject.NULL)));
-            }
-        }
-        return campaigns;
-    }
+//    private static JSONArray modificationAsJson(VisitorDelegateDTO visitorDelegateDTO) {
+//        JSONArray campaigns = new JSONArray();
+//        for (Map.Entry<String, Modification> m : visitorDelegateDTO.getModifications().entrySet()) {
+//            boolean isCampaignSet = false;
+//            for (int i = 0; i < campaigns.length(); i++) {
+//                JSONObject campaign = campaigns.getJSONObject(i);
+//                if (Objects.equals(campaign.optString("campaignId"), m.getValue().getCampaignId()) &&
+//                        Objects.equals(campaign.optString("variationGroupId"), m.getValue().getVariationGroupId()) &&
+//                        Objects.equals(campaign.optString("variationId"), m.getValue().getVariationId())
+//                ) {
+//                    isCampaignSet = true;
+//                    campaign.getJSONObject("flags").put(m.getValue().getKey(),
+//                            (m.getValue().getValue() != null) ? m.getValue().getValue() : JSONObject.NULL);
+//                }
+//            }
+//            if (!isCampaignSet) {
+//                campaigns.put(new JSONObject()
+//                        .put("campaignId", m.getValue().getCampaignId())
+//                        .put("variationGroupId", m.getValue().getVariationGroupId())
+//                        .put("variationId", m.getValue().getVariationId())
+//                        .put("isReference", m.getValue().isReference())
+//                        .put("type", m.getValue().getType())
+//                        .put("activated", visitorDelegateDTO.isVariationAssigned(m.getValue().getVariationId()))
+//                        .put("flags", new JSONObject().put(m.getValue().getKey(),
+//                                (m.getValue().getValue() != null) ? m.getValue().getValue() : JSONObject.NULL)));
+//            }
+//        }
+//        return campaigns;
+//    }
 
     public static void applyVisitorMigration(VisitorDelegate visitorDelegate, JSONObject data) {
         int version = 0;

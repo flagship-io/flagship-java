@@ -12,15 +12,16 @@ import java.util.Objects;
 
 public class VisitorDelegateDTO {
 
-    private VisitorDelegate                 visitorDelegate;
-    private ConfigManager                   configManager;
-    private String                          visitorId;
-    private String                          anonymousId;
-    private HashMap<String, Object>         context;
-    private HashMap<String, Modification>   modifications;
-    private ArrayList<String>               activatedVariations;
-    private boolean                         hasConsented;
-    private boolean                         isAuthenticated;
+    protected   VisitorDelegate                 visitorDelegate;
+    protected   ConfigManager                   configManager;
+    protected   String                          visitorId;
+    protected   String                          anonymousId;
+    protected   HashMap<String, Object>         context;
+    protected   HashMap<String, Modification>   modifications;
+    protected   ArrayList<String>               activatedVariations;
+    protected   boolean                         hasConsented;
+    protected   boolean                         isAuthenticated;
+    public      VisitorCache                    mergedCachedVisitor;
 
     public VisitorDelegateDTO(VisitorDelegate visitorDelegate) {
 
@@ -33,9 +34,10 @@ public class VisitorDelegateDTO {
         this.activatedVariations = new ArrayList<>(visitorDelegate.activatedVariations);
         this.hasConsented = visitorDelegate.hasConsented;
         this.isAuthenticated = visitorDelegate.isAuthenticated;
+        this.mergedCachedVisitor = visitorDelegate.cachedVisitor;
     }
 
-    public JSONObject getContextAsJson() {
+    public JSONObject contextToJson() {
         JSONObject json = new JSONObject();
         for (Map.Entry<String, Object> e : context.entrySet()) {
             json.put(e.getKey(), e.getValue());
@@ -43,13 +45,13 @@ public class VisitorDelegateDTO {
         return json;
     }
 
-    public boolean isVariationAssigned(String variationId) {
-        for (Map.Entry<String, Modification> e : modifications.entrySet()) {
-            if (Objects.equals(e.getValue().getVariationId(), variationId))
-                return true;
-        }
-        return false;
-    }
+//    public boolean isVariationAssigned(String variationId) {
+//        for (Map.Entry<String, Modification> e : modifications.entrySet()) {
+//            if (Objects.equals(e.getValue().getVariationId(), variationId))
+//                return true;
+//        }
+//        return false;
+//    }
 
     public ConfigManager getConfigManager() {
         return configManager;
@@ -62,12 +64,12 @@ public class VisitorDelegateDTO {
                 .put("anonymousId", (anonymousId != null) ? anonymousId : JSONObject.NULL)
                 .put("isAuthenticated", isAuthenticated)
                 .put("hasConsented", hasConsented)
-                .put("context", getContextAsJson())
-                .put("modifications", getModificationsAsJson())
+                .put("context", contextToJson())
+                .put("modifications", modificationsToJson())
                 .put("activatedVariations", new JSONArray(activatedVariations.toArray())).toString(2);
     }
 
-    public JSONObject getModificationsAsJson() {
+    public JSONObject modificationsToJson() {
         JSONObject json = new JSONObject();
         for (Map.Entry<String, Modification> e : modifications.entrySet()) {
             Object value = e.getValue().getValue();

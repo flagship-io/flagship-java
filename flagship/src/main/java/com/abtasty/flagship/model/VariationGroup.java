@@ -69,10 +69,10 @@ public class VariationGroup implements Serializable {
         return null;
     }
 
-    private Variation selectVariationFromCache(VisitorDelegateDTO visitor, LinkedHashMap<String, Variation>  variations) {
+    private Variation selectVariationFromCache(VisitorDelegateDTO visitorDelegateDTO, LinkedHashMap<String, Variation>  variations) {
         for (Map.Entry<String, Variation> e: variations.entrySet()) {
             Variation v = e.getValue();
-            if (visitor.isVariationAssigned(v.getVariationId())) {
+            if (visitorDelegateDTO.mergedCachedVisitor != null && visitorDelegateDTO.mergedCachedVisitor.isVariationAlreadyAssigned(v.getVariationId())) {
                 FlagshipLogManager.log(FlagshipLogManager.Tag.ALLOCATION, LogManager.Level.DEBUG,
                         String.format(FlagshipConstants.Info.CACHED_ALLOCATION, v.getVariationId()));
                 return v;

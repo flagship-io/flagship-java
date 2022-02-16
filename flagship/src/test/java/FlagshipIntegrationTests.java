@@ -1327,7 +1327,8 @@ public class FlagshipIntegrationTests {
                                     assertEquals("brjjpk7734cg0sl5oooo", jsonCampaign.getString("variationId"));
                                     assertFalse(jsonCampaign.getBoolean("isReference"));
                                     assertEquals("ab", jsonCampaign.getString("type"));
-                                    assertTrue(jsonCampaign.getBoolean("activated")); //it is loaded from cache with true
+//                                    assertTrue(jsonCampaign.getBoolean("activated")); //it is loaded from cache with true
+                                    assertFalse(jsonCampaign.getBoolean("activated"));
                                     JSONObject jsonFlags = jsonCampaign.getJSONObject("flags");
                                     assertEquals(81111, jsonFlags.get("rank"));
                                     assertTrue(jsonFlags.has("rank_plus"));

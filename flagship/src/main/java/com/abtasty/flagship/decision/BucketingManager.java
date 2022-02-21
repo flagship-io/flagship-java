@@ -13,7 +13,6 @@ import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
 import com.abtasty.flagship.visitor.VisitorDelegateDTO;
 import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
@@ -24,9 +23,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static com.abtasty.flagship.utils.FlagshipConstants.Errors.BUCKETING_POLLING_ERROR;
+
 public class BucketingManager extends DecisionManager {
 
     private final String                    LOCAL_DECISION_FILE_NAME = "local_decision_file.json";
+    private final String                    LOCAL_DECISION_FILE = "local_decision_file";
+    private final String                    LAST_MODIFIED_LOCAL_DECISION_FILE = "last_modified";
     private String                          lastModified;
     private String                          localDecisionFile;
     private ArrayList<Campaign>             campaigns = new ArrayList<>();
@@ -68,22 +71,41 @@ public class BucketingManager extends DecisionManager {
     private void updateBucketingCampaigns() {
         try {
             HashMap<String, String> headers = new HashMap<String, String>();
-            if (lastModified != null)
-                headers.put("If-Modified-Since", lastModified);
-            Response response = HttpManager.getInstance().sendHttpRequest(HttpManager.RequestType.GET,
+            loadLocalDecisionFile();
+            if (lastModified != null) headers.put("If-Modified-Since", lastModified);
+            Response response = null;
+            try {
+                response = HttpManager.getInstance().sendHttpRequest(HttpManager.RequestType.GET,
                     String.format(BUCKETING, config.getEnvId()), headers, null, config.getTimeout());
-            logResponse(response);
-            if (response.isSuccess(false)) {
-                lastModified = response.getResponseHeader("Last-Modified");
-                ArrayList<Campaign> campaigns = parseCampaignsResponse(response.getResponseContent());
+            } catch (Exception e) {
+                FlagshipLogManager.log(FlagshipLogManager.Tag.BUCKETING, LogManager.Level.ERROR, String.format(BUCKETING_POLLING_ERROR, e.getMessage() != null ? e.getMessage() : ""));
+                if (localDecisionFile != null)
+                    FlagshipLogManager.log(FlagshipLogManager.Tag.BUCKETING, LogManager.Level.INFO, String.format(FlagshipConstants.Info.BUCKETING_CACHE,
+                            lastModified, new JSONObject(localDecisionFile).toString(4)));
+            }
+            if (response != null) {
+                logResponse(response);
+                if (response.getResponseCode() < 300) {
+                    lastModified = response.getResponseHeader("Last-Modified");
+                    localDecisionFile = response.getResponseContent();
+                    saveLocalDecisionFile();
+                }
+            }
+            parseLocalDecisionFile();
+        } catch (Exception e) {
+            FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, LogManager.Level.ERROR, e.getMessage() != null ? e.getMessage() : "");
+        }
+        updateFlagshipStatus(isPanic() ? Flagship.Status.PANIC : Flagship.Status.READY);
+    }
+
+    private void parseLocalDecisionFile() {
+        if (localDecisionFile != null) {
+            ArrayList<Campaign> campaigns = parseCampaignsResponse(localDecisionFile);
                 if (campaigns != null)
                     this.campaigns = campaigns;
-//                updateFlagshipStatus(isPanic() ? Flagship.Status.PANIC : Flagship.Status.READY);
-            }
-        } catch (Exception e) {
-            FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, LogManager.Level.ERROR, e.getMessage());
         }
     }
+
 
     public void stop() {
         if (executor != null && !executor.isShutdown())
@@ -119,15 +141,15 @@ public class BucketingManager extends DecisionManager {
         if (lastModified != null && localDecisionFile != null) {
             try {
                 JSONObject localDecisionJson = new JSONObject()
-                        .put("last_modified", lastModified)
-                        .put("local_decision_file", localDecisionFile);
+                        .put(LAST_MODIFIED_LOCAL_DECISION_FILE, lastModified)
+                        .put(LOCAL_DECISION_FILE, localDecisionFile);
                 FileWriter fWriter = new FileWriter(LOCAL_DECISION_FILE_NAME, false);
                 BufferedWriter fOut = new BufferedWriter(fWriter);
-                fOut.write(localDecisionJson.toString(4));
-                fWriter.close();
+                fOut.write(localDecisionJson.toString());
                 fOut.close();
+                fWriter.close();
             } catch (Exception e) {
-
+                e.printStackTrace();
             }
         }
     }
@@ -142,12 +164,12 @@ public class BucketingManager extends DecisionManager {
             reader.close();
             String content = builder.toString();
             if (!content.isEmpty()) {
-                JSONObject localDecisionJson = new JSONObject();
-                lastModified = localDecisionJson.optString("last_modified", null);
-                localDecisionFile = localDecisionJson.optString("local_decision_file", null);
+                JSONObject localDecisionJson = new JSONObject(content);
+                lastModified = localDecisionJson.optString(LAST_MODIFIED_LOCAL_DECISION_FILE, null);
+                localDecisionFile = localDecisionJson.optString(LOCAL_DECISION_FILE, null);
             }
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
     }
 }

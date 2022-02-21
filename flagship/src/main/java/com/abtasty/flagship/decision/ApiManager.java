@@ -47,8 +47,12 @@ public class ApiManager extends DecisionManager {
                 headers,
                 json.toString(),
                 config.getTimeout());
-        logResponse(response);
-        return (response.isSuccess()) ? parseCampaignsResponse(response.getResponseContent()) : null;
+        if (response != null) {
+            logResponse(response);
+            if (response.isSuccess())
+                return parseCampaignsResponse(response.getResponseContent());
+        }
+        return null;
     }
 
     @Override
@@ -67,7 +71,8 @@ public class ApiManager extends DecisionManager {
                     }
                 }
                 return campaignsModifications;
-            }
+            } else
+                return new HashMap<>(visitor.cachedVisitor.getModifications()); //use cache
         } catch (Exception e) {
             FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, LogManager.Level.ERROR, e.getMessage());
         }

@@ -45,3 +45,4 @@ logs
 build/
 qa_db/
 flagship_database.db
+local_decision_file.json

@@ -90,7 +90,6 @@ public class VisitorDelegate {
     }
 
     protected VisitorDelegateDTO toDTO() {
-        this.cachedVisitor.merge(this);
         return new VisitorDelegateDTO(this);
     }
 

@@ -21,7 +21,7 @@ public class VisitorDelegateDTO {
     protected   ArrayList<String>               activatedVariations;
     protected   boolean                         hasConsented;
     protected   boolean                         isAuthenticated;
-    public      VisitorCache                    mergedCachedVisitor;
+    public      VisitorCache                    cachedVisitor;
 
     public VisitorDelegateDTO(VisitorDelegate visitorDelegate) {
 
@@ -34,7 +34,7 @@ public class VisitorDelegateDTO {
         this.activatedVariations = new ArrayList<>(visitorDelegate.activatedVariations);
         this.hasConsented = visitorDelegate.hasConsented;
         this.isAuthenticated = visitorDelegate.isAuthenticated;
-        this.mergedCachedVisitor = visitorDelegate.cachedVisitor;
+        this.cachedVisitor = visitorDelegate.cachedVisitor;
     }
 
     public JSONObject contextToJson() {
@@ -44,14 +44,6 @@ public class VisitorDelegateDTO {
         }
         return json;
     }
-
-//    public boolean isVariationAssigned(String variationId) {
-//        for (Map.Entry<String, Modification> e : modifications.entrySet()) {
-//            if (Objects.equals(e.getValue().getVariationId(), variationId))
-//                return true;
-//        }
-//        return false;
-//    }
 
     public ConfigManager getConfigManager() {
         return configManager;

@@ -84,7 +84,8 @@ public class TrackingManager implements IFlagshipEndpoints {
         HttpManager.getInstance().sendAsyncHttpRequest(HttpManager.RequestType.POST, endpoint, headers, content.toString())
                 .whenComplete((response, error) -> {
                     FlagshipLogManager.Tag tag = (type.equals(FlagshipLogManager.Tag.ACTIVATE.name())) ? FlagshipLogManager.Tag.ACTIVATE : FlagshipLogManager.Tag.TRACKING;
-                    logHit(tag, response, response.getRequestContent());
+                    if (response != null)
+                        logHit(tag, response, response.getRequestContent());
                     if (response == null || response.getResponseCode() < 200 || response.getResponseCode() > 204) {
                         JSONObject json = CacheHelper.fromHit(visitorDelegateDTO, type, content, time);
                         visitorDelegateDTO.getVisitorDelegate().getStrategy().cacheHit(visitorDelegateDTO.getVisitorId(), json);

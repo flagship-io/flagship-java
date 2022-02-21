@@ -1,7 +1,10 @@
 package com.abtasty.flagship.api;
 
 import com.abtasty.flagship.main.Flagship;
+import com.abtasty.flagship.utils.FlagshipConstants;
 import com.abtasty.flagship.utils.FlagshipLogManager;
+import com.abtasty.flagship.utils.LogManager;
+
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -74,31 +77,36 @@ public class HttpManager {
                                            HashMap<String, String> headers,
                                            String content,
                                            int timeout) throws IOException {
-        long timer = System.currentTimeMillis();
-        URL url = new URL(uri);
-        HttpURLConnection conn = createConnection(url);
-        conn.setRequestMethod(type.name);
-        conn.setRequestProperty("Content-Type", "application/json");
-        if (timeout > 0) {
-            conn.setConnectTimeout(timeout);
-            conn.setReadTimeout(timeout);
-        }
-        if (headers != null && headers.size() > 0) {
-            for (HashMap.Entry<String, String> e : headers.entrySet()) {
-                conn.setRequestProperty(e.getKey(), e.getValue());
+        try {
+            long timer = System.currentTimeMillis();
+            URL url = new URL(uri);
+            HttpURLConnection conn = createConnection(url);
+            conn.setRequestMethod(type.name);
+            conn.setRequestProperty("Content-Type", "application/json");
+            if (timeout > 0) {
+                conn.setConnectTimeout(timeout);
+                conn.setReadTimeout(timeout);
             }
+            if (headers != null && headers.size() > 0) {
+                for (HashMap.Entry<String, String> e : headers.entrySet()) {
+                    conn.setRequestProperty(e.getKey(), e.getValue());
+                }
+            }
+            if (type == RequestType.POST && content != null) {
+                conn.setDoOutput(true);
+                DataOutputStream out = new DataOutputStream(conn.getOutputStream());
+                out.writeBytes(content);
+                out.flush();
+                out.close();
+            }
+            Response response = parseResponse(conn, type, uri, headers, content);
+            response.setResponseTime(System.currentTimeMillis() - timer);
+            conn.disconnect();
+            return response;
+        } catch (Exception e) {
+            FlagshipLogManager.log(FlagshipLogManager.Tag.HTTP, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.HTTP_ERROR, uri, (e.getMessage() != null) ? e.getMessage() : ""));
         }
-        if (type == RequestType.POST && content != null) {
-            conn.setDoOutput(true);
-            DataOutputStream out = new DataOutputStream(conn.getOutputStream());
-            out.writeBytes(content);
-            out.flush();
-            out.close();
-        }
-        Response response = parseResponse(conn, type, uri, headers, content);
-        response.setResponseTime(System.currentTimeMillis() - timer);
-        conn.disconnect();
-        return response;
+        return null;
     }
 
     public CompletableFuture<Response> sendAsyncHttpRequest(RequestType type,
@@ -110,8 +118,7 @@ public class HttpManager {
             try {
                 response = sendHttpRequest(type, uri, headers, content);
             } catch (Exception e) {
-                e.printStackTrace();
-                FlagshipLogManager.exception(e);
+                FlagshipLogManager.log(FlagshipLogManager.Tag.TRACKING, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.HTTP_ERROR, uri, (e.getMessage() != null) ? e.getMessage() : ""));
             }
             return response;
         }, threadPoolExecutor);

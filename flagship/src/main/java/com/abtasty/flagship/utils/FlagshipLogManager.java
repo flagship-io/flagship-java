@@ -29,6 +29,7 @@ public class FlagshipLogManager extends LogManager {
         FLAG_USER_EXPOSED("FLAG_USER_EXPOSED"),
 //        GET_MODIFICATION("GET_MODIFICATION"),
 //        GET_MODIFICATION_INFO("GET_MODIFICATION_INFO"),
+        HTTP("HTTP"),
         TRACKING("HIT"),
         ACTIVATE("ACTIVATE"),
         AUTHENTICATE("AUTHENTICATE"),

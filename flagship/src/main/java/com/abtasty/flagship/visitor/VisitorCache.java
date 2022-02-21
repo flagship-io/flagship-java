@@ -4,12 +4,13 @@ import com.abtasty.flagship.cache.CacheHelper;
 import com.abtasty.flagship.model.Modification;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
 public class VisitorCache extends VisitorDelegateDTO {
+
+    protected   HashMap<String, String>         assignmentsHistory;
 
     public VisitorCache(VisitorDelegate visitorDelegate) {
         super(visitorDelegate);
@@ -45,29 +46,16 @@ public class VisitorCache extends VisitorDelegateDTO {
                 }
             }
         }
-        applyToVisitorDelegate();
+        this.assignmentsHistory = getAssignmentsHistoryFromJSON(visitorCache.optJSONObject("assignmentsHistory"));
+        //todo load context ?
     }
 
-    private void applyToVisitorDelegate() {
-        visitorDelegate.getStrategy().updateContext(context);
-        for (String variation : activatedVariations) {
-            if (!this.visitorDelegate.activatedVariations.contains(variation))
-                this.visitorDelegate.activatedVariations.add(variation);
+    private HashMap<String, String> getAssignmentsHistoryFromJSON(JSONObject json) {
+        HashMap<String, String> assignments = new HashMap<>();
+        for (String key : json.keySet()) {
+            assignments.put(key, json.getString(key));
         }
-        visitorDelegate.modifications.putAll(modifications);
-    }
-
-    public VisitorCache merge(VisitorDelegate visitorDelegate) {
-        this.visitorId = visitorDelegate.visitorId;
-        this.anonymousId = visitorDelegate.anonymousId;
-        this.context = new HashMap<String, Object>(visitorDelegate.getContext());
-        this.modifications.putAll(new HashMap<String, Modification>(visitorDelegate.modifications));
-        for (String variation : visitorDelegate.activatedVariations)
-            if (!this.activatedVariations.contains(variation))
-                this.activatedVariations.add(variation);
-        this.hasConsented = visitorDelegate.hasConsented;
-        this.isAuthenticated = visitorDelegate.isAuthenticated;
-        return this;
+        return assignments;
     }
 
     public JSONObject toCacheJSON() {
@@ -76,7 +64,8 @@ public class VisitorCache extends VisitorDelegateDTO {
                 .put("anonymousId", anonymousId)
                 .put("consent", hasConsented)
                 .put("context", contextToJson())
-                .put("campaigns", this.modificationsToCacheJSON());
+                .put("campaigns", this.modificationsToCacheJSON())
+                .put("assignmentsHistory", this.assignationHistoryToJSON());
         return new JSONObject()
                 .put("version", CacheHelper._VISITOR_CACHE_VERSION_)
                 .put("data", data);
@@ -105,7 +94,6 @@ public class VisitorCache extends VisitorDelegateDTO {
                         .put("isReference", m.getValue().isReference())
                         .put("type", m.getValue().getType())
                         .put("activated", activatedVariations.contains(m.getValue().getVariationId()))
-//                        .put("activated", visitorDelegateDTO.isVariationAssigned(m.getValue().getVariationId()))
                         .put("flags", new JSONObject().put(m.getValue().getKey(),
                                 (m.getValue().getValue() != null) ? m.getValue().getValue() : JSONObject.NULL)));
             }
@@ -113,11 +101,20 @@ public class VisitorCache extends VisitorDelegateDTO {
         return campaigns;
     }
 
-    public Boolean isVariationAlreadyAssigned(String variationId) {
-        for (Map.Entry<String, Modification> e : modifications.entrySet()) {
-            if (Objects.equals(e.getValue().getVariationId(), variationId))
-                return true;
+    private JSONObject assignationHistoryToJSON() {
+        JSONObject assignationsJSON = new JSONObject();
+        for (Map.Entry<String, String> e : assignmentsHistory.entrySet()) {
+            assignationsJSON.put(e.getKey(), e.getValue());
         }
-        return false;
+        return assignationsJSON;
+    }
+
+    public String getVariationGroupAssignment(String variationGroupId) {
+        return assignmentsHistory.getOrDefault(variationGroupId, null);
+    }
+
+    public void addNewAssignment(String variationGroupId, String variationId) {
+//        if (!assignmentsHistory.containsKey(variationGroupId)) //might be not compatible with XPC
+            assignmentsHistory.put(variationGroupId, variationId);
     }
 }

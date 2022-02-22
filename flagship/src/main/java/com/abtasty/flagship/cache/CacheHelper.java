@@ -166,6 +166,7 @@ public class CacheHelper {
                 VisitorMigrations.values()[version - 1].applyFromJSON(visitorDelegate, data);
             }
         } catch (Exception e) {
+            e.printStackTrace();
             FlagshipLogManager.log(FlagshipLogManager.Tag.CACHE, LogManager.Level.ERROR,
                     String.format(FlagshipConstants.Errors.CACHE_IMPL_FORMAT_ERROR, "lookupVisitor", version, visitorDelegate.visitorId));
         }

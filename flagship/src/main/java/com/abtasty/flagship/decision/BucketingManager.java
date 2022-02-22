@@ -101,8 +101,8 @@ public class BucketingManager extends DecisionManager {
     private void parseLocalDecisionFile() {
         if (localDecisionFile != null) {
             ArrayList<Campaign> campaigns = parseCampaignsResponse(localDecisionFile);
-                if (campaigns != null)
-                    this.campaigns = campaigns;
+            if (campaigns != null)
+                this.campaigns = campaigns;
         }
     }
 
@@ -115,6 +115,7 @@ public class BucketingManager extends DecisionManager {
     @Override
     public HashMap<String, Modification> getCampaignsModifications(VisitorDelegateDTO visitor) {
         try {
+            System.out.println("Here 1 " + campaigns.toString());
             if (campaigns != null) {
                 HashMap<String, Modification> campaignsModifications = new HashMap<>();
                 for (Campaign campaign : campaigns) {
@@ -128,11 +129,15 @@ public class BucketingManager extends DecisionManager {
                         }
                     }
                 }
+                System.out.println("Here 2");
                 visitor.getVisitorDelegate().getStrategy().sendContextRequest();
                 return campaignsModifications;
             }
         } catch (Exception e) {
-            FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, LogManager.Level.ERROR, e.getMessage());
+
+            System.out.println("Here error ");
+            FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, LogManager.Level.ERROR, (e.getMessage() != null) ? e.getMessage() : "");
+            e.printStackTrace();
         }
         return null;
     }

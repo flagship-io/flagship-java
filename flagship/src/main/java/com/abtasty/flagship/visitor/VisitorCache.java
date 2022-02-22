@@ -10,7 +10,7 @@ import java.util.Objects;
 
 public class VisitorCache extends VisitorDelegateDTO {
 
-    protected   HashMap<String, String>         assignmentsHistory;
+    protected   HashMap<String, String>         assignmentsHistory = new HashMap<>();
 
     public VisitorCache(VisitorDelegate visitorDelegate) {
         super(visitorDelegate);
@@ -52,8 +52,10 @@ public class VisitorCache extends VisitorDelegateDTO {
 
     private HashMap<String, String> getAssignmentsHistoryFromJSON(JSONObject json) {
         HashMap<String, String> assignments = new HashMap<>();
-        for (String key : json.keySet()) {
-            assignments.put(key, json.getString(key));
+        if (json != null) {
+            for (String key : json.keySet()) {
+                assignments.put(key, json.getString(key));
+            }
         }
         return assignments;
     }

@@ -30,11 +30,14 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
@@ -117,10 +120,17 @@ public class FlagshipIntegrationTests {
     }
 
     public void mockResponse(String url, int code, String content) {
+        mockResponse(url, code, content, new HashMap<>());
+    }
+
+    public void mockResponse(String url, int code, String content, HashMap<String, String> headers) {
         if (url != null && code > 0 && content != null) {
             HttpURLConnection connection = PowerMockito.mock(HttpURLConnection.class);
             try {
                 PowerMockito.when(connection.getResponseCode()).thenReturn(code);
+                PowerMockito.when(connection.getHeaderFields()).thenReturn(mockHeaders(headers));
+                String name = PowerMockito.mock(String.class);
+                PowerMockito.when(connection.getHeaderField(name)).thenReturn(headers.get(name));
                 PowerMockito.when(connection.getInputStream()).thenReturn(new ByteArrayInputStream(content.getBytes()));
                 PowerMockito.when(connection.getOutputStream()).thenReturn(new ByteArrayOutputStream());
                 PowerMockito.when(connection.getErrorStream()).thenCallRealMethod();
@@ -130,6 +140,16 @@ public class FlagshipIntegrationTests {
             }
             responseToMock.put(url, connection);
         }
+    }
+
+    private HashMap<String, List<String>> mockHeaders(HashMap<String, String> headers) {
+        HashMap<String, List<String>> map = new HashMap<String, List<String>>();
+        for (Map.Entry<String, String> h : headers.entrySet()) {
+            List<String> list = new ArrayList<>();
+            list.add(h.getValue());
+            map.put(h.getKey(), list);
+        }
+        return map;
     }
 
     @BeforeEach
@@ -935,7 +955,13 @@ public class FlagshipIntegrationTests {
 
         Thread.sleep(400);
         CountDownLatch contextLatch = new CountDownLatch(4);
-        mockResponse("https://cdn.flagship.io/my_env_id/bucketing.json", 200, FlagshipIntegrationHelper.bucketingResponse);
+        SimpleDateFormat format = new SimpleDateFormat("EEE, d MMM Y hh:mm:ss", Locale.ENGLISH);
+        format.setTimeZone(TimeZone.getTimeZone("UTC"));
+        String date =  format.format(new Date()) + " GMT";
+        System.out.println("Date = > " + date);
+        mockResponse("https://cdn.flagship.io/my_env_id/bucketing.json", 200, FlagshipIntegrationHelper.bucketingResponse, new HashMap<String, String>() {{
+            put("Last-Modified", date);
+        }});
         verifyRequest("https://cdn.flagship.io/my_env_id/bucketing.json", new OnRequestValidation() {
             @Override
             public boolean shouldBeRemoved() {
@@ -950,6 +976,7 @@ public class FlagshipIntegrationTests {
             @Override
             public void onRequestValidation(Response response) {
                 JSONObject json = response.getRequestContentAsJson();
+
                 assert json.getString("type").equals("CONTEXT");
                 assert json.getString("visitorId").equals("visitor_1");
                 assert json.getJSONObject("data").getInt("age") == 32;
@@ -975,7 +1002,7 @@ public class FlagshipIntegrationTests {
                 .withLogManager(new LogManager() {
                     @Override
                     public void onLog(Level level, String tag, String message) {
-                        System.out.println("message => " + message);
+                        System.out.printf("Flagship Log > %s %s %s%n", tag.toString(), level.toString(), message);
                         if (message.contains("has been created while SDK status is POLLING"))
                             latchNotInitialized.countDown();
                         else if (message.contains("deactivated") && message.contains("fetchFlags()"))
@@ -1016,16 +1043,6 @@ public class FlagshipIntegrationTests {
             assertNull(content.optString("anonymousId", null));
         });
 
-        //anonymous
-        Flagship.start("my_env_id", "my_api_key", new FlagshipConfig.DecisionApi());
-        Visitor visitor = Flagship.newVisitor("logged_out")
-                .context(new HashMap<String, Object>() {{
-                    put("isVIPUser", true);
-                    put("age", 32);
-                    put("daysSinceLastLaunch", 2);
-                }}).build();
-        visitor.synchronizeModifications().get();
-
 
         CountDownLatch anonymous_latch = new CountDownLatch(2);
         verifyRequest("https://decision.flagship.io/v2/activate", (request) -> {
@@ -1042,13 +1059,35 @@ public class FlagshipIntegrationTests {
             anonymous_latch.countDown();
         });
 
+        //anonymous
+        Flagship.start("my_env_id", "my_api_key", new FlagshipConfig.DecisionApi());
+        Visitor visitor = Flagship.newVisitor("logged_out")
+                .context(new HashMap<String, Object>() {{
+                    put("isVIPUser", true);
+                    put("age", 32);
+                    put("daysSinceLastLaunch", 2);
+                }}).build();
+        visitor.synchronizeModifications().get();
+
+        assertEquals("not a all", visitor.getFlag("isref", "default").value(true));
+        if (!anonymous_latch.await(2, TimeUnit.SECONDS))
+            fail();
+
+        requestToVerify.clear();
+        responseToMock.clear();
+
+        mockResponse("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", 200, FlagshipIntegrationHelper.synchronizeResponse2);
+        mockResponse("https://decision.flagship.io/v2/activate", 200, "");
+        mockResponse("https://ariane.abtasty.com", 200, "");
+
         //logged in 1
-        CountDownLatch logged1_latch = new CountDownLatch(2);
+        CountDownLatch logged1_latch = new CountDownLatch(3);
         visitor.authenticate("logged_in");
         verifyRequest("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", (request) -> {
             JSONObject content = new JSONObject(request.getRequestContent());
             assertEquals(content.getString("anonymousId"), "logged_out");
             assertEquals(content.getString("visitorId"), "logged_in");
+            logged1_latch.countDown();
         });
         verifyRequest("https://decision.flagship.io/v2/activate", (request) -> {
             JSONObject content = new JSONObject(request.getRequestContent());
@@ -1067,18 +1106,26 @@ public class FlagshipIntegrationTests {
         visitor.sendHit(new Screen("test"));
         visitor.activateModification("isref");
 
-        if (!logged1_latch.await(2, TimeUnit.SECONDS))
+        if (!logged1_latch.await(20, TimeUnit.SECONDS))
             fail();
 
+        requestToVerify.clear();
+        responseToMock.clear();
+
+        mockResponse("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", 200, FlagshipIntegrationHelper.synchronizeResponse2);
+        mockResponse("https://decision.flagship.io/v2/activate", 200, "");
+        mockResponse("https://ariane.abtasty.com", 200, "");
+
         //logged in 2
+        CountDownLatch logged2_latch = new CountDownLatch(3);
         visitor.authenticate("logged_in_2");
         verifyRequest("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", (request) -> {
             JSONObject content = new JSONObject(request.getRequestContent());
             assertEquals(content.getString("anonymousId"), "logged_out");
             assertEquals(content.getString("visitorId"), "logged_in_2");
+            logged2_latch.countDown();
         });
 
-        CountDownLatch logged2_latch = new CountDownLatch(2);
         verifyRequest("https://decision.flagship.io/v2/activate", (request) -> {
             JSONObject content = new JSONObject(request.getRequestContent());
             assertEquals(content.getString("vid"), "logged_in_2");
@@ -1103,13 +1150,22 @@ public class FlagshipIntegrationTests {
         if (!logged2_latch.await(2, TimeUnit.SECONDS))
             fail();
 
+        requestToVerify.clear();
+        responseToMock.clear();
+
+        mockResponse("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", 200, FlagshipIntegrationHelper.synchronizeResponse2);
+        mockResponse("https://decision.flagship.io/v2/activate", 200, "");
+        mockResponse("https://ariane.abtasty.com", 200, "");
+
         //back to anonymous
-        CountDownLatch anonymous2_latch = new CountDownLatch(2);
+        CountDownLatch anonymous2_latch = new CountDownLatch(3);
         visitor.unauthenticate();
         verifyRequest("https://decision.flagship.io/v2/my_env_id/campaigns/?exposeAllKeys=true", (request) -> {
             JSONObject content = new JSONObject(request.getRequestContent());
             assertNull(content.optString("anonymousId", null));
             assertEquals(content.getString("visitorId"), "logged_out");
+            anonymous2_latch.countDown();
+
         });
 
         verifyRequest("https://decision.flagship.io/v2/activate", (request) -> {
@@ -1266,6 +1322,8 @@ public class FlagshipIntegrationTests {
     @Test
     public void test_cache_custom() throws InterruptedException, ExecutionException {
 
+        responseToMock.clear();
+        requestToVerify.clear();
         mockResponse(String.format(FlagshipIntegrationHelper.BUCKETING_URL, FlagshipIntegrationHelper._ENV_ID_),
                 200, responseFromAssets("bucketing_response_1.json"));
         mockResponse(String.format(FlagshipIntegrationHelper.CONTEXT_URL, FlagshipIntegrationHelper._ENV_ID_),
@@ -1317,7 +1375,7 @@ public class FlagshipIntegrationTests {
                                     assertEquals(CacheHelper._VISITOR_CACHE_VERSION_, data.get("version"));
                                     assertTrue(data.getJSONObject("data").getBoolean("consent"));
                                     assertEquals("visitor_id", data.getJSONObject("data").getString("visitorId"));
-                                    assertEquals("null", data.getJSONObject("data").optString("anonymousId", "null"));
+                                    assertEquals("", data.getJSONObject("data").optString("anonymousId", ""));
                                     assertTrue(data.getJSONObject("data").getJSONObject("context").getBoolean("vip"));
                                     assertTrue(data.getJSONObject("data").getJSONObject("context").getBoolean("vip"));
                                     assertEquals("java", data.getJSONObject("data").getJSONObject("context").getString("fs_client"));
@@ -1383,7 +1441,7 @@ public class FlagshipIntegrationTests {
                                             assertEquals("visitor_id", jsonContent.getString("visitorId"));
                                             assertEquals("CONTEXT", jsonContent.getString("type"));
                                             JSONObject contextData = jsonContent.getJSONObject("data");
-                                            assertEquals("Android", contextData.getString("sdk_osName"));
+//                                            assertEquals("Android", contextData.getString("sdk_osName"));
                                             assertTrue(contextData.getBoolean("vip"));
                                             assertEquals(2, contextData.getInt("daysSinceLastLaunch"));
                                             cacheHitLatch.countDown();
@@ -1433,7 +1491,7 @@ public class FlagshipIntegrationTests {
                         };
                     }
                 }));
-        if (!readyCDL.await(1000, TimeUnit.MILLISECONDS))
+        if (!readyCDL.await(2000, TimeUnit.MILLISECONDS))
             fail();
         Visitor visitor = Flagship.newVisitor("visitor_id") // 1 consent true
                 .context(new HashMap<String, Object>() {{

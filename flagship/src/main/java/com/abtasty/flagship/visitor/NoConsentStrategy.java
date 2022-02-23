@@ -36,12 +36,12 @@ class NoConsentStrategy extends DefaultStrategy {
 
     @Override
     public <T> void exposeFlag(String key, T defaultValue) {
-        logMethodDeactivatedError(FlagshipLogManager.Tag.FLAG_USER_EXPOSED, visitorDelegate.visitorId, "Flag.userExposed()");
+        logMethodDeactivatedError(FlagshipLogManager.Tag.FLAG_USER_EXPOSED, visitorDelegate.getVisitorId(), "Flag.userExposed()");
     }
 
     @Override
     public <T> void sendHit(Hit<T> hit) {
-        logMethodDeactivatedError(FlagshipLogManager.Tag.TRACKING,  visitorDelegate.visitorId,"sendHit()");
+        logMethodDeactivatedError(FlagshipLogManager.Tag.TRACKING,  visitorDelegate.getVisitorId(),"sendHit()");
     }
 
     @Override

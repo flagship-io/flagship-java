@@ -93,7 +93,7 @@ public class BucketingManager extends DecisionManager {
             }
             parseLocalDecisionFile();
         } catch (Exception e) {
-            FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, LogManager.Level.ERROR, e.getMessage() != null ? e.getMessage() : "");
+            FlagshipLogManager.log(FlagshipLogManager.Tag.FETCHING, LogManager.Level.ERROR, e.getMessage() != null ? e.getMessage() : "");
         }
         updateFlagshipStatus(isPanic() ? Flagship.Status.PANIC : Flagship.Status.READY);
     }
@@ -113,31 +113,29 @@ public class BucketingManager extends DecisionManager {
     }
 
     @Override
-    public HashMap<String, Modification> getCampaignsModifications(VisitorDelegateDTO visitor) {
+    public HashMap<String, Modification> getCampaignsModifications(VisitorDelegateDTO visitorDelegateDTO) {
         try {
-            System.out.println("Here 1 " + campaigns.toString());
             if (campaigns != null) {
                 HashMap<String, Modification> campaignsModifications = new HashMap<>();
                 for (Campaign campaign : campaigns) {
                     for (VariationGroup variationGroup : campaign.getVariationGroups()) {
-                        if (variationGroup.isTargetingValid(new HashMap<>(visitor.getContext()))) {
-                            Variation variation = variationGroup.selectVariation(visitor);
-                            HashMap<String, Modification> modificationsValues = variation.getModificationsValues();
-                            if (modificationsValues != null)
-                                campaignsModifications.putAll(modificationsValues);
-                            break;
+                        if (variationGroup.isTargetingValid(new HashMap<>(visitorDelegateDTO.getContext()))) {
+                            Variation variation = variationGroup.selectVariation(visitorDelegateDTO);
+                            if (variation != null) {
+                                visitorDelegateDTO.addNewAssignmentToHistory(variation.getVariationGroupId(), variation.getVariationId());
+                                HashMap<String, Modification> modificationsValues = variation.getModificationsValues();
+                                if (modificationsValues != null)
+                                    campaignsModifications.putAll(modificationsValues);
+                                break;
+                            }
                         }
                     }
                 }
-                System.out.println("Here 2");
-                visitor.getVisitorDelegate().getStrategy().sendContextRequest();
+                visitorDelegateDTO.getVisitorDelegate().getStrategy().sendContextRequest();
                 return campaignsModifications;
             }
         } catch (Exception e) {
-
-            System.out.println("Here error ");
-            FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, LogManager.Level.ERROR, (e.getMessage() != null) ? e.getMessage() : "");
-            e.printStackTrace();
+            FlagshipLogManager.log(FlagshipLogManager.Tag.FETCHING, LogManager.Level.ERROR, (e.getMessage() != null) ? e.getMessage() : "");
         }
         return null;
     }
@@ -147,14 +145,14 @@ public class BucketingManager extends DecisionManager {
             try {
                 JSONObject localDecisionJson = new JSONObject()
                         .put(LAST_MODIFIED_LOCAL_DECISION_FILE, lastModified)
-                        .put(LOCAL_DECISION_FILE, localDecisionFile);
+                        .put(LOCAL_DECISION_FILE, new JSONObject(localDecisionFile));
                 FileWriter fWriter = new FileWriter(LOCAL_DECISION_FILE_NAME, false);
                 BufferedWriter fOut = new BufferedWriter(fWriter);
                 fOut.write(localDecisionJson.toString());
                 fOut.close();
                 fWriter.close();
             } catch (Exception e) {
-                e.printStackTrace();
+                FlagshipLogManager.log(FlagshipLogManager.Tag.BUCKETING, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.BUCKETING_SAVING_ERROR,( e.getMessage() != null) ? e.getMessage() : ""));
             }
         }
     }
@@ -174,7 +172,7 @@ public class BucketingManager extends DecisionManager {
                 localDecisionFile = localDecisionJson.optString(LOCAL_DECISION_FILE, null);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            FlagshipLogManager.log(FlagshipLogManager.Tag.BUCKETING, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.BUCKETING_LOADING_ERROR,( e.getMessage() != null) ? e.getMessage() : ""));
         }
     }
 }

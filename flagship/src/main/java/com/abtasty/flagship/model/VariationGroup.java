@@ -46,7 +46,7 @@ public class VariationGroup implements Serializable {
 
     public Variation selectVariation(VisitorDelegateDTO visitorDelegateDTO) {
         if (variations != null) {
-            String cachedVariationId = visitorDelegateDTO.cachedVisitor.getVariationGroupAssignment(variationGroupId);
+            String cachedVariationId = visitorDelegateDTO.getVariationGroupAssignment(variationGroupId);
             Optional<Map.Entry<String, Variation>> option = variations.entrySet().stream().filter(e -> e.getValue().getVariationId().equals(cachedVariationId)).findFirst();
             if (option.isPresent()) {
                 Variation v = option.get().getValue();
@@ -66,7 +66,7 @@ public class VariationGroup implements Serializable {
                             FlagshipLogManager.log(FlagshipLogManager.Tag.ALLOCATION, LogManager.Level.DEBUG,
                                     String.format(FlagshipConstants.Info.NEW_ALLOCATION, variation.getVariationId(),
                                             murmurAllocation));
-                            visitorDelegateDTO.cachedVisitor.addNewAssignment(variationGroupId, variation.getVariationId());
+//                            visitorDelegateDTO.addNewAssignmentToHistory(variationGroupId, variation.getVariationId());
                             return variation;
                         }
                     }

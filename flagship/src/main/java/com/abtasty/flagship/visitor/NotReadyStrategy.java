@@ -48,8 +48,8 @@ class NotReadyStrategy extends DefaultStrategy {
 
     @Override
     public CompletableFuture<Visitor> fetchFlags() {
-        logMethodDeactivatedError(FlagshipLogManager.Tag.FLAGS_FETCH, "fetchFlags()");
-        return CompletableFuture.completedFuture(visitorDelegate.originalVisitor);
+        logMethodDeactivatedError(FlagshipLogManager.Tag.FETCHING, "fetchFlags()");
+        return CompletableFuture.completedFuture(visitorDelegate.getOriginalVisitor());
     }
 
     @Override

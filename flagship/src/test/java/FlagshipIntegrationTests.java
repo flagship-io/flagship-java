@@ -1,10 +1,7 @@
 import com.abtasty.flagship.BuildConfig;
 import com.abtasty.flagship.api.HttpManager;
 import com.abtasty.flagship.api.Response;
-import com.abtasty.flagship.cache.CacheHelper;
-import com.abtasty.flagship.cache.CacheManager;
-import com.abtasty.flagship.cache.IHitCacheImplementation;
-import com.abtasty.flagship.cache.IVisitorCacheImplementation;
+import com.abtasty.flagship.cache.*;
 import com.abtasty.flagship.database.SQLiteCacheManager;
 import com.abtasty.flagship.hits.*;
 import com.abtasty.flagship.main.ConfigManager;
@@ -1302,7 +1299,7 @@ public class FlagshipIntegrationTests {
 
         Thread.sleep(500); //wait for visitor to be inserted
         JSONObject cachedVisitor = visitorImpl.lookupVisitor("visitor_id");
-        assertEquals(CacheHelper._VISITOR_CACHE_VERSION_, cachedVisitor.get("version"));
+        assertEquals(VisitorCacheHelper._VISITOR_CACHE_VERSION_, cachedVisitor.get("version"));
         assertTrue(cachedVisitor.getJSONObject("data").getBoolean("consent"));
         assertEquals("visitor_id", cachedVisitor.getJSONObject("data").getString("visitorId"));
 
@@ -1372,7 +1369,7 @@ public class FlagshipIntegrationTests {
                                 cacheVisitorLatch.countDown();
                                 if (visitorId.equals("visitor_id")) {
                                     assertEquals("visitor_id", visitorId);
-                                    assertEquals(CacheHelper._VISITOR_CACHE_VERSION_, data.get("version"));
+                                    assertEquals(VisitorCacheHelper._VISITOR_CACHE_VERSION_, data.get("version"));
                                     assertTrue(data.getJSONObject("data").getBoolean("consent"));
                                     assertEquals("visitor_id", data.getJSONObject("data").getString("visitorId"));
                                     assertEquals("", data.getJSONObject("data").optString("anonymousId", ""));
@@ -1421,7 +1418,7 @@ public class FlagshipIntegrationTests {
                             public void cacheHit(String visitorId, JSONObject data) {
                                 if (visitorId.equals("visitor_id")) {
                                     assertEquals("visitor_id", visitorId);
-                                    assertEquals(CacheHelper._HIT_CACHE_VERSION_, data.get("version"));
+                                    assertEquals(HitCacheHelper._HIT_CACHE_VERSION_, data.get("version"));
                                     JSONObject jsonData = data.getJSONObject("data");
                                     assertTrue(jsonData.getLong("time") > 0);
                                     assertEquals("visitor_id", data.getJSONObject("data").getString("visitorId"));
@@ -1622,6 +1619,79 @@ public class FlagshipIntegrationTests {
 
         Thread.sleep(1500);
         assertEquals(6, activateLatch.getCount());
+
+    }
+
+    @Test
+    public void cache_bucketing() throws InterruptedException, ExecutionException, IOException {
+
+        Files.deleteIfExists(Paths.get("local_decision_file.json"));
+        SimpleDateFormat format = new SimpleDateFormat("EEE, d MMM Y hh:mm:ss", Locale.ENGLISH);
+        format.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis() - 86400000); //-24h
+        Date timestampDate = new Date(timestamp.getTime());
+        String date = format.format(timestampDate) + " GMT";
+
+        mockResponse("https://cdn.flagship.io/my_env_id/bucketing.json", 200, FlagshipIntegrationHelper.bucketingResponse, new HashMap<String, String>() {{
+            put("Last-Modified", date);
+        }});
+
+
+        CountDownLatch readyLatch = new CountDownLatch(1);
+        AtomicInteger modified = new AtomicInteger(0);
+        AtomicInteger notModified = new AtomicInteger(0);
+        Flagship.start("my_env_id", "my_api_key", new FlagshipConfig.Bucketing()
+                .withPollingIntervals(1, TimeUnit.SECONDS)
+                .withStatusListener(newStatus -> {
+                    if (newStatus == Flagship.Status.READY)
+                        readyLatch.countDown();
+                }));
+        if (!readyLatch.await(2, TimeUnit.SECONDS))
+            fail();
+
+        assertTrue(Files.exists(Paths.get("local_decision_file.json")));
+
+        JSONObject json = new JSONObject(new String(Files.readAllBytes(Paths.get("local_decision_file.json"))));
+        assertEquals(date, json.getString("last_modified"));
+        assertEquals(3, json.getJSONObject("local_decision_file").getJSONArray("campaigns").length());
+
+        Thread.sleep(2000);
+
+        responseToMock.clear();
+
+        timestamp = new Timestamp(System.currentTimeMillis());// now
+        timestampDate = new Date(timestamp.getTime());
+        String date2 = format.format(timestampDate) + " GMT";
+
+        mockResponse("https://cdn.flagship.io/my_env_id/bucketing.json", 304, FlagshipIntegrationHelper.bucketingResponse2, new HashMap<String, String>() {{
+            put("Last-Modified", date2);
+        }});
+
+        assertTrue(Files.exists(Paths.get("local_decision_file.json")));
+
+        json = new JSONObject(new String(Files.readAllBytes(Paths.get("local_decision_file.json"))));
+        assertEquals(date, json.getString("last_modified"));
+        assertEquals(3, json.getJSONObject("local_decision_file").getJSONArray("campaigns").length());
+
+        Thread.sleep(2000);
+
+        responseToMock.clear();
+
+
+        Thread.sleep(2000);
+
+        responseToMock.clear();
+
+        mockResponse("https://cdn.flagship.io/my_env_id/bucketing.json", 200, FlagshipIntegrationHelper.bucketingResponse2, new HashMap<String, String>() {{
+            put("Last-Modified", date2);
+        }});
+
+        Thread.sleep(2000);
+
+        json = new JSONObject(new String(Files.readAllBytes(Paths.get("local_decision_file.json"))));
+        assertEquals(date2, json.getString("last_modified"));
+        assertEquals(2, json.getJSONObject("local_decision_file").getJSONArray("campaigns").length());
 
     }
 

@@ -140,9 +140,6 @@ public class HttpManager {
         in.close();
         streamReader.close();
         HashMap<String, String> headers = new HashMap<String, String>();
-//        for (String s : conn.getHeaderFields().keySet()) {
-//            headers.put(s, conn.getHeaderField(s));
-//        }
         for (Map.Entry<String, List<String>> e : conn.getHeaderFields().entrySet()) {
             if (e.getValue().size() > 0)
                 headers.put(e.getKey(), e.getValue().get(0));

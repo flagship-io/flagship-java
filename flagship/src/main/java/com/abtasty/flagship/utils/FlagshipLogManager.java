@@ -23,7 +23,7 @@ public class FlagshipLogManager extends LogManager {
         PARSING("PARSING"),
         TARGETING("TARGETING"),
         ALLOCATION("ALLOCATION"),
-        FLAGS_FETCH("FLAGS_FETCH"),
+        FETCHING("FETCHING"),
         FLAG_VALUE("FLAG_VALUE"),
         FLAG_METADATA("FLAG_METADATA"),
         FLAG_USER_EXPOSED("FLAG_USER_EXPOSED"),

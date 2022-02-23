@@ -2,16 +2,12 @@ package com.abtasty.flagship.visitor;
 
 import com.abtasty.flagship.api.HttpManager;
 import com.abtasty.flagship.api.TrackingManager;
-import com.abtasty.flagship.cache.CacheHelper;
-import com.abtasty.flagship.cache.CacheManager;
-import com.abtasty.flagship.cache.IHitCacheImplementation;
-import com.abtasty.flagship.cache.IVisitorCacheImplementation;
+import com.abtasty.flagship.cache.*;
 import com.abtasty.flagship.decision.DecisionManager;
 import com.abtasty.flagship.hits.Activate;
 import com.abtasty.flagship.hits.Consent;
 import com.abtasty.flagship.hits.Hit;
 import com.abtasty.flagship.main.Flagship;
-import com.abtasty.flagship.main.FlagshipConfig;
 import com.abtasty.flagship.model.Flag;
 import com.abtasty.flagship.model.Modification;
 import com.abtasty.flagship.utils.FlagshipConstants;
@@ -24,8 +20,6 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -57,49 +51,49 @@ class DefaultStrategy extends VisitorStrategy {
         else if (FlagshipContext.isReserved(key))
             FlagshipLogManager.log(FlagshipLogManager.Tag.UPDATE_CONTEXT, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.CONTEXT_RESERVED_KEY_ERROR, key));
         else
-            visitorDelegate.context.put(key, value);
+            visitorDelegate.getContext().put(key, value);
         visitorDelegate.logVisitor(FlagshipLogManager.Tag.UPDATE_CONTEXT);
     }
 
     @Override
     public <T> void updateContext(FlagshipContext<T> flagshipContext, T value) {
         if (flagshipContext.verify(value))
-            visitorDelegate.context.put(flagshipContext.key(), value);
+            visitorDelegate.getContext().put(flagshipContext.key(), value);
     }
 
     @Override
     public void clearContext() {
-        visitorDelegate.context.clear();
+        visitorDelegate.getContext().clear();
         visitorDelegate.loadContext(null);
         visitorDelegate.logVisitor(FlagshipLogManager.Tag.UPDATE_CONTEXT);
     }
 
     @Override
     public void sendContextRequest() {
-        TrackingManager trackingManager = visitorDelegate.configManager.getTrackingManager();
+        TrackingManager trackingManager = visitorDelegate.getConfigManager().getTrackingManager();
         trackingManager.sendContextRequest(visitorDelegate.toDTO());
     }
 
     @Override
     public void sendConsentRequest() {
-        TrackingManager trackingManager = visitorDelegate.configManager.getTrackingManager();
+        TrackingManager trackingManager = visitorDelegate.getConfigManager().getTrackingManager();
         if (trackingManager != null)
-            trackingManager.sendHit(visitorDelegate.toDTO(), new Consent(visitorDelegate.hasConsented));
+            trackingManager.sendHit(visitorDelegate.toDTO(), new Consent(visitorDelegate.getConsent()));
     }
 
     @Override
     public <T> void sendHit(Hit<T> hit) {
-        TrackingManager trackingManager = visitorDelegate.configManager.getTrackingManager();
+        TrackingManager trackingManager = visitorDelegate.getConfigManager().getTrackingManager();
         if (trackingManager != null && hit != null)
             trackingManager.sendHit(visitorDelegate.toDTO(), hit);
     }
 
     @Override
     public void authenticate(String visitorId) {
-        if (visitorDelegate.configManager.isDecisionMode(Flagship.DecisionMode.API)) {
-            if (visitorDelegate.anonymousId == null)
-                visitorDelegate.anonymousId = (visitorDelegate.visitorId);
-            visitorDelegate.visitorId = (visitorId);
+        if (visitorDelegate.getConfigManager().isDecisionMode(Flagship.DecisionMode.API)) {
+            if (visitorDelegate.getAnonymousId() == null)
+                visitorDelegate.setAnonymousId(visitorDelegate.getVisitorId());
+            visitorDelegate.setVisitorId(visitorId);
         } else {
             FlagshipLogManager.log(FlagshipLogManager.Tag.AUTHENTICATE, LogManager.Level.ERROR,
                     String.format(FlagshipConstants.Errors.AUTHENTICATION_BUCKETING_ERROR, "authenticate"));
@@ -111,10 +105,10 @@ class DefaultStrategy extends VisitorStrategy {
     @Override
     @SuppressWarnings("SpellCheckingInspection")
     public void unauthenticate() {
-        if (visitorDelegate.configManager.isDecisionMode(Flagship.DecisionMode.API)) {
-            if (visitorDelegate.anonymousId != null) {
-                visitorDelegate.visitorId = (visitorDelegate.anonymousId);
-                visitorDelegate.anonymousId = (null);
+        if (visitorDelegate.getConfigManager().isDecisionMode(Flagship.DecisionMode.API)) {
+            if (visitorDelegate.getAnonymousId() != null) {
+                visitorDelegate.setVisitorId(visitorDelegate.getAnonymousId());
+                visitorDelegate.setAnonymousId(null);
             }
         } else {
             FlagshipLogManager.log(FlagshipLogManager.Tag.UNAUTHENTICATE, LogManager.Level.ERROR,
@@ -126,7 +120,7 @@ class DefaultStrategy extends VisitorStrategy {
 
     @Override
     public void setConsent(Boolean hasConsented) {
-        visitorDelegate.hasConsented = hasConsented;
+        visitorDelegate.setConsent(hasConsented);
         if (!hasConsented) {
             visitorDelegate.getStrategy().flushVisitorCache();
             visitorDelegate.getStrategy().flushHitCache();
@@ -136,7 +130,7 @@ class DefaultStrategy extends VisitorStrategy {
 
     @Override
     public Boolean hasConsented() {
-        return visitorDelegate.hasConsented;
+        return visitorDelegate.getConsent();
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
@@ -163,7 +157,8 @@ class DefaultStrategy extends VisitorStrategy {
                 try {
                     IVisitorCacheImplementation visitorCacheImplementation = flagshipConfig.getCacheManager().getVisitorCacheImplementation();
                     if (visitorCacheImplementation != null)
-                        visitorCacheImplementation.cacheVisitor(visitorDelegateDTO.getVisitorId(),  visitorDelegateDTO.cachedVisitor.toCacheJSON());
+//                        visitorCacheImplementation.cacheVisitor(visitorDelegateDTO.getVisitorId(),  visitorDelegateDTO.cachedVisitor.toCacheJSON());
+                        visitorCacheImplementation.cacheVisitor(visitorDelegateDTO.getVisitorId(),  VisitorCacheHelper.visitorToCacheJSON(visitorDelegateDTO));
                 } catch (Exception e) {
                     logCacheException(String.format(FlagshipConstants.Errors.CACHE_IMPL_ERROR, "cacheVisitor", visitorDelegateDTO.getVisitorId()), e);
                 }
@@ -182,7 +177,7 @@ class DefaultStrategy extends VisitorStrategy {
                     IVisitorCacheImplementation cacheImplementation = cacheManager.getVisitorCacheImplementation();
                     if (cacheImplementation != null) {
                         JSONObject json = cacheImplementation.lookupVisitor(visitorDelegateDTO.getVisitorId());
-                        CacheHelper.applyVisitorMigration(visitorDelegate, (json != null) ? json : new JSONObject());
+                        VisitorCacheHelper.applyCacheToVisitor(visitorDelegateDTO, (json != null) ? json : new JSONObject());
                     }
                     return 0;
                 }).get(cacheManager.getVisitorCacheLookupTimeout(), cacheManager.getTimeoutUnit());
@@ -221,7 +216,7 @@ class DefaultStrategy extends VisitorStrategy {
                     if (hitCacheImplementation != null) {
                         JSONArray array = hitCacheImplementation.lookupHits(visitorDelegateDTO.getVisitorId());
                         JSONArray result = (array != null) ? array : new JSONArray();
-                        CacheHelper.applyHitMigration(visitorDelegateDTO, result);
+                        HitCacheHelper.applyHitMigration(visitorDelegateDTO, result);
                     }
                     return 0;
                 }).get(cacheManager.getVisitorCacheLookupTimeout(), cacheManager.getTimeoutUnit());
@@ -269,18 +264,18 @@ class DefaultStrategy extends VisitorStrategy {
     @Override
     public CompletableFuture<Visitor> fetchFlags() {
 
-        DecisionManager decisionManager = visitorDelegate.configManager.getDecisionManager();
+        DecisionManager decisionManager = visitorDelegate.getConfigManager().getDecisionManager();
         return CompletableFuture.supplyAsync(() -> {
             try {
                 VisitorDelegateDTO visitorDTO = visitorDelegate.toDTO();
                 visitorDelegate.updateModifications(decisionManager.getCampaignsModifications(visitorDTO));
-                visitorDelegate.logVisitor(FlagshipLogManager.Tag.SYNCHRONIZE);
+                visitorDelegate.logVisitor(FlagshipLogManager.Tag.FETCHING);
                 visitorDelegate.getStrategy().cacheVisitor();
             } catch (Exception e) {
                 FlagshipLogManager.exception(e);
             }
-            return visitorDelegate.originalVisitor;
-        }, HttpManager.getInstance().getThreadPoolExecutor()).whenCompleteAsync((instance, error) -> visitorDelegate.logVisitor(FlagshipLogManager.Tag.SYNCHRONIZE));
+            return visitorDelegate.getOriginalVisitor();
+        }, HttpManager.getInstance().getThreadPoolExecutor()).whenCompleteAsync((instance, error) -> visitorDelegate.logVisitor(FlagshipLogManager.Tag.FETCHING));
     }
 
     @Override
@@ -290,7 +285,7 @@ class DefaultStrategy extends VisitorStrategy {
 
     @SuppressWarnings("unchecked")
     private <T> Modification getModification(String key, T defaultValue) throws FlagshipConstants.Exceptions.FlagNotFoundException, FlagshipConstants.Exceptions.FlagTypeException, FlagshipConstants.Exceptions.FlagException {
-        HashMap<String, Modification> modifications = new HashMap<String, Modification>(visitorDelegate.modifications);
+        HashMap<String, Modification> modifications = new HashMap<String, Modification>(visitorDelegate.getModifications());
         try {
             Modification modification = modifications.get(key);
             if (modification != null) {
@@ -336,8 +331,8 @@ class DefaultStrategy extends VisitorStrategy {
     synchronized public <T> void exposeFlag(String key, T defaultValue) {
         try {
             Modification modification = getModification(key, defaultValue);
-            if (!visitorDelegate.activatedVariations.contains(modification.getVariationId()))
-                visitorDelegate.activatedVariations.add(modification.getVariationId());
+            if (!visitorDelegate.getActivatedVariations().contains(modification.getVariationId()))
+                visitorDelegate.getActivatedVariations().add(modification.getVariationId());
             sendHit(new Activate(modification));
         } catch (Exception e) {
             logFlagError(FlagshipLogManager.Tag.FLAG_USER_EXPOSED, e, String.format( FlagshipConstants.Errors.FLAG_USER_EXPOSITION_ERROR, key));

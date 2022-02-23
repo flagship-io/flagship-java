@@ -69,6 +69,8 @@ public final class FlagshipConstants {
         public static final String FLAG_METADATA_ERROR = "Empty metadata will be returned for Flag '%s': ";
 
         public static final String BUCKETING_POLLING_ERROR = "An error occurred during Bucketing polling: %s.";
+        public static final String BUCKETING_LOADING_ERROR = "Bucketing file failed to be loaded: %s.";
+        public static final String BUCKETING_SAVING_ERROR = "Bucketing file failed to be saved: %s.";
         public static final String HTTP_ERROR = "An error occurred while sending request to %s: %s";
     }
 

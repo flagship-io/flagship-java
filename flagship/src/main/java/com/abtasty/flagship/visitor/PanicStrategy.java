@@ -105,7 +105,7 @@ class PanicStrategy extends DefaultStrategy {
 
     @Override
     public void setConsent(Boolean hasConsented) {
-        visitorDelegate.hasConsented = hasConsented;
+        visitorDelegate.setConsent(hasConsented);
         logMethodDeactivatedError(FlagshipLogManager.Tag.CONSENT, "setConsent()");
     }
 

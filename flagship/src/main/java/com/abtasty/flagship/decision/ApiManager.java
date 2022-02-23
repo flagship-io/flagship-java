@@ -11,7 +11,6 @@ import com.abtasty.flagship.model.Variation;
 import com.abtasty.flagship.model.VariationGroup;
 import com.abtasty.flagship.utils.FlagshipLogManager;
 import com.abtasty.flagship.utils.LogManager;
-import com.abtasty.flagship.visitor.VisitorDelegate;
 import com.abtasty.flagship.visitor.VisitorDelegateDTO;
 import org.json.JSONObject;
 import java.io.IOException;
@@ -56,14 +55,15 @@ public class ApiManager extends DecisionManager {
     }
 
     @Override
-    public HashMap<String, Modification> getCampaignsModifications(VisitorDelegateDTO visitor) {
+    public HashMap<String, Modification> getCampaignsModifications(VisitorDelegateDTO visitorDelegateDTO) {
         try {
-            ArrayList<Campaign> campaigns = sendCampaignRequest(visitor);
+            ArrayList<Campaign> campaigns = sendCampaignRequest(visitorDelegateDTO);
             if (campaigns != null) {
                 HashMap<String, Modification> campaignsModifications = new HashMap<>();
                 for (Campaign campaign : campaigns) {
                     for (VariationGroup variationGroup : campaign.getVariationGroups()) {
                         for (Variation variation : variationGroup.getVariations().values()) {
+                            visitorDelegateDTO.addNewAssignmentToHistory(variation.getVariationGroupId(), variation.getVariationId()); //save for cache
                             HashMap<String, Modification> modificationsValues = variation.getModificationsValues();
                             if (modificationsValues != null)
                                 campaignsModifications.putAll(modificationsValues);
@@ -71,10 +71,9 @@ public class ApiManager extends DecisionManager {
                     }
                 }
                 return campaignsModifications;
-            } else
-                return new HashMap<>(visitor.cachedVisitor.getModifications()); //use cache
+            }
         } catch (Exception e) {
-            FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, LogManager.Level.ERROR, e.getMessage());
+            FlagshipLogManager.log(FlagshipLogManager.Tag.FETCHING, LogManager.Level.ERROR, e.getMessage());
         }
         return null;
     }

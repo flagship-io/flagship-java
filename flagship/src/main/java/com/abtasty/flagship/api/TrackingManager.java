@@ -2,6 +2,7 @@ package com.abtasty.flagship.api;
 
 import com.abtasty.flagship.BuildConfig;
 import com.abtasty.flagship.cache.CacheHelper;
+import com.abtasty.flagship.cache.HitCacheHelper;
 import com.abtasty.flagship.hits.Activate;
 import com.abtasty.flagship.hits.Hit;
 import com.abtasty.flagship.utils.FlagshipConstants;
@@ -87,7 +88,7 @@ public class TrackingManager implements IFlagshipEndpoints {
                     if (response != null)
                         logHit(tag, response, response.getRequestContent());
                     if (response == null || response.getResponseCode() < 200 || response.getResponseCode() > 204) {
-                        JSONObject json = CacheHelper.fromHit(visitorDelegateDTO, type, content, time);
+                        JSONObject json = HitCacheHelper.fromHit(visitorDelegateDTO, type, content, time);
                         visitorDelegateDTO.getVisitorDelegate().getStrategy().cacheHit(visitorDelegateDTO.getVisitorId(), json);
                     }
                 });

@@ -157,7 +157,6 @@ class DefaultStrategy extends VisitorStrategy {
                 try {
                     IVisitorCacheImplementation visitorCacheImplementation = flagshipConfig.getCacheManager().getVisitorCacheImplementation();
                     if (visitorCacheImplementation != null)
-//                        visitorCacheImplementation.cacheVisitor(visitorDelegateDTO.getVisitorId(),  visitorDelegateDTO.cachedVisitor.toCacheJSON());
                         visitorCacheImplementation.cacheVisitor(visitorDelegateDTO.getVisitorId(),  VisitorCacheHelper.visitorToCacheJSON(visitorDelegateDTO));
                 } catch (Exception e) {
                     logCacheException(String.format(FlagshipConstants.Errors.CACHE_IMPL_ERROR, "cacheVisitor", visitorDelegateDTO.getVisitorId()), e);

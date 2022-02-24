@@ -9,11 +9,8 @@ import com.abtasty.flagship.visitor.VisitorDelegateDTO;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 public class VisitorCacheHelper extends CacheHelper {
 

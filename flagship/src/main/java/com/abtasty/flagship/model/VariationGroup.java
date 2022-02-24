@@ -66,7 +66,6 @@ public class VariationGroup implements Serializable {
                             FlagshipLogManager.log(FlagshipLogManager.Tag.ALLOCATION, LogManager.Level.DEBUG,
                                     String.format(FlagshipConstants.Info.NEW_ALLOCATION, variation.getVariationId(),
                                             murmurAllocation));
-//                            visitorDelegateDTO.addNewAssignmentToHistory(variationGroupId, variation.getVariationId());
                             return variation;
                         }
                     }

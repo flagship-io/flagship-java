@@ -110,6 +110,7 @@ public class BucketingManager extends DecisionManager {
     public void stop() {
         if (executor != null && !executor.isShutdown())
             executor.shutdownNow();
+        executor = null;
     }
 
     @Override

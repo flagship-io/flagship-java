@@ -22,13 +22,12 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
@@ -44,7 +43,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.powermock.api.mockito.PowerMockito.doAnswer;
@@ -185,6 +183,12 @@ public class FlagshipIntegrationTests {
 
             Field config = Flagship.instance().getClass().getDeclaredField("configManager");
             config.setAccessible(true);
+
+            ConfigManager cm = (ConfigManager) config.get(Flagship.instance());
+            Method reset = cm.getClass().getMethod("reset");
+            reset.setAccessible(true);
+            reset.invoke(cm);
+
             config.set(Flagship.instance(), new ConfigManager());
 
             Field status = Flagship.instance().getClass().getDeclaredField("status");

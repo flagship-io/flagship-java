@@ -51,7 +51,9 @@ public class VisitorDelegateDTO {
                 .put("hasConsented", hasConsented)
                 .put("context", contextToJson())
                 .put("modifications", modificationsToJson())
-                .put("activatedVariations", new JSONArray(activatedVariations.toArray())).toString(2);
+                .put("activatedVariations", new JSONArray(activatedVariations.toArray()))
+                .put("assignmentsHistory", new JSONObject(assignmentsHistory))
+                .toString(2);
     }
 
     public JSONObject contextToJson() {

@@ -110,10 +110,6 @@ public class VisitorDelegate {
         return originalVisitor;
     }
 
-//    public void setOriginalVisitor(Visitor originalVisitor) {
-//        this.originalVisitor = originalVisitor;
-//    }
-
     synchronized public ConfigManager getConfigManager() {
         return configManager;
     }
@@ -134,25 +130,13 @@ public class VisitorDelegate {
         this.anonymousId = anonymousId;
     }
 
-//    public void setContext(ConcurrentMap<String, Object> context) {
-//        this.context = context;
-//    }
-
     synchronized public ConcurrentMap<String, Modification> getModifications() {
         return modifications;
     }
 
-//    public void setModifications(ConcurrentMap<String, Modification> modifications) {
-//        this.modifications = modifications;
-//    }
-
     synchronized public ConcurrentLinkedQueue<String> getActivatedVariations() {
         return activatedVariations;
     }
-
-//    public void setActivatedVariations(ConcurrentLinkedQueue<String> activatedVariations) {
-//        this.activatedVariations = activatedVariations;
-//    }
 
     synchronized public Boolean getConsent() {
         return hasConsented;
@@ -177,9 +161,4 @@ public class VisitorDelegate {
     synchronized public ConcurrentMap<String, Object> getContext() {
         return context;
     }
-
-
-//    public void setAssignmentsHistory(ConcurrentHashMap<String, String> assignmentsHistory) {
-//        this.assignmentsHistory = assignmentsHistory;
-//    }
 }

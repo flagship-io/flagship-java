@@ -27,11 +27,11 @@ import static com.abtasty.flagship.utils.FlagshipConstants.Errors.BUCKETING_POLL
 
 public class BucketingManager extends DecisionManager {
 
-    private final String                    LOCAL_DECISION_FILE_NAME = "local_decision_file.json";
-    private final String                    LOCAL_DECISION_FILE = "local_decision_file";
-    private final String                    LAST_MODIFIED_LOCAL_DECISION_FILE = "last_modified";
+    private final String                    DECISION_FILE_NAME = "decision_file.json";
+    private final String                    DECISION_FILE = "decision_file";
+    private final String LAST_MODIFIED_DECISION_FILE = "last_modified";
     private String                          lastModified;
-    private String                          localDecisionFile;
+    private String                          decisionFile;
     private ArrayList<Campaign>             campaigns = new ArrayList<>();
     private ScheduledExecutorService        executor;
 
@@ -71,7 +71,7 @@ public class BucketingManager extends DecisionManager {
     private void updateBucketingCampaigns() {
         try {
             HashMap<String, String> headers = new HashMap<String, String>();
-            loadLocalDecisionFile();
+            loadDecisionFile();
             if (lastModified != null) headers.put("If-Modified-Since", lastModified);
             Response response = null;
             try {
@@ -79,28 +79,28 @@ public class BucketingManager extends DecisionManager {
                     String.format(BUCKETING, config.getEnvId()), headers, null, config.getTimeout());
             } catch (Exception e) {
                 FlagshipLogManager.log(FlagshipLogManager.Tag.BUCKETING, LogManager.Level.ERROR, String.format(BUCKETING_POLLING_ERROR, e.getMessage() != null ? e.getMessage() : ""));
-                if (localDecisionFile != null)
+                if (decisionFile != null)
                     FlagshipLogManager.log(FlagshipLogManager.Tag.BUCKETING, LogManager.Level.INFO, String.format(FlagshipConstants.Info.BUCKETING_CACHE,
-                            lastModified, new JSONObject(localDecisionFile).toString(4)));
+                            lastModified, new JSONObject(decisionFile).toString(4)));
             }
             if (response != null) {
                 logResponse(response);
                 if (response.getResponseCode() < 300) {
                     lastModified = response.getResponseHeader("Last-Modified");
-                    localDecisionFile = response.getResponseContent();
-                    saveLocalDecisionFile();
+                    decisionFile = response.getResponseContent();
+                    saveDecisionFile();
                 }
             }
-            parseLocalDecisionFile();
+            parseDecisionFile();
         } catch (Exception e) {
             FlagshipLogManager.log(FlagshipLogManager.Tag.FETCHING, LogManager.Level.ERROR, e.getMessage() != null ? e.getMessage() : "");
         }
         updateFlagshipStatus(isPanic() ? Flagship.Status.PANIC : Flagship.Status.READY);
     }
 
-    private void parseLocalDecisionFile() {
-        if (localDecisionFile != null) {
-            ArrayList<Campaign> campaigns = parseCampaignsResponse(localDecisionFile);
+    private void parseDecisionFile() {
+        if (decisionFile != null) {
+            ArrayList<Campaign> campaigns = parseCampaignsResponse(decisionFile);
             if (campaigns != null)
                 this.campaigns = campaigns;
         }
@@ -141,15 +141,15 @@ public class BucketingManager extends DecisionManager {
         return null;
     }
 
-    public void saveLocalDecisionFile() {
-        if (lastModified != null && localDecisionFile != null) {
+    public void saveDecisionFile() {
+        if (lastModified != null && decisionFile != null) {
             try {
-                JSONObject localDecisionJson = new JSONObject()
-                        .put(LAST_MODIFIED_LOCAL_DECISION_FILE, lastModified)
-                        .put(LOCAL_DECISION_FILE, new JSONObject(localDecisionFile));
-                FileWriter fWriter = new FileWriter(LOCAL_DECISION_FILE_NAME, false);
+                JSONObject decisionJson = new JSONObject()
+                        .put(LAST_MODIFIED_DECISION_FILE, lastModified)
+                        .put(DECISION_FILE, new JSONObject(decisionFile));
+                FileWriter fWriter = new FileWriter(DECISION_FILE_NAME, false);
                 BufferedWriter fOut = new BufferedWriter(fWriter);
-                fOut.write(localDecisionJson.toString());
+                fOut.write(decisionJson.toString());
                 fOut.close();
                 fWriter.close();
             } catch (Exception e) {
@@ -158,19 +158,19 @@ public class BucketingManager extends DecisionManager {
         }
     }
 
-    public void loadLocalDecisionFile() {
+    public void loadDecisionFile() {
         try {
             StringBuilder builder = new StringBuilder();
-            BufferedReader reader = new BufferedReader(new FileReader(LOCAL_DECISION_FILE_NAME));
+            BufferedReader reader = new BufferedReader(new FileReader(DECISION_FILE_NAME));
             String line = null;
             while ((line = reader.readLine()) != null)
                 builder.append(line);
             reader.close();
             String content = builder.toString();
             if (!content.isEmpty()) {
-                JSONObject localDecisionJson = new JSONObject(content);
-                lastModified = localDecisionJson.optString(LAST_MODIFIED_LOCAL_DECISION_FILE, null);
-                localDecisionFile = localDecisionJson.optString(LOCAL_DECISION_FILE, null);
+                JSONObject decisionJson = new JSONObject(content);
+                lastModified = decisionJson.optString(LAST_MODIFIED_DECISION_FILE, null);
+                decisionFile = decisionJson.optString(DECISION_FILE, null);
             }
         } catch (Exception e) {
             FlagshipLogManager.log(FlagshipLogManager.Tag.BUCKETING, LogManager.Level.ERROR, String.format(FlagshipConstants.Errors.BUCKETING_LOADING_ERROR,( e.getMessage() != null) ? e.getMessage() : ""));

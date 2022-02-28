@@ -1632,7 +1632,7 @@ public class FlagshipIntegrationTests {
     @Test
     public void cache_bucketing() throws InterruptedException, ExecutionException, IOException {
 
-        Files.deleteIfExists(Paths.get("local_decision_file.json"));
+        Files.deleteIfExists(Paths.get("decision_file.json"));
         SimpleDateFormat format = new SimpleDateFormat("EEE, d MMM Y hh:mm:ss", Locale.ENGLISH);
         format.setTimeZone(TimeZone.getTimeZone("UTC"));
 
@@ -1655,11 +1655,11 @@ public class FlagshipIntegrationTests {
         if (!readyLatch.await(2, TimeUnit.SECONDS))
             fail();
 
-        assertTrue(Files.exists(Paths.get("local_decision_file.json")));
+        assertTrue(Files.exists(Paths.get("decision_file.json")));
 
-        JSONObject json = new JSONObject(new String(Files.readAllBytes(Paths.get("local_decision_file.json"))));
+        JSONObject json = new JSONObject(new String(Files.readAllBytes(Paths.get("decision_file.json"))));
         assertEquals(date, json.getString("last_modified"));
-        assertEquals(3, json.getJSONObject("local_decision_file").getJSONArray("campaigns").length());
+        assertEquals(3, json.getJSONObject("decision_file").getJSONArray("campaigns").length());
 
         Thread.sleep(2000);
 
@@ -1673,11 +1673,11 @@ public class FlagshipIntegrationTests {
             put("Last-Modified", date2);
         }});
 
-        assertTrue(Files.exists(Paths.get("local_decision_file.json")));
+        assertTrue(Files.exists(Paths.get("decision_file.json")));
 
-        json = new JSONObject(new String(Files.readAllBytes(Paths.get("local_decision_file.json"))));
+        json = new JSONObject(new String(Files.readAllBytes(Paths.get("decision_file.json"))));
         assertEquals(date, json.getString("last_modified"));
-        assertEquals(3, json.getJSONObject("local_decision_file").getJSONArray("campaigns").length());
+        assertEquals(3, json.getJSONObject("decision_file").getJSONArray("campaigns").length());
 
         Thread.sleep(2000);
 
@@ -1694,9 +1694,9 @@ public class FlagshipIntegrationTests {
 
         Thread.sleep(2000);
 
-        json = new JSONObject(new String(Files.readAllBytes(Paths.get("local_decision_file.json"))));
+        json = new JSONObject(new String(Files.readAllBytes(Paths.get("decision_file.json"))));
         assertEquals(date2, json.getString("last_modified"));
-        assertEquals(2, json.getJSONObject("local_decision_file").getJSONArray("campaigns").length());
+        assertEquals(2, json.getJSONObject("decision_file").getJSONArray("campaigns").length());
 
     }
 

@@ -1391,6 +1391,9 @@ public class FlagshipIntegrationTests {
                                     JSONObject jsonFlags = jsonCampaign.getJSONObject("flags");
                                     assertEquals(81111, jsonFlags.get("rank"));
                                     assertTrue(jsonFlags.has("rank_plus"));
+                                    JSONObject jsonHistory = data.getJSONObject("data").getJSONObject("assignmentsHistory");
+                                    assertEquals("brjjpk7734cg0sl5oooo", jsonHistory.getString("brjjpk7734cg0sl5mmmm"));
+                                    assertEquals("bmsor064jaeg0gm4dddd", jsonHistory.getString("bmsor064jaeg0gm4bbbb"));
                                     cacheVisitorOk.set(true);
                                 }
                             }
@@ -1643,8 +1646,6 @@ public class FlagshipIntegrationTests {
 
 
         CountDownLatch readyLatch = new CountDownLatch(1);
-        AtomicInteger modified = new AtomicInteger(0);
-        AtomicInteger notModified = new AtomicInteger(0);
         Flagship.start("my_env_id", "my_api_key", new FlagshipConfig.Bucketing()
                 .withPollingIntervals(1, TimeUnit.SECONDS)
                 .withStatusListener(newStatus -> {
@@ -1683,9 +1684,9 @@ public class FlagshipIntegrationTests {
         responseToMock.clear();
 
 
-        Thread.sleep(2000);
-
-        responseToMock.clear();
+//        Thread.sleep(2000);
+//
+//        responseToMock.clear();
 
         mockResponse("https://cdn.flagship.io/my_env_id/bucketing.json", 200, FlagshipIntegrationHelper.bucketingResponse2, new HashMap<String, String>() {{
             put("Last-Modified", date2);

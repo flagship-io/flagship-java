@@ -17,7 +17,7 @@ public abstract class VisitorStrategy implements IVisitor {
 
     public VisitorStrategy(VisitorDelegate visitorDelegate) {
         this.visitorDelegate = visitorDelegate;
-        this.flagshipConfig = visitorDelegate.configManager.getFlagshipConfig();
+        this.flagshipConfig = visitorDelegate.getConfigManager().getFlagshipConfig();
     }
 
     protected void logMethodDeactivatedError(FlagshipLogManager.Tag tag, String methodName) {

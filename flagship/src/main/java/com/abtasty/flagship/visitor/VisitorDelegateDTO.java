@@ -1,5 +1,6 @@
 package com.abtasty.flagship.visitor;
 
+import com.abtasty.flagship.cache.CacheHelper;
 import com.abtasty.flagship.main.ConfigManager;
 import com.abtasty.flagship.model.Modification;
 import org.json.JSONArray;
@@ -12,43 +13,29 @@ import java.util.Objects;
 
 public class VisitorDelegateDTO {
 
-    private VisitorDelegate                 visitorDelegate;
-    private ConfigManager                   configManager;
-    private String                          visitorId;
-    private String                          anonymousId;
-    private HashMap<String, Object>         context;
-    private HashMap<String, Modification>   modifications;
-    private ArrayList<String>               activatedVariations;
-    private boolean                         hasConsented;
-    private boolean                         isAuthenticated;
+    protected   VisitorDelegate                 visitorDelegate;
+    protected   ConfigManager                   configManager;
+    protected   String                          visitorId;
+    protected   String                          anonymousId;
+    protected   HashMap<String, Object>         context;
+    protected   HashMap<String, Modification>   modifications;
+    protected   ArrayList<String>               activatedVariations;
+    protected   boolean                         hasConsented;
+    protected   boolean                         isAuthenticated;
+    protected   HashMap<String, String>         assignmentsHistory;
 
     public VisitorDelegateDTO(VisitorDelegate visitorDelegate) {
 
         this.visitorDelegate = visitorDelegate;
-        this.configManager = visitorDelegate.configManager;
-        this.visitorId = visitorDelegate.visitorId;
-        this.anonymousId = visitorDelegate.anonymousId;
-        this.context = visitorDelegate.getContext();
-        this.modifications = new HashMap<String, Modification>(visitorDelegate.modifications);
-        this.activatedVariations = new ArrayList<>(visitorDelegate.activatedVariations);
-        this.hasConsented = visitorDelegate.hasConsented;
-        this.isAuthenticated = visitorDelegate.isAuthenticated;
-    }
-
-    public JSONObject getContextAsJson() {
-        JSONObject json = new JSONObject();
-        for (Map.Entry<String, Object> e : context.entrySet()) {
-            json.put(e.getKey(), e.getValue());
-        }
-        return json;
-    }
-
-    public boolean isVariationAssigned(String variationId) {
-        for (Map.Entry<String, Modification> e : modifications.entrySet()) {
-            if (Objects.equals(e.getValue().getVariationId(), variationId))
-                return true;
-        }
-        return false;
+        this.configManager = visitorDelegate.getConfigManager();
+        this.visitorId = visitorDelegate.getVisitorId();
+        this.anonymousId = visitorDelegate.getAnonymousId();
+        this.context = new HashMap<>(visitorDelegate.getContext());
+        this.modifications = new HashMap<String, Modification>(visitorDelegate.getModifications());
+        this.activatedVariations = new ArrayList<>(visitorDelegate.getActivatedVariations());
+        this.hasConsented = visitorDelegate.getConsent();
+        this.isAuthenticated = visitorDelegate.isAuthenticated();
+        this.assignmentsHistory = new HashMap<>(visitorDelegate.getAssignmentsHistory());
     }
 
     public ConfigManager getConfigManager() {
@@ -62,18 +49,38 @@ public class VisitorDelegateDTO {
                 .put("anonymousId", (anonymousId != null) ? anonymousId : JSONObject.NULL)
                 .put("isAuthenticated", isAuthenticated)
                 .put("hasConsented", hasConsented)
-                .put("context", getContextAsJson())
-                .put("modifications", getModificationsAsJson())
-                .put("activatedVariations", new JSONArray(activatedVariations.toArray())).toString(2);
+                .put("context", contextToJson())
+                .put("modifications", modificationsToJson())
+                .put("activatedVariations", new JSONArray(activatedVariations.toArray()))
+                .put("assignmentsHistory", new JSONObject(assignmentsHistory))
+                .toString(2);
     }
 
-    public JSONObject getModificationsAsJson() {
+    public JSONObject contextToJson() {
+        JSONObject json = new JSONObject();
+        for (Map.Entry<String, Object> e : context.entrySet()) {
+            json.put(e.getKey(), e.getValue());
+        }
+        return json;
+    }
+
+    public JSONObject modificationsToJson() {
         JSONObject json = new JSONObject();
         for (Map.Entry<String, Modification> e : modifications.entrySet()) {
             Object value = e.getValue().getValue();
             json.put(e.getKey(), (value != null) ? value : JSONObject.NULL);
         }
         return json;
+    }
+
+    public String getVariationGroupAssignment(String variationGroupId) {
+        return assignmentsHistory.getOrDefault(variationGroupId, null);
+    }
+
+    public void addNewAssignmentToHistory(String variationGroupId, String variationId) {
+//        if (!assignmentsHistory.containsKey(variationGroupId)) //might be not compatible with XPC
+        assignmentsHistory.put(variationGroupId, variationId);
+        visitorDelegate.getAssignmentsHistory().put(variationGroupId, variationId);
     }
 
     public String getVisitorId() {
@@ -106,5 +113,9 @@ public class VisitorDelegateDTO {
 
     public VisitorDelegate getVisitorDelegate() {
         return visitorDelegate;
+    }
+
+    public HashMap<String, String> getAssignmentsHistory() {
+        return assignmentsHistory;
     }
 }

@@ -12,6 +12,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class VariationGroup implements Serializable {
 
@@ -43,14 +44,20 @@ public class VariationGroup implements Serializable {
         return targetingGroups;
     }
 
-    public Variation selectVariation(VisitorDelegateDTO visitor) {
+    public Variation selectVariation(VisitorDelegateDTO visitorDelegateDTO) {
         if (variations != null) {
-            Variation cachedVariation = selectVariationFromCache(visitor, variations);
-            if (cachedVariation != null)
-                return cachedVariation;
-            else {
+            String cachedVariationId = visitorDelegateDTO.getVariationGroupAssignment(variationGroupId);
+            Optional<Map.Entry<String, Variation>> option = variations.entrySet().stream().filter(e -> e.getValue().getVariationId().equals(cachedVariationId)).findFirst();
+            if (option.isPresent()) {
+                Variation v = option.get().getValue();
+                FlagshipLogManager.log(FlagshipLogManager.Tag.ALLOCATION, LogManager.Level.DEBUG,
+                        String.format(FlagshipConstants.Info.CACHED_ALLOCATION, v.getVariationId()));
+                return v;
+            } else if (cachedVariationId != null) { //variation is in cache but not in the last campaigns -> ignored
+                return null;
+            } else {
                 int p = 0;
-                int murmurAllocation = MurmurHash.getAllocationFromMurmur(variationGroupId, visitor.getVisitorId());
+                int murmurAllocation = MurmurHash.getAllocationFromMurmur(variationGroupId, visitorDelegateDTO.getVisitorId());
                 for (Map.Entry<String, Variation> e : variations.entrySet()) {
                     Variation variation = e.getValue();
                     if (variation.getAllocation() > 0) { //Variation with 0% are only loaded to check if it matches one from the cache, and should be ignored otherwise.
@@ -59,23 +66,10 @@ public class VariationGroup implements Serializable {
                             FlagshipLogManager.log(FlagshipLogManager.Tag.ALLOCATION, LogManager.Level.DEBUG,
                                     String.format(FlagshipConstants.Info.NEW_ALLOCATION, variation.getVariationId(),
                                             murmurAllocation));
-
                             return variation;
                         }
                     }
                 }
-            }
-        }
-        return null;
-    }
-
-    private Variation selectVariationFromCache(VisitorDelegateDTO visitor, LinkedHashMap<String, Variation>  variations) {
-        for (Map.Entry<String, Variation> e: variations.entrySet()) {
-            Variation v = e.getValue();
-            if (visitor.isVariationAssigned(v.getVariationId())) {
-                FlagshipLogManager.log(FlagshipLogManager.Tag.ALLOCATION, LogManager.Level.DEBUG,
-                        String.format(FlagshipConstants.Info.CACHED_ALLOCATION, v.getVariationId()));
-                return v;
             }
         }
         return null;

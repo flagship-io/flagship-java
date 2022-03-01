@@ -40,7 +40,7 @@ public abstract class DecisionManager implements IDecisionManager, IFlagshipEndp
         if (statusListener != null && Flagship.getStatus() != newStatus)
             statusListener.onStatusChanged(newStatus);
         if (newStatus == Flagship.Status.PANIC)
-            FlagshipLogManager.log(FlagshipLogManager.Tag.SYNCHRONIZE, LogManager.Level.WARNING, FlagshipConstants.Warnings.PANIC);
+            FlagshipLogManager.log(FlagshipLogManager.Tag.FETCHING, LogManager.Level.WARNING, FlagshipConstants.Warnings.PANIC);
     }
 
     public boolean isPanic() {

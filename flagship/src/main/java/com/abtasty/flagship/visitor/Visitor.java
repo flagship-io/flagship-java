@@ -112,7 +112,7 @@ public class Visitor implements IVisitor {
      */
 
     synchronized public String getId() {
-        return delegate.visitorId;
+        return delegate.getVisitorId();
     }
 
     /**
@@ -120,7 +120,7 @@ public class Visitor implements IVisitor {
      * @return visitor anonymous identifier.
      */
     synchronized public String getAnonymousId() {
-        return delegate.anonymousId;
+        return delegate.getAnonymousId();
     }
 
     @Override
@@ -257,7 +257,7 @@ public class Visitor implements IVisitor {
      * @return return context.
      */
     synchronized public HashMap<String, Object> getContext() {
-        return this.delegate.getContext();
+        return this.delegate.getContextCopy();
     }
 
         @Override

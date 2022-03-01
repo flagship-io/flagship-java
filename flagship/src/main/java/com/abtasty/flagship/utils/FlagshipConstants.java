@@ -16,6 +16,7 @@ public final class FlagshipConstants {
         public static final String SQLITE_CACHE_MANAGER_LOOKUP_HIT = "[lookupHits] hits for visitor '%s' has been loaded from database:\n%s.";
         public static final String SQLITE_CACHE_MANAGER_FLUSH_HIT = "[flushHits] Hits for visitor '%s' has been flushed from database.";
         public static final String SQLITE_DATABASE_CREATION = "A new sqlite database has been created at: %s";
+        public static final String BUCKETING_CACHE = "Bucketing file have been loaded from cache (%s): \n%s.";
     }
 
     public static class Warnings {
@@ -66,6 +67,11 @@ public final class FlagshipConstants {
         public static final String FLAG_VALUE_ERROR = "Default value will be returned for flag '%s': ";
         public static final String FLAG_USER_EXPOSITION_ERROR = "User exposition for Flag '%s' wont be sent: ";
         public static final String FLAG_METADATA_ERROR = "Empty metadata will be returned for Flag '%s': ";
+
+        public static final String BUCKETING_POLLING_ERROR = "An error occurred during Bucketing polling: %s.";
+        public static final String BUCKETING_LOADING_ERROR = "Bucketing file failed to be loaded: %s.";
+        public static final String BUCKETING_SAVING_ERROR = "Bucketing file failed to be saved: %s.";
+        public static final String HTTP_ERROR = "An error occurred while sending request to %s: %s";
     }
 
     public static class HitKeyMap {

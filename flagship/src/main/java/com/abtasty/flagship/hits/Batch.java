@@ -8,7 +8,7 @@ import java.util.Objects;
 
 public class Batch extends Hit<Batch> {
 
-    public static final int MAX_SIZE = 2500;
+    public static final int MAX_SIZE = 2500000;
 
     public Batch() {
         super(Type.BATCH);
@@ -22,7 +22,7 @@ public class Batch extends Hit<Batch> {
     }
 
     public boolean isMaxSizeReached(int lengthToAdd) {
-        return (MAX_SIZE - this.data.length()) > lengthToAdd;
+        return (MAX_SIZE - this.data.toString().length()) > lengthToAdd;
     }
 
     @Override

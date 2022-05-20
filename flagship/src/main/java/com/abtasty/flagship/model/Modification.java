@@ -12,8 +12,10 @@ public class Modification implements Serializable {
     private final Object      value;
     private final String      type;
 
+    private final String      slug;
+
     public Modification(String key, String campaignId, String variationGroupId, String variationId, boolean isReference,
-                        Object value, String type) {
+                        Object value, String type, String slug) {
         this.key = key;
         this.campaignId = campaignId;
         this.variationGroupId = variationGroupId;
@@ -21,6 +23,7 @@ public class Modification implements Serializable {
         this.isReference = isReference;
         this.value = value;
         this.type = type;
+        this.slug = slug;
     }
 
     public String getKey() {
@@ -49,5 +52,9 @@ public class Modification implements Serializable {
 
     public String getType() {
         return type;
+    }
+
+    public String getSlug() {
+        return slug;
     }
 }

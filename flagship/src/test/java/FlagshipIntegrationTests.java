@@ -1464,7 +1464,8 @@ public class FlagshipIntegrationTests {
                                             cacheHitLatch.countDown();
                                             break;
                                         }
-                                        default: {
+                                        case "ACTIVATION": {
+                                            cacheHitLatch.countDown();
                                             break;
                                         }
                                     }
@@ -1477,7 +1478,7 @@ public class FlagshipIntegrationTests {
 
                             @Override
                             public JSONArray lookupHits(String visitorId) {
-                                JSONArray array;
+                                JSONArray array = new JSONArray();
                                 if (visitorId.equals("visitor_id_2"))
                                     array = new JSONArray("{]"); //shouldn't crash
                                 else {
@@ -1541,7 +1542,7 @@ public class FlagshipIntegrationTests {
         assertEquals(8, cacheVisitorLatch.getCount());
         assertEquals(8, lookUpVisitorLatch.getCount());
         assertEquals(9, flushVisitorLatch.getCount());
-        assertEquals(2, cacheHitLatch.getCount());
+        assertEquals(1, cacheHitLatch.getCount());
         assertEquals(8, lookupHitsLatch.getCount());
         assertEquals(9, flushHitsLatch.getCount());
         assertTrue(cacheVisitorOk.get());
@@ -1600,7 +1601,7 @@ public class FlagshipIntegrationTests {
         assertFalse(rank_plus.metadata().isReference);
         assertEquals("ab", rank_plus.metadata().campaignType);
         assertTrue(rank_plus.metadata().exists());
-        assertEquals(5, rank_plus.metadata().toJSON().length());
+        assertEquals(6, rank_plus.metadata().toJSON().length());
 
         Flag<String> do_not_exists = visitor.getFlag("do_not_exists", "a");
 
@@ -1626,6 +1627,12 @@ public class FlagshipIntegrationTests {
 
         Thread.sleep(1500);
         assertEquals(6, activateLatch.getCount());
+
+        //testing slug
+
+        assertEquals("", visitor.getFlag("visitorIdColor", "#00000000").metadata().slug);
+        assertEquals("campaignSlug", visitor.getFlag("rank_plus", "#00000000").metadata().slug);
+        assertEquals("", visitor.getFlag("eflzjefl", "#00000000").metadata().slug);
 
     }
 
@@ -1699,5 +1706,4 @@ public class FlagshipIntegrationTests {
         assertEquals(2, json.getJSONObject("decision_file").getJSONArray("campaigns").length());
 
     }
-
 }

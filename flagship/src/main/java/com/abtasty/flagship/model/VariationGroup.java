@@ -81,7 +81,7 @@ public class VariationGroup implements Serializable {
         return true;
     }
 
-    public static VariationGroup parse(String campaignId, String campaignType, JSONObject variationGroupsObj, boolean bucketing) {
+    public static VariationGroup parse(String campaignId, String campaignType, String slug, JSONObject variationGroupsObj, boolean bucketing) {
         try {
             String variationGroupId = variationGroupsObj.getString(bucketing ? "id" : "variationGroupId");
             TargetingGroups targetingGroups = null;
@@ -89,7 +89,7 @@ public class VariationGroup implements Serializable {
             if (!bucketing) {
                 // api
                 JSONObject variationObj = variationGroupsObj.getJSONObject("variation");
-                Variation variation = Variation.parse(bucketing, campaignId, campaignType, variationGroupId, variationObj);
+                Variation variation = Variation.parse(bucketing, campaignId, campaignType, slug, variationGroupId, variationObj);
                 if (variation != null)
                     variations.put(variation.getVariationId(), variation);
             } else {
@@ -98,7 +98,7 @@ public class VariationGroup implements Serializable {
                 if (variationArr != null) {
                     for (int i = 0; i < variationArr.length(); i++) {
                         JSONObject variationObj = variationArr.getJSONObject(i);
-                            Variation variation = Variation.parse(bucketing, campaignId, campaignType, variationGroupId, variationObj);
+                            Variation variation = Variation.parse(bucketing, campaignId, campaignType, slug, variationGroupId, variationObj);
                             if (variation != null)
                                 variations.put(variation.getVariationId(), variation);
                     }

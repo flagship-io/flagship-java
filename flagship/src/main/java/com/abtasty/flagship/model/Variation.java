@@ -53,11 +53,11 @@ public class Variation implements Serializable {
         return allocation;
     }
 
-    public static Variation parse(Boolean bucketingMode, String campaignId, String campaignType, String variationGroupId, JSONObject variationObj) {
+    public static Variation parse(Boolean bucketingMode, String campaignId, String campaignType, String slug, String variationGroupId, JSONObject variationObj) {
         try {
             String variationId = variationObj.getString("id");
             boolean isReference = variationObj.optBoolean("reference", false);
-            Modifications modifications = Modifications.parse(campaignId, campaignType, variationGroupId, variationId, isReference, variationObj.getJSONObject("modifications"));
+            Modifications modifications = Modifications.parse(campaignId, campaignType, slug, variationGroupId, variationId, isReference, variationObj.getJSONObject("modifications"));
             int allocation = variationObj.optInt("allocation", bucketingMode ? 0 : 100);
             //In Api mode always 100%, in bucketing mode the variations at 0% are loaded just to check if it matches one in cache at selection time.
             return new Variation(campaignId, variationGroupId, variationId, isReference, modifications, allocation);

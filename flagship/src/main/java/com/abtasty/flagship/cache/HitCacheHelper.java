@@ -91,7 +91,7 @@ public class HitCacheHelper extends CacheHelper {
                         else if (Arrays.asList("SCREENVIEW", "PAGEVIEW", "EVENT", "TRANSACTION", "ITEM", "CONSENT").contains(type)) {
                             JSONObject jsonChild = HitMigrations.values()[version -1].applyForBatch(visitorDelegateDTO, e);
                             if (jsonChild != null) {
-                                Batch batch = findFirstAvailableBatch(batches, jsonChild.length());
+                                Batch batch = findFirstAvailableBatch(batches, jsonChild.toString().length());
                                 if (batch == null) {
                                     Batch newBatch = new Batch();
                                     newBatch.addChildAsJson(jsonChild);

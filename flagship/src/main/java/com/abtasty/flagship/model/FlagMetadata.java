@@ -10,20 +10,24 @@ public class FlagMetadata {
     public final boolean   isReference;
     public final String    campaignType;
 
+    public final String     slug;
+
     public FlagMetadata() {
         this.campaignId = "";
         this.variationGroupId = "";
         this.variationId = "";
         this.isReference = false;
         this.campaignType = "";
+        this.slug = "";
     }
 
-    public FlagMetadata(String campaignId, String variationGroupId, String variationId, Boolean isReference, String campaignType) {
+    public FlagMetadata(String campaignId, String variationGroupId, String variationId, Boolean isReference, String campaignType, String slug) {
         this.campaignId = campaignId;
         this.variationGroupId = variationGroupId;
         this.variationId = variationId;
         this.isReference = isReference;
         this.campaignType = campaignType;
+        this.slug = slug;
     }
 
     public static FlagMetadata fromModification(Modification modification) {
@@ -31,7 +35,7 @@ public class FlagMetadata {
             return new FlagMetadata();
         else {
             return new FlagMetadata(modification.getCampaignId(), modification.getVariationGroupId(),
-                    modification.getVariationId(), modification.isReference(), modification.getType());
+                    modification.getVariationId(), modification.isReference(), modification.getType(), modification.getSlug());
         }
     }
 
@@ -48,7 +52,8 @@ public class FlagMetadata {
                     .put("variationGroupId", variationGroupId)
                     .put("variationId", variationId)
                     .put("isReference", isReference)
-                    .put("campaignType", campaignType);
+                    .put("campaignType", campaignType)
+                    .put("slug", slug);
         }
     }
 }

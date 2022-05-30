@@ -44,6 +44,7 @@ public class VisitorCacheHelper extends CacheHelper {
                             String campaignId = campaignObject.getString("campaignId");
                             String variationGroupId = campaignObject.getString("variationGroupId");
                             String variationId = campaignObject.getString("variationId");
+                            String slug = campaignObject.optString("slug", "");
                             boolean isReference = campaignObject.getBoolean("isReference");
                             String type = campaignObject.getString("type");
                             if (campaignObject.optBoolean("activated", false) && !visitorDelegate.getActivatedVariations().contains(variationId))
@@ -51,7 +52,7 @@ public class VisitorCacheHelper extends CacheHelper {
                             JSONObject flagsJson = campaignObject.optJSONObject("flags");
                             if (flagsJson != null) {
                                 flagsJson.keySet().forEach(key -> {
-                                    Modification modification = new Modification(key, campaignId, variationGroupId, variationId, isReference, flagsJson.get(key), type);
+                                    Modification modification = new Modification(key, campaignId, variationGroupId, variationId, isReference, flagsJson.get(key), type, slug);
                                     visitorDelegate.getModifications().put(key, modification);
                                 });
                             }
@@ -103,6 +104,7 @@ public class VisitorCacheHelper extends CacheHelper {
                         .put("variationId", m.getValue().getVariationId())
                         .put("isReference", m.getValue().isReference())
                         .put("type", m.getValue().getType())
+                        .put("slug", m.getValue().getSlug())
                         .put("activated", visitorDelegateDTO.getActivatedVariations().contains(m.getValue().getVariationId()))
                         .put("flags", new JSONObject().put(m.getValue().getKey(),
                                 (m.getValue().getValue() != null) ? m.getValue().getValue() : JSONObject.NULL)));

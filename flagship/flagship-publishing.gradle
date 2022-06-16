@@ -24,7 +24,16 @@ artifactory {
 project(':flagship') {
     artifactoryPublish.dependsOn('build')
     publishing {
+
+        repositories {
+            maven {
+                name = 'local'
+                url = layout.buildDirectory.dir('local')
+            }
+        }
+
         publications {
+
             jar(MavenPublication) {
                 groupId = group_id
                 artifactId = artifact_id
@@ -43,11 +52,19 @@ project(':flagship') {
                 }
             }
         }
-
-
     }
 
     artifactoryPublish {
         publications(publishing.publications.jar)
+    }
+
+    task genArtifactFolder {
+        copy {
+            from "${buildDir}/local/com/abtasty/flagship-java/${flagship_version_name}/flagship-java-${flagship_version_name}.jar"
+            into "${buildDir}/publications/artifact"
+
+            from "${buildDir}/local/com/abtasty/flagship-java/${flagship_version_name}/flagship-java-${flagship_version_name}.pom"
+            into "${buildDir}/publications/artifact"
+        }
     }
 }

@@ -23,6 +23,7 @@ jobs:
           bash ./gradlew generateBuildConfig
           bash ./gradlew assemble
           bash ./gradlew test
+          bash ./gradlew publishJarPublicationToLocalRepository
           bash ./gradlew genArtifactFolder
       - name: Get branch
         run: echo "::set-output name=branch_name::${GITHUB_REF##*/}"

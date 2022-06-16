@@ -25,9 +25,6 @@ jobs:
           bash ./gradlew test
           bash ./gradlew publishJarPublicationToLocalRepository
           bash ./gradlew genArtifactFolder
-          ls ./
-          ls ./flagship/build/local/com/abtasty/flagship-java/3.0.3/
-          ls ./flagship/build/publications/artifact/
       - name: Get branch
         run: echo "::set-output name=branch_name::${GITHUB_REF##*/}"
         id: ref

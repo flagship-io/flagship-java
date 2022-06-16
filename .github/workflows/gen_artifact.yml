@@ -23,6 +23,7 @@ jobs:
           bash ./gradlew generateBuildConfig
           bash ./gradlew assemble
           bash ./gradlew test
+          bash ./gradlew publishJarPublicationToLocalRepository
           bash ./gradlew genArtifactFolder
           ls ./
           ls ./flagship/build/local/com/abtasty/flagship-java/3.0.3/

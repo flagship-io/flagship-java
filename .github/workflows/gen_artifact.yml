@@ -23,6 +23,8 @@ jobs:
           bash ./gradlew generateBuildConfig
           bash ./gradlew assemble
           bash ./gradlew test
+          bash ./gradlew publishJarPublicationToLocalRepository
+          bash ./gradlew genArtifactFolder
       - name: Get branch
         run: echo "::set-output name=branch_name::${GITHUB_REF##*/}"
         id: ref
@@ -30,5 +32,5 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: java-sdk-${{ steps.ref.outputs.branch_name }}
-          path: flagship/build/libs/
+          path: flagship/build/publications/artifact/
           retention-days: 10

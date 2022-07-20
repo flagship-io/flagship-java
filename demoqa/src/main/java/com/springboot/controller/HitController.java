@@ -59,7 +59,7 @@ public class HitController {
                 if (env.get("el") != null && !env.get("el").toString().equals(""))
                     event.withEventLabel(env.get("el").toString());
                 if (env.get("ev") != null && !env.get("ev").toString().equals(""))
-                    event.withEventValue(Double.parseDouble(env.get("ev").toString()));
+                    event.withEventValue(Integer.parseInt(env.get("ev").toString()));
                 if (env.get("re_wi") != null && !env.get("re_wi").toString().equals("") && env.get("re_he") != null && !env.get("re_he").toString().equals(""))
                     event.withResolution(Integer.parseInt(env.get("re_wi").toString()), Integer.parseInt(env.get("re_he").toString()));
                 if (env.get("ul") != null && !env.get("ul").toString().equals(""))

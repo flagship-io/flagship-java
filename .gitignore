@@ -47,3 +47,4 @@ qa_db/
 flagship_database.db
 local_decision_file.json
 flagship/decision_file.json
+.run/

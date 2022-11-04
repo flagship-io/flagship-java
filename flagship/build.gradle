@@ -28,7 +28,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.json:json:20210307'
+    implementation 'org.json:json:20220320'
     implementation 'junit:junit:4.13.2'
     implementation 'org.xerial:sqlite-jdbc:3.36.0.3'
 

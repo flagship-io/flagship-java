@@ -46,12 +46,12 @@ public class Event extends Hit<Event> {
     }
 
     /**
-     * Specifies a value for this event. must be non-negative. (optional)
+     * Specifies a value for this event. must be non-negative integer > 0. (optional)
      *
      * @param value value of the event
      */
-    public Event withEventValue(Number value) {
-        if (value != null)
+    public Event withEventValue(int value) {
+        if (value > 0)
             this.data.put(FlagshipConstants.HitKeyMap.EVENT_VALUE, value);
         return this;
     }

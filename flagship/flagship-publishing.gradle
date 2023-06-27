@@ -1,70 +1,63 @@
+apply plugin: 'signing'
 apply plugin: 'maven-publish'
-apply plugin: "com.jfrog.artifactory"
 apply plugin: 'jacoco'
 
-//./gradlew release
-artifactoryPublish.skip = true
-
-artifactory {
-    contextUrl = 'https://abtasty.jfrog.io/artifactory/'
-    publish {
-        repository {
-            repoKey = artifact_id
-            username = bintray_user
-            password = bintray_key
-            maven = true
-        }
-        defaults {
-            publishArtifacts = true
-            publishPom = true
-        }
-    }
+java {
+    withJavadocJar()
+    withSourcesJar()
 }
 
 project(':flagship') {
-    artifactoryPublish.dependsOn('build')
     publishing {
-
-        repositories {
-            maven {
-                name = 'local'
-                url = layout.buildDirectory.dir('local')
-            }
-        }
-
         publications {
-
             jar(MavenPublication) {
                 groupId = group_id
                 artifactId = artifact_id
                 version = flagship_version_name
-                artifact "$buildDir/libs/flagship-java-" + flagship_version_name + ".jar"
-                pom.withXml {
-                    def dependenciesNode = asNode().appendNode('dependencies')
-                    configurations.implementation.allDependencies.each { dependency ->
-                        if (dependency.name != "unspecified") {
-                            def dependencyNode = dependenciesNode.appendNode('dependency')
-                            dependencyNode.appendNode('groupId', dependency.group)
-                            dependencyNode.appendNode('artifactId', dependency.name)
-                            dependencyNode.appendNode('version', dependency.version)
+                from components.java
+                pom {
+                    name = artifact_id
+                    description = 'Visit https://developers.flagship.io/ to get started with Flagship.'
+                    url = 'https://github.com/flagship-io/flagship-android'
+                    licenses {
+                        license {
+                            name = 'Apache License 2.0'
+                            url = 'https://github.com/flagship-io/flagship-android/blob/master/LICENSE'
                         }
+                    }
+                    developers {
+                        developer {
+                            id = 'raf-abtasty'
+                            name = 'Raphael'
+                            email = 'raphael@abtasty.com'
+                        }
+                    }
+                    scm {
+                        connection = 'scm:git:github.com/flagship-io/flagship-android.git'
+                        developerConnection = 'scm:git:ssh:github.com/flagship-io/flagship-android.git'
+                        url = 'https://github.com/flagship-io/flagship-android/blob/master/'
                     }
                 }
             }
         }
-    }
 
-    artifactoryPublish {
-        publications(publishing.publications.jar)
-    }
-
-    task genArtifactFolder {
-        copy {
-            from "${buildDir}/local/com/abtasty/flagship-java/${flagship_version_name}/flagship-java-${flagship_version_name}.jar"
-            into "${buildDir}/publications/artifact"
-
-            from "${buildDir}/local/com/abtasty/flagship-java/${flagship_version_name}/flagship-java-${flagship_version_name}.pom"
-            into "${buildDir}/publications/artifact"
+        repositories {
+            maven {
+                name = "OSSRH"
+                url = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+                credentials {
+                    username = ossrhUsername
+                    password = ossrhPassword
+                }
+            }
         }
     }
+}
+
+signing {
+    sign publishing.publications.jar
+}
+
+tasks.withType(GenerateModuleMetadata) {
+    enabled = false
 }

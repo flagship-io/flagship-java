@@ -19,7 +19,7 @@ buildscript {
     if (flagship_version_code != null)
         rootProject.ext.flagship_version_code = flagship_version_code
     else
-        rootProject.ext.flagship_version_code = 1
+        rootProject.ext.flagship_version_code = 2
 
     if (bintray_user != null && bintray_key != null) {
         rootProject.ext.bintray_user = bintray_user

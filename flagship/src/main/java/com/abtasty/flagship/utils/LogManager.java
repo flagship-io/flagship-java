@@ -7,9 +7,9 @@ public abstract class LogManager {
 
     /**
      * This enum class defines Flagship log levels that can be used to control SDK outputs.
-     * <br/><br/>
+     * <br><br>
      * The levels in ascending order are : NONE(0), EXCEPTIONS(1), ERROR(2), WARNING(3), DEBUG(4), INFO(5), ALL(6).
-     * <br/><br/>
+     * <br><br>
      * <ul>
      * <li>NONE = 0: Logging will be disabled.</li>
      * <li>EXCEPTIONS = 1: Only caught exception will be logged.</li>

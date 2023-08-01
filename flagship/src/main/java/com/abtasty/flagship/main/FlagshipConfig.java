@@ -137,8 +137,7 @@ public abstract class FlagshipConfig<T> {
      *
      * @param customCacheManager custom implementation of cache manager.
      *
-     * @see CacheManager
-     * @See CacheManager.Builder
+     * See CacheManager
      */
     @SuppressWarnings("unchecked")
     public T withCacheManager(CacheManager customCacheManager) {

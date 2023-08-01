@@ -146,7 +146,7 @@ public class FlagshipContext<T> {
     public static final FlagshipContext<String> OS_VERSION_NAME = new FlagshipContext<>("OS_VERSION_NAME", "sdk_osVersionName");
 
     /**
-     * Define the current OS version code in the visitor context. Must be a Number >= 0.
+     * Define the current OS version code in the visitor context. Must be a Number superior or equals to 0.
      */
     @SuppressWarnings("unused")
     public static final FlagshipContext<Number> OS_VERSION_CODE = new FlagshipContext<Number>("OS_VERSION_CODE", "sdk_osVersionCode") {
@@ -176,7 +176,7 @@ public class FlagshipContext<T> {
     public static final FlagshipContext<String> APP_VERSION_NAME = new FlagshipContext<String>("APP_VERSION_NAME", "sdk_versionName");
 
     /**
-     * Define the current app version in the visitor context. Must be a Number >= 0.
+     * Define the current app version in the visitor context. Must be a Number superior or equals to 0.
      */
     @SuppressWarnings("unused")
     public static final FlagshipContext<Number> APP_VERSION_CODE = new FlagshipContext<Number>("APP_VERSION_CODE", "sdk_versionCode") {

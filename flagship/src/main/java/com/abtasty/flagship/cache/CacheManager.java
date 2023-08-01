@@ -5,8 +5,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * Cache Manager to implement for features that request cache functionalities.
  *
- * @See IVisitorCacheImplementation Implement IVisitorCacheImplementation interface in order to cache Visitor's data.
- * @See IHitCacheImplementation Implement IHitCacheImplementation in order to cache hits that failed to be sent.
+ * Have a look on IVisitorCacheImplementation interface in order to cache Visitor's data.
+ * Have a look on IHitCacheImplementation  in order to cache hits that failed to be sent.
  *
  */
 public abstract class CacheManager {

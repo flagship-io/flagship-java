@@ -35,7 +35,7 @@ jobs:
           bash ./gradlew generateBuildConfig
           bash ./gradlew assemble
           bash ./gradlew flagship:test
-          bash ./gradlew artifactoryPublish
+    #      bash ./gradlew artifactoryPublish
     - name: Coverage Report
       run: ./gradlew jacocoTestReport
     - name: Upload coverage to Codecov

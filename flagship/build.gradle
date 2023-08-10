@@ -1,3 +1,4 @@
+
 plugins {
     id 'java'
 }
@@ -40,7 +41,7 @@ dependencies {
 }
 
 jar {
-    archivesBaseName = artifact_id + "-" + flagship_version_name
+    archivesBaseName = maven_artifact_id + "-" + flagship_version_name
     configurations.runtimeClasspath.collect  { it.isDirectory() ? it : zipTree(it) }
 }
 

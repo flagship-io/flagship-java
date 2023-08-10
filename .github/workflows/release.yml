@@ -6,8 +6,6 @@ on:
     tags:
       - '*.*.*'
       - '*.*'
-
-
 jobs:
   build:
     name: Run Unit Tests
@@ -36,7 +34,7 @@ jobs:
       run: |
           bash ./gradlew clean
           bash ./gradlew generateBuildConfig
-          bash ./gradlew assemble
+          bash ./gradlew flagship:assemble
           bash ./gradlew flagship:test
           bash ./gradlew publishToSonatype closeSonatypeStagingRepository
     - name: Coverage Report

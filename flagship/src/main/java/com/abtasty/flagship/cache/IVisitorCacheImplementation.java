@@ -5,7 +5,7 @@ import org.json.JSONObject;
 
 /**
  *
- * This interface specifies the methods to implement in order to cache visitors.<br/>
+ * This interface specifies the methods to implement in order to cache visitors.<br>
  *
  * Visitor cache is used for :
  * - Retrieve campaign flags while offline.
@@ -32,7 +32,7 @@ public interface IVisitorCacheImplementation {
     /**
      * This method is called when visitor information should be cleared from the database.
      *
-     * @param visitorId unique visitor identifier whom cached information need to be cleared from the database.
+     * @param visitorId unique visitor identifier who cached information need to be cleared from the database.
      */
     void flushVisitor(String visitorId);
 

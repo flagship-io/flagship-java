@@ -6,8 +6,6 @@ on:
     tags:
       - '*.*.*'
       - '*.*'
-
-
 jobs:
   build:
     name: Run Unit Tests
@@ -28,14 +26,17 @@ jobs:
       run: gradle wrapper
     - name: Release (clean, assemble, test, publish)
       env:
-        ARTIFACTORY_USER: ${{ secrets.ARTIFACTORY_USER }}
-        ARTIFACTORY_KEY: ${{ secrets.ARTIFACTORY_KEY }}
+        SONATYPE_SIGNING_KEY: ${{ secrets.SONATYPE_SIGNING_KEY }}
+        SONATYPE_SIGNING_PWD: ${{ secrets.SONATYPE_SIGNING_PWD }}
+        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+        SONATYPE_REPOSITORY: ${{ secrets.SONATYPE_REPOSITORY }}
       run: |
           bash ./gradlew clean
           bash ./gradlew generateBuildConfig
-          bash ./gradlew assemble
+          bash ./gradlew flagship:assemble
           bash ./gradlew flagship:test
-    #      bash ./gradlew artifactoryPublish
+          bash ./gradlew publishToSonatype closeSonatypeStagingRepository
     - name: Coverage Report
       run: ./gradlew jacocoTestReport
     - name: Upload coverage to Codecov

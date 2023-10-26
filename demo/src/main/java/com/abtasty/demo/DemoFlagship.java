@@ -40,7 +40,7 @@ public class DemoFlagship {
         String value = visitor.getFlag("my_flag", "default").value(true);
         System.out.println("My flag value is : " + value);
         Thread.sleep(200);
-        visitor.sendHit(new Screen("flz"));
+        visitor.sendHit(new Screen("DemoFlagship.java"));
         visitor.sendHit(new Event(Event.EventCategory.USER_ENGAGEMENT, "action"));
         Thread.sleep(200);
     }

@@ -1,51 +1,30 @@
+apply plugin: 'io.github.gradle-nexus.publish-plugin'
 buildscript {
     ext {
-        artifact_id = "flagship-java"
-        group_id = "com.abtasty"
-        user_org = "abtasty"
-    }
+        maven_artifact_id = "flagship-java"
+        maven_repo = "flagship-java"
+        maven_group_id = "com.abtasty"
+        maven_user_org = "abtasty"
 
-    def flagship_version_name = System.getenv('FLAGSHIP_VERSION_NAME')
-    def flagship_version_code = System.getenv('FLAGSHIP_VERSION_CODE')
-
-    def bintray_user = System.getenv('ARTIFACTORY_USER')
-    def bintray_key = System.getenv('ARTIFACTORY_KEY')
-
-    if (flagship_version_name != null)
-        rootProject.ext.flagship_version_name = flagship_version_name
-    else
-        rootProject.ext.flagship_version_name = "3.0.6"
-
-    if (flagship_version_code != null)
-        rootProject.ext.flagship_version_code = flagship_version_code
-    else
-        rootProject.ext.flagship_version_code = 2
-
-    if (bintray_user != null && bintray_key != null) {
-        rootProject.ext.bintray_user = bintray_user
-        rootProject.ext.bintray_key = bintray_key
-    } else {
-        try {
-            def keystorePropertiesFile = file(getProjectDir().absolutePath+ "/keystore.properties")
-            def keystoreProperties = new Properties()
-            keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
-
-            rootProject.ext.bintray_user = keystoreProperties.getProperty("artifactory_user")
-            rootProject.ext.bintray_key = keystoreProperties.getProperty("artifactory_key")
-
-        } catch (Exception e) {
-            rootProject.ext.bintray_user = ''
-            rootProject.ext.bintray_key = ''
-            print e
-        }
+        flagship_version_name = System.getenv('FLAGSHIP_VERSION_NAME') ?: "3.0.6"
+        flagship_version_code = System.getenv('FLAGSHIP_VERSION_CODE') ?: 15
+        sonatype_signing_key = System.getenv('SONATYPE_SIGNING_KEY')
+        sonatype_signing_pwd = System.getenv('SONATYPE_SIGNING_PWD')
+        sonatype_username = System.getenv('SONATYPE_USERNAME') ?: ossrhUsername
+        sonatype_password = System.getenv('SONATYPE_PASSWORD') ?: ossrhPassword
+        sonatype_repository_id = System.getenv('SONATYPE_REPOSITORY') ?: stagingRepositoryId
     }
 
     repositories {
         google()
         mavenCentral()
+        maven { url 'https://jitpack.io' }
+        maven { url "https://plugins.gradle.org/m2/" }
     }
 
     dependencies {
+        classpath "io.github.gradle-nexus:publish-plugin:1.3.0"
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:2.7.0"
     }
 }
 
@@ -55,6 +34,20 @@ allprojects {
         mavenCentral()
     }
 }
+
+nexusPublishing {
+    repositories {
+        sonatype {
+            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+            stagingProfileId = sonatype_repository_id
+            username = sonatype_username
+            password = sonatype_password
+        }
+    }
+}
+
+apply plugin: "org.springframework.boot"
 
 task clean(type: Delete) {
     delete rootProject.buildDir

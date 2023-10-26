@@ -7,6 +7,11 @@ application {
     mainClass = 'com.abtasty.demo.DemoFlagship'
 }
 
+compileJava {
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+}
+
 group 'com.flagship.demo'
 version '1'
 

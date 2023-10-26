@@ -29,6 +29,7 @@ public class DemoFlagship {
         );
 
         flagshipReadyLatch.await();
+        //
         Visitor visitor = Flagship.newVisitor("visitor_id")
                 .context(new HashMap<String, Object>() {{
                     put("my_context", true);

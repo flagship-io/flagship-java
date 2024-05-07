@@ -17,7 +17,6 @@ public class DemoFlagship {
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
 
-
 //        System.out.println("> " + System.getProperty("java.version"));
 //        CountDownLatch flagshipReadyLatch = new CountDownLatch(1);
 //        Flagship.start("_ENV_ID_", "_API_KEY_",
@@ -44,9 +43,5 @@ public class DemoFlagship {
 //        visitor.sendHit(new Screen("DemoFlagship.java"));
 //        visitor.sendHit(new Event(Event.EventCategory.USER_ENGAGEMENT, "action"));
 //        Thread.sleep(200);
-
-
     }
-
-
 }

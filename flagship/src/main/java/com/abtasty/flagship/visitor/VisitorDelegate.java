@@ -18,15 +18,6 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class VisitorDelegate {
 
-//    public final ConfigManager                           configManager;
-//    public       String                                  visitorId;
-//    public       String                                  anonymousId;
-//    public       ConcurrentMap<String, Object>           context = new ConcurrentHashMap<>();
-//    public       ConcurrentMap<String, Modification>     modifications = new ConcurrentHashMap<>();
-//    public       ConcurrentLinkedQueue<String>           activatedVariations = new ConcurrentLinkedQueue<>();
-//    public       Boolean                                 hasConsented;
-//    public       Boolean                                 isAuthenticated;
-//    public       Visitor                                 originalVisitor;
     private final Visitor                                 originalVisitor;
     private final ConfigManager                           configManager;
     private       String                                  visitorId;
@@ -37,19 +28,17 @@ public class VisitorDelegate {
     private       Boolean                                 hasConsented;
     private       Boolean                                 isAuthenticated;
     private final ConcurrentHashMap<String, String>       assignmentsHistory = new ConcurrentHashMap<>();
-//    public       VisitorCache                            cachedVisitor;
 
     public VisitorDelegate(Visitor originalVisitor, ConfigManager configManager, String visitorId, Boolean isAuthenticated, Boolean hasConsented, HashMap<String, Object> context) {
         this.originalVisitor = originalVisitor;
         this.configManager = configManager;
-        this.visitorId = (visitorId == null || visitorId.length() <= 0) ? genVisitorId() : visitorId;
+        this.visitorId = (visitorId == null || visitorId.length() <= 0) ? genVisitorId(true) : visitorId;
         this.isAuthenticated = isAuthenticated;
         this.hasConsented = hasConsented;
         if (this.configManager.getFlagshipConfig().getDecisionMode() == Flagship.DecisionMode.API && isAuthenticated)
-            this.anonymousId = genVisitorId();
+            this.anonymousId = genVisitorId(false);
         else
             this.anonymousId = null;
-//        cachedVisitor = new VisitorCache(this);
         getStrategy().lookupVisitorCache();
         getStrategy().lookupHitCache();
         this.loadContext(context);
@@ -73,8 +62,9 @@ public class VisitorDelegate {
      *
      * @return a unique identifier
      */
-    private String genVisitorId() {
-        FlagshipLogManager.log(FlagshipLogManager.Tag.VISITOR, LogManager.Level.WARNING, FlagshipConstants.Warnings.VISITOR_ID_NULL_OR_EMPTY);
+    private String genVisitorId(Boolean warn) {
+        if (warn)
+            FlagshipLogManager.log(FlagshipLogManager.Tag.VISITOR, LogManager.Level.WARNING, FlagshipConstants.Warnings.VISITOR_ID_NULL_OR_EMPTY);
         return UUID.randomUUID().toString();
     }
 

@@ -1,3 +1,4 @@
+
 plugins {
     id 'java'
 }
@@ -19,8 +20,6 @@ task generateBuildConfig {
 compileJava.dependsOn generateBuildConfig
 compileTestJava.dependsOn generateBuildConfig
 
-
-
 sourceSets.main.java.srcDirs += ["$buildDir/generated/sources/buildConfig"]
 
 repositories {
@@ -28,9 +27,9 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.json:json:20220320'
+    implementation 'org.json:json:20230227'
     implementation 'junit:junit:4.13.2'
-    implementation 'org.xerial:sqlite-jdbc:3.36.0.3'
+    implementation 'org.xerial:sqlite-jdbc:3.42.0.0'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.0'
@@ -40,18 +39,13 @@ dependencies {
 }
 
 jar {
-    archivesBaseName = artifact_id + "-" + flagship_version_name
+    archivesBaseName = maven_artifact_id + "-" + flagship_version_name
     configurations.runtimeClasspath.collect  { it.isDirectory() ? it : zipTree(it) }
 }
 
-
 jacocoTestReport {
-    dependsOn test
     reports {
-        xml.enabled true
-        xml.destination file("${buildDir}/reports/jacoco/report.xml")
-        html.enabled true
-        csv.enabled true
+        html.outputLocation = file("${buildDir}/reports/jacoco/report.xml")
     }
     subprojects.each {
         sourceSets it.sourceSets.main

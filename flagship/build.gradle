@@ -5,6 +5,11 @@ plugins {
 
 apply from: 'flagship-publishing.gradle'
 
+compileJava {
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+}
+
 task generateBuildConfig {
     def outputDir = file("$buildDir/generated/sources/buildConfig/com/abtasty/flagship")
     outputDir.exists() || outputDir.mkdirs()
@@ -27,7 +32,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.json:json:20230227'
+    implementation 'org.json:json:20231013'
     implementation 'junit:junit:4.13.2'
     implementation 'org.xerial:sqlite-jdbc:3.42.0.0'
 

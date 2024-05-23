@@ -7,6 +7,11 @@ application {
     mainClass = 'com.abtasty.demo.DemoFlagship'
 }
 
+compileJava {
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+}
+
 group 'com.flagship.demo'
 version '1'
 
@@ -17,7 +22,7 @@ repositories {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':flagship')
-    implementation 'org.json:json:20230227'
+    implementation 'org.json:json:20231013'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.0'
     implementation('com.squareup.okhttp3:okhttp:4.9.1')

@@ -6,7 +6,7 @@ buildscript {
         maven_group_id = "com.abtasty"
         maven_user_org = "abtasty"
 
-        flagship_version_name = System.getenv('FLAGSHIP_VERSION_NAME') ?: "3.0.6"
+        flagship_version_name = System.getenv('FLAGSHIP_VERSION_NAME') ?: "3.0.8"
         flagship_version_code = System.getenv('FLAGSHIP_VERSION_CODE') ?: 15
         sonatype_signing_key = System.getenv('SONATYPE_SIGNING_KEY')
         sonatype_signing_pwd = System.getenv('SONATYPE_SIGNING_PWD')

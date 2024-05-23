@@ -1274,6 +1274,7 @@ public class FlagshipIntegrationTests {
     @Test
     public void test_cache_sqlite() throws InterruptedException, ExecutionException, IOException {
 
+        Files.deleteIfExists(new File("./database_test/flagship_database.db").toPath());
         CountDownLatch readyCDL = new CountDownLatch(1);
         mockResponse(String.format(FlagshipIntegrationHelper.BUCKETING_URL, FlagshipIntegrationHelper._ENV_ID_),
                 200, responseFromAssets("bucketing_response_1.json"));
